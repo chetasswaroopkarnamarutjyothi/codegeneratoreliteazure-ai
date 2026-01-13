@@ -24,22 +24,19 @@ export default function Auth() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session?.user) {
+    // Only check for existing session on mount, don't auto-navigate on auth change
+    // because we need to show 2FA first
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      // If user is already logged in and not in 2FA flow, redirect
+      if (session?.user && !show2FA) {
+        // Check if they've completed 2FA (stored in sessionStorage)
+        const has2FACompleted = sessionStorage.getItem('2fa_completed');
+        if (has2FACompleted === 'true') {
           navigate("/");
         }
       }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate("/");
-      }
     });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, show2FA]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +83,8 @@ export default function Auth() {
     // Simple 2FA simulation - in production use TOTP or SMS verification
     // For demo purposes, any 6-digit code works
     if (otpCode.length === 6) {
+      // Mark 2FA as completed
+      sessionStorage.setItem('2fa_completed', 'true');
       toast({ title: "Welcome back!", description: "2FA verification successful." });
       // The session is already active from the login
       navigate("/");

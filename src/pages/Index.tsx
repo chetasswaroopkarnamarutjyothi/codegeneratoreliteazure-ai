@@ -40,6 +40,7 @@ export default function Index() {
   }, [navigate]);
 
   const handleLogout = async () => {
+    sessionStorage.removeItem('2fa_completed');
     await supabase.auth.signOut();
     navigate("/auth");
   };
