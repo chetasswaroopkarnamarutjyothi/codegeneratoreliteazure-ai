@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, Code2, LogOut } from "lucide-react";
+import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import CodeGenerator from "@/components/CodeGenerator";
-import type { User } from "@supabase/supabase-js";
+import AppGenerator from "@/components/AppGenerator";
+import CodeVerifier from "@/components/CodeVerifier";
+import ToolSelector, { ToolType } from "@/components/ToolSelector";
+import WelcomeScreen from "@/components/WelcomeScreen";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export default function Index() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [selectedTool, setSelectedTool] = useState<ToolType>("code-generator");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +54,43 @@ export default function Index() {
 
   if (!user) return null;
 
+  if (showWelcome) {
+    return <WelcomeScreen onContinue={() => setShowWelcome(false)} />;
+  }
+
+  const getToolTitle = () => {
+    switch (selectedTool) {
+      case "code-generator":
+        return { text: "Code", gradient: true };
+      case "app-generator":
+        return { text: "App", gradient: true };
+      case "code-verifier":
+        return { text: "Code", gradient: true };
+    }
+  };
+
+  const getToolSubtitle = () => {
+    switch (selectedTool) {
+      case "code-generator":
+        return "Generator";
+      case "app-generator":
+        return "Generator";
+      case "code-verifier":
+        return "Verifier";
+    }
+  };
+
+  const getToolDescription = () => {
+    switch (selectedTool) {
+      case "code-generator":
+        return "Transform your ideas into production-ready code. Simply describe what you need, select your language, and let AI do the heavy lifting.";
+      case "app-generator":
+        return "Generate complete applications with all the components, logic, and styling you need. Describe your app and watch it come to life.";
+      case "code-verifier":
+        return "Paste your code to check for errors, bugs, and get suggestions for improvements. Keep your code clean and error-free.";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Background effects */}
@@ -73,25 +116,31 @@ export default function Index() {
         </div>
 
         {/* Header */}
-        <header className="text-center mb-12">
+        <header className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
             <span>Powered by AI</span>
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">
-            <span className="gradient-text animate-gradient">Code</span>
-            <span className="text-foreground"> Generator</span>
+            <span className="gradient-text animate-gradient">{getToolTitle().text}</span>
+            <span className="text-foreground"> {getToolSubtitle()}</span>
           </h1>
 
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Transform your ideas into production-ready code. Simply describe what you need,
-            select your language, and let AI do the heavy lifting.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+            {getToolDescription()}
           </p>
+
+          {/* Tool Selector */}
+          <ToolSelector value={selectedTool} onChange={setSelectedTool} />
         </header>
 
-        {/* Main Generator */}
-        <CodeGenerator />
+        {/* Main Content */}
+        <div className="mt-8">
+          {selectedTool === "code-generator" && <CodeGenerator />}
+          {selectedTool === "app-generator" && <AppGenerator />}
+          {selectedTool === "code-verifier" && <CodeVerifier />}
+        </div>
 
         {/* Feature Cards */}
         <div className="grid md:grid-cols-3 gap-4 mt-12 max-w-4xl mx-auto">
@@ -102,14 +151,26 @@ export default function Index() {
           />
           <FeatureCard
             icon={<Code2 className="w-5 h-5" />}
-            title="15+ Languages"
-            description="TypeScript, Python, Rust, Go, and more"
+            title="35+ Languages"
+            description="TypeScript, Python, Angular, React, and more"
           />
           <FeatureCard
             icon={<Sparkles className="w-5 h-5" />}
             title="Smart Context"
             description="AI understands best practices and patterns"
           />
+        </div>
+
+        {/* Author Credit */}
+        <div className="text-center mt-12">
+          <div className="glass rounded-xl p-4 inline-flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+              <User className="w-4 h-4" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">Code Author:</span> Karnam Chetas Swaroop
+            </p>
+          </div>
         </div>
       </div>
 
