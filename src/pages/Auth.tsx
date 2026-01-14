@@ -1,75 +1,118 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Mail, Lock, ArrowRight, Shield, User } from "lucide-react";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users } from "lucide-react";
+
+type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked";
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [step, setStep] = useState<AuthStep>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [age, setAge] = useState("");
+  const [parentEmail, setParentEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [show2FA, setShow2FA] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
-  const [tempSession, setTempSession] = useState<any>(null);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only check for existing session on mount, don't auto-navigate on auth change
-    // because we need to show 2FA first
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      // If user is already logged in and not in 2FA flow, redirect
-      if (session?.user && !show2FA) {
-        // Check if they've completed 2FA (stored in sessionStorage)
-        const has2FACompleted = sessionStorage.getItem('2fa_completed');
-        if (has2FACompleted === 'true') {
+    // Check if user is coming from email verification
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        // Check if user is blocked
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_blocked, full_name")
+          .eq("user_id", session.user.id)
+          .single();
+
+        if (profile?.is_blocked) {
+          setStep("blocked");
+          await supabase.auth.signOut();
+          return;
+        }
+
+        // If profile exists, go to main page
+        if (profile) {
+          sessionStorage.setItem('2fa_completed', 'true');
           navigate("/");
+          return;
+        }
+
+        // If no profile, need to set up profile
+        setStep("profile-setup");
+      }
+    };
+
+    checkSession();
+
+    // Listen for auth state changes (including email verification)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        // Check for profile
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_blocked, full_name")
+          .eq("user_id", session.user.id)
+          .single();
+
+        if (profile?.is_blocked) {
+          setStep("blocked");
+          await supabase.auth.signOut();
+          return;
+        }
+
+        if (profile) {
+          sessionStorage.setItem('2fa_completed', 'true');
+          navigate("/");
+        } else {
+          setStep("profile-setup");
         }
       }
     });
-  }, [navigate, show2FA]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        
-        // Simulate 2FA - in production, you'd use a proper 2FA service
-        setTempSession(data.session);
-        setShow2FA(true);
-        toast({ title: "2FA Required", description: "Please enter the verification code." });
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
-        if (error) throw error;
-        toast({ title: "Account created!", description: "You can now log in with 2FA verification." });
-        setIsLogin(true);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Check if user is blocked
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_blocked")
+        .eq("user_id", data.user.id)
+        .single();
+
+      if (profile?.is_blocked) {
+        await supabase.auth.signOut();
+        setStep("blocked");
+        return;
       }
+
+      sessionStorage.setItem('2fa_completed', 'true');
+      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Something went wrong",
+        description: error.message || "Login failed",
         variant: "destructive",
       });
     } finally {
@@ -77,109 +120,172 @@ export default function Auth() {
     }
   };
 
-  const verify2FA = async () => {
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
-    
-    // Simple 2FA simulation - in production use TOTP or SMS verification
-    // For demo purposes, any 6-digit code works
-    if (otpCode.length === 6) {
-      // Mark 2FA as completed
-      sessionStorage.setItem('2fa_completed', 'true');
-      toast({ title: "Welcome back!", description: "2FA verification successful." });
-      // The session is already active from the login
-      navigate("/");
-    } else {
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
+        },
+      });
+
+      if (error) throw error;
+
+      setStep("email-sent");
       toast({
-        title: "Invalid Code",
-        description: "Please enter a valid 6-digit code",
+        title: "Verification email sent!",
+        description: "Please check your email and click the link to verify your account.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Signup failed",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  if (show2FA) {
+  const handleProfileSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const ageNum = parseInt(age);
+    if (isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
+      toast({
+        title: "Invalid age",
+        description: "Please enter a valid age",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (ageNum < 18 && !parentEmail) {
+      toast({
+        title: "Parent email required",
+        description: "Users under 18 must provide a parent's email",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("No session");
+
+      // Create profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert({
+          user_id: session.user.id,
+          email: session.user.email!,
+          full_name: fullName,
+          age: ageNum,
+          parent_email: ageNum < 18 ? parentEmail : null,
+        });
+
+      if (profileError) throw profileError;
+
+      // Initialize user points
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .single();
+
+      const isAdmin = !!roleData;
+
+      const { error: pointsError } = await supabase
+        .from("user_points")
+        .insert({
+          user_id: session.user.id,
+          daily_points: isAdmin ? 500 : 50,
+          monthly_points: isAdmin ? 8500 : 0,
+        });
+
+      if (pointsError) throw pointsError;
+
+      sessionStorage.setItem('2fa_completed', 'true');
+      toast({
+        title: "Profile created!",
+        description: "Welcome to Leo AI Platform",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create profile",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Blocked user screen
+  if (step === "blocked") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        {/* Background effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-destructive/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-destructive/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10 w-full max-w-md text-center">
+          <div className="glass rounded-2xl p-8">
+            <div className="p-4 rounded-full bg-destructive/20 text-destructive w-fit mx-auto mb-6">
+              <Shield className="w-12 h-12" />
+            </div>
+            <h1 className="text-2xl font-bold mb-4 text-destructive">Access Denied</h1>
+            <p className="text-muted-foreground mb-6">
+              Your account has been blocked. You are no longer able to access this platform.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              If you believe this is an error, please contact support.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Email sent screen
+  if (step === "email-sent") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_hsl(var(--background))_70%)]" />
         </div>
 
-        <div className="relative z-10 w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
-              <Shield className="w-4 h-4" />
-              <span>Two-Factor Authentication</span>
+        <div className="relative z-10 w-full max-w-md text-center">
+          <div className="glass rounded-2xl p-8">
+            <div className="p-4 rounded-full bg-primary/20 text-primary w-fit mx-auto mb-6">
+              <Mail className="w-12 h-12" />
             </div>
-            <h1 className="text-3xl font-bold mb-2">Enter Verification Code</h1>
-            <p className="text-muted-foreground">
-              Enter the 6-digit code to complete login
+            <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
+            <p className="text-muted-foreground mb-6">
+              We've sent a verification link to <strong>{email}</strong>. 
+              Please click the link to verify your account.
             </p>
-          </div>
-
-          <div className="glass rounded-2xl p-6 glow-border">
-            <div className="space-y-6">
-              <div className="flex justify-center">
-                <InputOTP
-                  maxLength={6}
-                  value={otpCode}
-                  onChange={(value) => setOtpCode(value)}
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-
-              <p className="text-xs text-muted-foreground text-center">
-                For demo purposes, enter any 6-digit code
-              </p>
-
-              <Button
-                onClick={verify2FA}
-                className="w-full bg-primary hover:bg-primary/90"
-                disabled={loading || otpCode.length !== 6}
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    Verifying...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    Verify & Continue
-                    <ArrowRight className="w-4 h-4" />
-                  </span>
-                )}
-              </Button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setShow2FA(false);
-                  setOtpCode("");
-                }}
-                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Back to login
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center space-y-2">
-            <div className="glass rounded-xl p-4 inline-block">
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">Code Author:</span> Karnam Chetas Swaroop
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground mb-6">
+              After verification, you'll be able to complete your profile setup.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => setStep("login")}
+              className="w-full"
+            >
+              Back to Login
+            </Button>
           </div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
@@ -190,9 +296,115 @@ export default function Auth() {
     );
   }
 
+  // Profile setup screen
+  if (step === "profile-setup") {
+    const ageNum = parseInt(age) || 0;
+    const showParentEmail = ageNum > 0 && ageNum < 18;
+
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10 w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
+              <User className="w-4 h-4" />
+              <span>Complete Your Profile</span>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">Almost There!</h1>
+            <p className="text-muted-foreground">
+              Please provide a few more details to complete your account setup.
+            </p>
+          </div>
+
+          <div className="glass rounded-2xl p-6 glow-border">
+            <form onSubmit={handleProfileSetup} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="pl-10 bg-background/50 border-border/50 focus:border-primary"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="age">Age</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  placeholder="Your age"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="bg-background/50 border-border/50 focus:border-primary"
+                  required
+                  min={1}
+                  max={120}
+                />
+              </div>
+
+              {showParentEmail && (
+                <div className="space-y-2">
+                  <Label htmlFor="parentEmail">Parent's Email</Label>
+                  <div className="relative">
+                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="parentEmail"
+                      type="email"
+                      placeholder="Parent's email address"
+                      value={parentEmail}
+                      onChange={(e) => setParentEmail(e.target.value)}
+                      className="pl-10 bg-background/50 border-border/50 focus:border-primary"
+                      required
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Since you're under 18, your parent will be notified of your activities.
+                  </p>
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    Setting up...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Complete Setup
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                )}
+              </Button>
+            </form>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            © {new Date().getFullYear()} Leo AI Limited. All rights reserved.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Login/Signup screen
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Background effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
@@ -206,17 +418,17 @@ export default function Auth() {
             <span>Leo AI Platform</span>
           </div>
           <h1 className="text-3xl font-bold mb-2">
-            {isLogin ? "Welcome Back" : "Create Account"}
+            {step === "login" ? "Welcome Back" : "Create Account"}
           </h1>
           <p className="text-muted-foreground">
-            {isLogin
+            {step === "login"
               ? "Sign in to access Code Generator, App Generator & Code Verifier"
               : "Join to start using AI-powered development tools"}
           </p>
         </div>
 
         <div className="glass rounded-2xl p-6 glow-border">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={step === "login" ? handleLogin : handleSignup} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -250,10 +462,10 @@ export default function Auth() {
               </div>
             </div>
 
-            {isLogin && (
+            {step === "signup" && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 rounded-lg p-3">
-                <Shield className="w-4 h-4 text-primary" />
-                <span>2FA verification will be required after login</span>
+                <Mail className="w-4 h-4 text-primary" />
+                <span>A verification link will be sent to your email</span>
               </div>
             )}
 
@@ -265,11 +477,11 @@ export default function Auth() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  {isLogin ? "Signing in..." : "Creating account..."}
+                  {step === "login" ? "Signing in..." : "Creating account..."}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  {isLogin ? "Sign In" : "Create Account"}
+                  {step === "login" ? "Sign In" : "Create Account"}
                   <ArrowRight className="w-4 h-4" />
                 </span>
               )}
@@ -279,10 +491,10 @@ export default function Auth() {
           <div className="mt-6 text-center">
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => setStep(step === "login" ? "signup" : "login")}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              {isLogin ? (
+              {step === "login" ? (
                 <>
                   Don't have an account?{" "}
                   <span className="text-primary font-medium">Sign up</span>
