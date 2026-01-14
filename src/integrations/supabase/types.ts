@@ -14,16 +14,235 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      otp_codes: {
+        Row: {
+          code: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          used: boolean | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          used?: boolean | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          used?: boolean | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          plan_type: string
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          plan_type: string
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          plan_type?: string
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      point_grants: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          id: string
+          points_granted: number
+          reason: string | null
+          target_user_id: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          id?: string
+          points_granted: number
+          reason?: string | null
+          target_user_id: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          id?: string
+          points_granted?: number
+          reason?: string | null
+          target_user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_blocked: boolean | null
+          parent_email: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age: number
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          is_blocked?: boolean | null
+          parent_email?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_blocked?: boolean | null
+          parent_email?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usage_history: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          language: string | null
+          points_used: number | null
+          prompt: string | null
+          result: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          points_used?: number | null
+          prompt?: string | null
+          result?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          points_used?: number | null
+          prompt?: string | null
+          result?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_points: {
+        Row: {
+          created_at: string
+          daily_points: number
+          id: string
+          is_premium: boolean | null
+          last_daily_reset: string
+          last_monthly_reset: string
+          monthly_points: number
+          premium_expires_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_points?: number
+          id?: string
+          is_premium?: boolean | null
+          last_daily_reset?: string
+          last_monthly_reset?: string
+          monthly_points?: number
+          premium_expires_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_points?: number
+          id?: string
+          is_premium?: boolean | null
+          last_daily_reset?: string
+          last_monthly_reset?: string
+          monthly_points?: number
+          premium_expires_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +369,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user", "premium"],
+    },
   },
 } as const
