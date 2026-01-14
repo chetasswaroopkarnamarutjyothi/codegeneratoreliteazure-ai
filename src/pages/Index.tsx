@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User } from "lucide-react";
+import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import CodeGenerator from "@/components/CodeGenerator";
 import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
 import WelcomeScreen from "@/components/WelcomeScreen";
+import { useUserPoints } from "@/hooks/useUserPoints";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export default function Index() {
@@ -104,7 +106,15 @@ export default function Index() {
       <div className="relative z-10 container mx-auto px-4 py-12 flex-1">
         {/* User menu */}
         <div className="absolute top-4 right-4 flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">{user.email}</span>
+          <PointsDisplay userId={user.id} />
+          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+            <LayoutDashboard className="w-4 h-4 mr-1" />
+            Dashboard
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
+            <Settings className="w-4 h-4 mr-1" />
+            Profile
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -202,5 +212,17 @@ function FeatureCard({
       <h3 className="font-semibold mb-1">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>
+  );
+}
+
+function PointsDisplay({ userId }: { userId: string }) {
+  const { points, isAdmin, getTotalPoints } = useUserPoints(userId);
+  
+  return (
+    <Badge variant="outline" className="bg-primary/10 border-primary/30">
+      <Zap className="w-3 h-3 mr-1 text-primary" />
+      {getTotalPoints()} pts
+      {isAdmin && <Shield className="w-3 h-3 ml-1 text-yellow-500" />}
+    </Badge>
   );
 }
