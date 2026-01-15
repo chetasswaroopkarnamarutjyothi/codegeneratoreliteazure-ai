@@ -15,7 +15,11 @@ import {
   Gift, 
   Ban, 
   CheckCircle,
-  Crown
+  Crown,
+  Wallet,
+  ArrowRightLeft,
+  Loader2,
+  Banknote
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
@@ -34,6 +38,15 @@ interface UserPointsData {
   daily_points: number;
   monthly_points: number;
   is_premium: boolean;
+  approval_bank_credits: number;
+  reserved_credits: number;
+}
+
+interface AdminCredits {
+  daily_points: number;
+  monthly_points: number;
+  approval_bank_credits: number;
+  reserved_credits: number;
 }
 
 export default function Admin() {
@@ -46,6 +59,9 @@ export default function Admin() {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [grantPoints, setGrantPoints] = useState("");
   const [grantReason, setGrantReason] = useState("");
+  const [adminCredits, setAdminCredits] = useState<AdminCredits | null>(null);
+  const [transferAmount, setTransferAmount] = useState("");
+  const [isTransferring, setIsTransferring] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -77,12 +93,27 @@ export default function Admin() {
       }
 
       setIsAdmin(true);
-      await fetchUsers();
+      await Promise.all([fetchUsers(), fetchAdminCredits(session.user.id)]);
       setLoading(false);
     };
 
     checkAdmin();
   }, [navigate, toast]);
+
+  const fetchAdminCredits = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_points")
+        .select("daily_points, monthly_points, approval_bank_credits, reserved_credits")
+        .eq("user_id", userId)
+        .single();
+
+      if (error) throw error;
+      setAdminCredits(data);
+    } catch (error: any) {
+      console.error("Failed to fetch admin credits:", error);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -116,7 +147,57 @@ export default function Admin() {
     }
   };
 
-  const handleGrantPoints = async () => {
+  const handleTransferToBank = async () => {
+    if (!user || !transferAmount) return;
+
+    const amount = parseInt(transferAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid positive number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (adminCredits && amount > adminCredits.daily_points) {
+      toast({
+        title: "Insufficient credits",
+        description: "You don't have enough daily credits to transfer",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsTransferring(true);
+
+    try {
+      // Use the database function to transfer credits
+      const { error } = await supabase.rpc("transfer_to_approval_bank", {
+        amount: amount,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Transfer successful!",
+        description: `${amount.toLocaleString()} credits moved to Approval Bank`,
+      });
+
+      setTransferAmount("");
+      await fetchAdminCredits(user.id);
+    } catch (error: any) {
+      toast({
+        title: "Transfer failed",
+        description: error.message || "Failed to transfer credits",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTransferring(false);
+    }
+  };
+
+  const handleGrantFromBank = async () => {
     if (!selectedUser || !grantPoints || !user) return;
 
     const points = parseInt(grantPoints);
@@ -129,41 +210,39 @@ export default function Admin() {
       return;
     }
 
+    // Check if admin has enough in approval bank
+    if (adminCredits && points > (adminCredits.approval_bank_credits || 0)) {
+      toast({
+        title: "Insufficient bank credits",
+        description: "You don't have enough credits in your Approval Bank. Transfer more first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Record the grant
-      const { error: grantError } = await supabase.from("point_grants").insert({
-        admin_user_id: user.id,
+      // Use the database function to grant credits from bank
+      const { error } = await supabase.rpc("grant_credits_from_bank", {
         target_user_id: selectedUser.user_id,
-        points_granted: points,
-        reason: grantReason || null,
+        amount: points,
+        grant_reason: grantReason || null,
       });
 
-      if (grantError) throw grantError;
-
-      // Update user's points
-      const currentPoints = userPoints.get(selectedUser.user_id);
-      const newDailyPoints = (currentPoints?.daily_points || 0) + points;
-
-      const { error: updateError } = await supabase
-        .from("user_points")
-        .update({ daily_points: newDailyPoints })
-        .eq("user_id", selectedUser.user_id);
-
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       toast({
-        title: "Points granted!",
-        description: `${points} points added to ${selectedUser.full_name}`,
+        title: "Credits granted!",
+        description: `${points.toLocaleString()} credits sent to ${selectedUser.full_name} from Approval Bank`,
       });
 
       setSelectedUser(null);
       setGrantPoints("");
       setGrantReason("");
-      await fetchUsers();
+      await Promise.all([fetchUsers(), fetchAdminCredits(user.id)]);
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to grant points",
+        description: error.message || "Failed to grant credits",
         variant: "destructive",
       });
     }
@@ -230,13 +309,116 @@ export default function Admin() {
               <Shield className="w-8 h-8 text-primary" />
               Admin Panel
             </h1>
-            <p className="text-muted-foreground">Manage users and grant points</p>
+            <p className="text-muted-foreground">Manage users and grant credits</p>
           </div>
           <Badge variant="secondary" className="bg-primary/20 text-primary">
             <Crown className="w-3 h-3 mr-1" />
             Admin
           </Badge>
         </div>
+
+        {/* Admin Credits Overview */}
+        {adminCredits && (
+          <div className="grid md:grid-cols-4 gap-4 mb-6">
+            <Card className="glass">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/20">
+                    <Wallet className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Daily Credits</p>
+                    <p className="text-2xl font-bold">{adminCredits.daily_points.toLocaleString()}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="glass">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-accent/20">
+                    <Crown className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Monthly Credits</p>
+                    <p className="text-2xl font-bold">{adminCredits.monthly_points.toLocaleString()}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="glass border-green-500/30">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-green-500/20">
+                    <Banknote className="w-5 h-5 text-green-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Approval Bank</p>
+                    <p className="text-2xl font-bold text-green-500">
+                      {(adminCredits.approval_bank_credits || 0).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="glass">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-yellow-500/20">
+                    <ArrowRightLeft className="w-5 h-5 text-yellow-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Reserved</p>
+                    <p className="text-2xl font-bold">{(adminCredits.reserved_credits || 0).toLocaleString()}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Transfer to Approval Bank */}
+        <Card className="glass mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ArrowRightLeft className="w-5 h-5 text-green-500" />
+              Transfer to Approval Bank
+            </CardTitle>
+            <CardDescription>
+              Move credits from your daily limit to the Approval Bank for granting to users
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 items-end">
+              <div className="flex-1 space-y-2">
+                <Label>Amount to Transfer</Label>
+                <Input
+                  type="number"
+                  placeholder="Enter credits amount"
+                  value={transferAmount}
+                  onChange={(e) => setTransferAmount(e.target.value)}
+                  min={1}
+                  max={adminCredits?.daily_points || 0}
+                />
+              </div>
+              <Button 
+                onClick={handleTransferToBank} 
+                disabled={isTransferring || !transferAmount}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isTransferring ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <ArrowRightLeft className="w-4 h-4 mr-2" />
+                )}
+                Transfer to Bank
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Credits in the Approval Bank can be granted to users who need immediate credits.
+            </p>
+          </CardContent>
+        </Card>
 
         {/* Search */}
         <Card className="glass mb-6">
@@ -253,41 +435,42 @@ export default function Admin() {
           </CardContent>
         </Card>
 
-        {/* Grant Points Modal */}
+        {/* Grant Credits Modal */}
         {selectedUser && (
-          <Card className="glass glow-border mb-6">
+          <Card className="glass glow-border mb-6 border-green-500/30">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Gift className="w-5 h-5 text-primary" />
-                Grant Points to {selectedUser.full_name}
+                <Gift className="w-5 h-5 text-green-500" />
+                Grant Credits to {selectedUser.full_name}
               </CardTitle>
               <CardDescription>
-                Add extra points to this user's account
+                Grant credits from your Approval Bank (Available: {(adminCredits?.approval_bank_credits || 0).toLocaleString()})
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Points to Grant</Label>
+                <Label>Credits to Grant</Label>
                 <Input
                   type="number"
-                  placeholder="Enter points amount"
+                  placeholder="Enter credits amount"
                   value={grantPoints}
                   onChange={(e) => setGrantPoints(e.target.value)}
                   min={1}
+                  max={adminCredits?.approval_bank_credits || 0}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Reason (Optional)</Label>
                 <Input
-                  placeholder="Reason for granting points"
+                  placeholder="Reason for granting credits"
                   value={grantReason}
                   onChange={(e) => setGrantReason(e.target.value)}
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleGrantPoints} className="flex-1">
+                <Button onClick={handleGrantFromBank} className="flex-1 bg-green-600 hover:bg-green-700">
                   <Gift className="w-4 h-4 mr-2" />
-                  Grant Points
+                  Grant from Bank
                 </Button>
                 <Button
                   variant="outline"
