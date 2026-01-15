@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserPoints } from "@/hooks/useUserPoints";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, User, Mail, Users, Calendar, Save, Lock } from "lucide-react";
+import { ArrowLeft, User, Mail, Users, Calendar, Save, Lock, Camera, AtSign, AlertCircle } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export default function Profile() {
@@ -17,6 +20,10 @@ export default function Profile() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [parentEmail, setParentEmail] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -34,7 +41,8 @@ export default function Profile() {
     checkSession();
   }, [navigate]);
 
-  const { profile, updateProfile, loading: profileLoading } = useUserProfile(user?.id);
+  const { profile, updateProfile, loading: profileLoading, refetch } = useUserProfile(user?.id);
+  const { subscriptionType, isAdmin } = useUserPoints(user?.id);
 
   useEffect(() => {
     if (profile) {
@@ -44,8 +52,75 @@ export default function Profile() {
     }
   }, [profile]);
 
+  const canChangeAvatar = () => {
+    if (!profile?.avatar_updated_at) return true;
+    const lastUpdate = new Date(profile.avatar_updated_at);
+    const sixMonthsLater = new Date(lastUpdate);
+    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+    return new Date() >= sixMonthsLater;
+  };
+
+  const getNextAvatarChangeDate = () => {
+    if (!profile?.avatar_updated_at) return null;
+    const lastUpdate = new Date(profile.avatar_updated_at);
+    const sixMonthsLater = new Date(lastUpdate);
+    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+    return sixMonthsLater;
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!canChangeAvatar()) {
+        toast({
+          title: "Cannot change avatar",
+          description: `You can change your avatar after ${getNextAvatarChangeDate()?.toLocaleDateString()}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadAvatar = async (): Promise<string | null> => {
+    if (!avatarFile || !user) return null;
+
+    setUploadingAvatar(true);
+    try {
+      // For simplicity, we'll store avatar as base64 in the profile
+      // In production, you'd use Supabase Storage
+      const reader = new FileReader();
+      return new Promise((resolve, reject) => {
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(avatarFile);
+      });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!profile) return;
+
+    // Check if profile picture is required and missing
+    if (!profile.avatar_url && !avatarPreview) {
+      toast({
+        title: "Profile picture required",
+        description: "Please upload a profile picture to continue",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setSaving(true);
     try {
@@ -59,6 +134,15 @@ export default function Profile() {
         updates.parent_email = parentEmail || null;
       }
 
+      // Upload avatar if changed
+      if (avatarFile) {
+        const avatarUrl = await uploadAvatar();
+        if (avatarUrl) {
+          updates.avatar_url = avatarUrl;
+          updates.avatar_updated_at = new Date().toISOString();
+        }
+      }
+
       const { error } = await updateProfile(updates);
 
       if (error) throw new Error(error);
@@ -67,6 +151,10 @@ export default function Profile() {
         title: "Profile updated",
         description: "Your profile has been saved successfully.",
       });
+      
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      refetch();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -97,6 +185,8 @@ export default function Profile() {
     );
   }
 
+  const needsAvatar = !profile.avatar_url && !avatarPreview;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -119,6 +209,17 @@ export default function Profile() {
           </div>
         </div>
 
+        {needsAvatar && (
+          <Card className="glass border-destructive/50 mb-6">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 text-destructive">
+                <AlertCircle className="w-5 h-5" />
+                <p className="font-medium">Profile picture is required. Please upload one to continue.</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="glass glow-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -130,6 +231,65 @@ export default function Profile() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Avatar Section */}
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <Avatar className="w-24 h-24">
+                  <AvatarImage src={avatarPreview || profile.avatar_url || undefined} />
+                  <AvatarFallback className="text-2xl">
+                    {fullName?.charAt(0)?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={() => canChangeAvatar() && fileInputRef.current?.click()}
+                  className={`absolute bottom-0 right-0 p-2 rounded-full bg-primary text-primary-foreground ${
+                    canChangeAvatar() ? "cursor-pointer hover:bg-primary/90" : "opacity-50 cursor-not-allowed"
+                  }`}
+                  disabled={!canChangeAvatar()}
+                >
+                  <Camera className="w-4 h-4" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium">Profile Picture</p>
+                {canChangeAvatar() ? (
+                  <p className="text-sm text-muted-foreground">
+                    {needsAvatar ? "Required: Upload a profile picture" : "Click the camera icon to change"}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Can be changed after {getNextAvatarChangeDate()?.toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Username (Auto-generated) */}
+            {profile.username && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <AtSign className="w-4 h-4" />
+                  Username
+                  <Lock className="w-3 h-3 text-muted-foreground" />
+                </Label>
+                <Input
+                  value={profile.username}
+                  className="bg-muted/50"
+                  disabled
+                />
+                <p className="text-xs text-muted-foreground">
+                  Auto-generated username for login
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
               <div className="relative">
@@ -203,10 +363,10 @@ export default function Profile() {
             <div className="pt-4">
               <Button
                 onClick={handleSave}
-                disabled={saving}
+                disabled={saving || uploadingAvatar}
                 className="w-full"
               >
-                {saving ? (
+                {saving || uploadingAvatar ? (
                   <span className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                     Saving...
@@ -230,6 +390,12 @@ export default function Profile() {
             <p>
               <span className="font-medium text-foreground">Account ID:</span>{" "}
               {user?.id.slice(0, 8)}...
+            </p>
+            <p>
+              <span className="font-medium text-foreground">Subscription:</span>{" "}
+              <Badge variant="outline" className="ml-1">
+                {isAdmin ? "Admin" : subscriptionType === "pro_plus" ? "Pro+" : subscriptionType === "pro" ? "Pro" : "Free"}
+              </Badge>
             </p>
             <p>
               <span className="font-medium text-foreground">Member since:</span>{" "}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield } from "lucide-react";
+import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import CodeVerifier from "@/components/CodeVerifier";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import { useUserPoints } from "@/hooks/useUserPoints";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export default function Index() {
@@ -111,6 +112,10 @@ export default function Index() {
             <LayoutDashboard className="w-4 h-4 mr-1" />
             Dashboard
           </Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/projects")}>
+            <FolderOpen className="w-4 h-4 mr-1" />
+            Projects
+          </Button>
           <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
             <Settings className="w-4 h-4 mr-1" />
             Profile
@@ -148,9 +153,9 @@ export default function Index() {
 
         {/* Main Content */}
         <div className="mt-8">
-          {selectedTool === "code-generator" && <CodeGenerator />}
-          {selectedTool === "app-generator" && <AppGenerator />}
-          {selectedTool === "code-verifier" && <CodeVerifier />}
+          {selectedTool === "code-generator" && <CodeGenerator userId={user.id} />}
+          {selectedTool === "app-generator" && <AppGenerator userId={user.id} />}
+          {selectedTool === "code-verifier" && <CodeVerifier userId={user.id} />}
         </div>
 
         {/* Feature Cards */}
@@ -188,7 +193,7 @@ export default function Index() {
       {/* Footer */}
       <footer className="relative z-10 py-6 text-center border-t border-border/50">
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Leo AI Limited. All rights reserved.
+          © {new Date().getFullYear()} Leo AI Technologies. All rights reserved.
         </p>
       </footer>
     </div>
@@ -216,12 +221,23 @@ function FeatureCard({
 }
 
 function PointsDisplay({ userId }: { userId: string }) {
-  const { points, isAdmin, getTotalPoints } = useUserPoints(userId);
+  const { points, isAdmin, getTotalPoints, subscriptionType } = useUserPoints(userId);
+  const { profile } = useUserProfile(userId);
   
+  const getSubscriptionBadge = () => {
+    if (isAdmin) return { label: "Admin", color: "text-yellow-500" };
+    if (subscriptionType === "pro_plus") return { label: "Pro+", color: "text-purple-500" };
+    if (subscriptionType === "pro") return { label: "Pro", color: "text-blue-500" };
+    return null;
+  };
+
+  const badge = getSubscriptionBadge();
+
   return (
     <Badge variant="outline" className="bg-primary/10 border-primary/30">
       <Zap className="w-3 h-3 mr-1 text-primary" />
-      {getTotalPoints()} pts
+      {getTotalPoints().toLocaleString()} credits
+      {badge && <span className={`ml-1 ${badge.color}`}>• {badge.label}</span>}
       {isAdmin && <Shield className="w-3 h-3 ml-1 text-yellow-500" />}
     </Badge>
   );
