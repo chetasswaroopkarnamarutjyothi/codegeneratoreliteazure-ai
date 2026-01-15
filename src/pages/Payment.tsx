@@ -4,8 +4,45 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Crown, Building2, Phone, MapPin, CheckCircle } from "lucide-react";
+import { ArrowLeft, Crown, Building2, Phone, MapPin, CheckCircle, Sparkles } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
+
+const PLANS = {
+  pro_monthly: {
+    name: "Pro Monthly",
+    amount: 3000,
+    credits: 100,
+    period: "month",
+    models: "Copilot + Gemini",
+    color: "blue",
+  },
+  pro_yearly: {
+    name: "Pro Yearly",
+    amount: 35900,
+    credits: 100,
+    period: "year",
+    models: "Copilot + Gemini",
+    savings: 100,
+    color: "blue",
+  },
+  pro_plus_monthly: {
+    name: "Pro+ Monthly",
+    amount: 5000,
+    credits: 200,
+    period: "month",
+    models: "ChatGPT + Gemini + Copilot",
+    color: "purple",
+  },
+  pro_plus_yearly: {
+    name: "Pro+ Yearly",
+    amount: 59900,
+    credits: 200,
+    period: "year",
+    models: "ChatGPT + Gemini + Copilot",
+    savings: 100,
+    color: "purple",
+  },
+};
 
 export default function Payment() {
   const [user, setUser] = useState<User | null>(null);
@@ -15,7 +52,8 @@ export default function Payment() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const plan = searchParams.get("plan") || "monthly";
+  const planKey = (searchParams.get("plan") || "pro_monthly") as keyof typeof PLANS;
+  const plan = PLANS[planKey] || PLANS.pro_monthly;
 
   useEffect(() => {
     const checkSession = async () => {
@@ -38,8 +76,8 @@ export default function Payment() {
       // Create a payment request record
       const { error } = await supabase.from("payments").insert({
         user_id: user.id,
-        amount: plan === "monthly" ? 2300 : 27600,
-        plan_type: plan,
+        amount: plan.amount,
+        plan_type: planKey,
         status: "pending",
         currency: "INR",
       });
@@ -84,7 +122,7 @@ export default function Payment() {
               </div>
               <h1 className="text-3xl font-bold mb-4">Request Submitted!</h1>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Your premium upgrade request has been recorded. Please visit our branch
+                Your {plan.name} upgrade request has been recorded. Please visit our branch
                 to complete the payment process.
               </p>
               
@@ -93,13 +131,21 @@ export default function Payment() {
                 <div className="space-y-2 text-sm">
                   <p>
                     <span className="text-muted-foreground">Plan:</span>{" "}
-                    <span className="font-medium capitalize">{plan}</span>
+                    <span className="font-medium">{plan.name}</span>
                   </p>
                   <p>
                     <span className="text-muted-foreground">Amount:</span>{" "}
                     <span className="font-medium">
-                      ₹{plan === "monthly" ? "2,300" : "27,600"}
+                      ₹{plan.amount.toLocaleString()}
                     </span>
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Credits:</span>{" "}
+                    <span className="font-medium">{plan.credits}/day</span>
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">AI Models:</span>{" "}
+                    <span className="font-medium">{plan.models}</span>
                   </p>
                   <p>
                     <span className="text-muted-foreground">Email:</span>{" "}
@@ -140,37 +186,44 @@ export default function Payment() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Upgrade to Premium</h1>
+            <h1 className="text-3xl font-bold">Upgrade to {plan.name}</h1>
             <p className="text-muted-foreground">Complete your payment at our branch</p>
           </div>
         </div>
 
         {/* Selected Plan */}
-        <Card className="glass glow-border mb-6">
+        <Card className={`glass glow-border mb-6 border-${plan.color}-500/30`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Crown className="w-5 h-5 text-yellow-500" />
-              {plan === "monthly" ? "Monthly Plan" : "Yearly Plan"}
+              <Crown className={`w-5 h-5 text-${plan.color}-500`} />
+              {plan.name}
+              {plan.savings && (
+                <span className="text-sm bg-green-500/20 text-green-500 px-2 py-0.5 rounded">
+                  Save ₹{plan.savings}
+                </span>
+              )}
             </CardTitle>
             <CardDescription>
-              {plan === "monthly" 
-                ? "Perfect for trying out premium features" 
-                : "Best value for committed users"}
+              {plan.credits} Azure AI Power Credits per day
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-4xl font-bold text-primary">
-                ₹{plan === "monthly" ? "2,300" : "27,600"}
+                ₹{plan.amount.toLocaleString()}
               </span>
               <span className="text-muted-foreground">
-                /{plan === "monthly" ? "month" : "year"}
+                /{plan.period}
               </span>
             </div>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                Unlimited daily points
+                {plan.credits} daily credits (no rollover)
+              </li>
+              <li className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-green-500" />
+                AI Models: {plan.models}
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
@@ -178,7 +231,11 @@ export default function Payment() {
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                Access to advanced AI models
+                Save & share projects
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                Invite collaborators
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
@@ -228,7 +285,7 @@ export default function Payment() {
           size="lg"
         >
           <Crown className="w-4 h-4 mr-2" />
-          Request Premium Upgrade
+          Request {plan.name} Upgrade
         </Button>
 
         <p className="text-center text-sm text-muted-foreground mt-4">

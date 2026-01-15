@@ -9,6 +9,10 @@ export interface UserProfile {
   age: number;
   parent_email: string | null;
   is_blocked: boolean;
+  avatar_url: string | null;
+  avatar_updated_at: string | null;
+  username: string | null;
+  subscription_type: string | null;
   created_at: string;
   updated_at: string;
 }

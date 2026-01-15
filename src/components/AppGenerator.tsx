@@ -1,20 +1,37 @@
 import { useState, useRef } from "react";
-import { Layers, Copy, Check, Loader2, Sparkles, Layout } from "lucide-react";
+import { Layers, Copy, Check, Loader2, Sparkles, Layout, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import CodeOutput from "./CodeOutput";
+import { useUserPoints } from "@/hooks/useUserPoints";
+import { useUsageHistory } from "@/hooks/useUsageHistory";
+import { useParentNotification } from "@/hooks/useParentNotification";
+import { supabase } from "@/integrations/supabase/client";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-app`;
 
-export default function AppGenerator() {
+interface AppGeneratorProps {
+  userId?: string;
+}
+
+export default function AppGenerator({ userId }: AppGeneratorProps) {
   const [prompt, setPrompt] = useState("");
   const [language, setLanguage] = useState("react");
   const [code, setCode] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const navigate = useNavigate();
+
+  const { points, deductPoints, getTotalPoints, subscriptionType } = useUserPoints(userId);
+  const { recordUsage } = useUsageHistory(userId);
+  const { notifyParent } = useParentNotification(userId);
 
   const generateApp = async () => {
     if (!prompt.trim()) {
@@ -22,17 +39,32 @@ export default function AppGenerator() {
       return;
     }
 
+    // Check if user has enough points
+    if (getTotalPoints() < 5) {
+      toast.error("Insufficient Azure AI Power Credits. Please upgrade to Pro or Pro+.");
+      navigate("/payment");
+      return;
+    }
+
     setIsGenerating(true);
     setCode("");
 
     try {
+      // Deduct points first
+      const { success, error: deductError } = await deductPoints(5);
+      if (!success) {
+        toast.error(deductError || "Failed to deduct credits");
+        setIsGenerating(false);
+        return;
+      }
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ prompt, language }),
+        body: JSON.stringify({ prompt, language, subscriptionType }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -106,12 +138,50 @@ export default function AppGenerator() {
         }
       }
 
-      toast.success("App code generated successfully!");
+      // Record usage
+      await recordUsage("app_generation", language, prompt, fullCode);
+      
+      // Notify parent if applicable
+      await notifyParent("app_generation", prompt);
+
+      toast.success("App code generated successfully! (-5 credits)");
     } catch (error) {
       console.error("Error generating app:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const saveAsProject = async () => {
+    if (!code || !userId) {
+      toast.error("Generate code first");
+      return;
+    }
+
+    if (!projectName.trim()) {
+      toast.error("Please enter a project name");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from("projects").insert({
+        user_id: userId,
+        name: projectName,
+        description: prompt,
+        language,
+        code,
+      });
+
+      if (error) throw error;
+
+      toast.success("Project saved successfully!");
+      setProjectName("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save project");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -155,7 +225,7 @@ export default function AppGenerator() {
               className="min-h-[120px] resize-none bg-muted/50 border-border focus:border-accent focus:glow-border transition-all"
             />
             <p className="text-xs text-muted-foreground">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate
+              Press <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate • Costs 5 credits
             </p>
           </div>
 
@@ -198,26 +268,51 @@ export default function AppGenerator() {
             </div>
           </div>
 
-          {code && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={copyToClipboard}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 mr-1.5 text-green-500" />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 mr-1.5" />
-                  Copy
-                </>
-              )}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {code && (
+              <>
+                <Input
+                  placeholder="Project name..."
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  className="w-40 h-8 text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={saveAsProject}
+                  disabled={isSaving || !projectName.trim()}
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-1.5" />
+                      Save
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={copyToClipboard}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4 mr-1.5 text-green-500" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-1.5" />
+                      Copy
+                    </>
+                  )}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         <CodeOutput code={code} language={language} isGenerating={isGenerating} />

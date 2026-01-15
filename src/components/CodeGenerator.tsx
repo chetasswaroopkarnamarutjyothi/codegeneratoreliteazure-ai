@@ -3,18 +3,32 @@ import { Code2, Copy, Check, Loader2, Sparkles, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import CodeOutput from "./CodeOutput";
+import { useUserPoints } from "@/hooks/useUserPoints";
+import { useUsageHistory } from "@/hooks/useUsageHistory";
+import { useParentNotification } from "@/hooks/useParentNotification";
+import { supabase } from "@/integrations/supabase/client";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-code`;
 
-export default function CodeGenerator() {
+interface CodeGeneratorProps {
+  userId?: string;
+}
+
+export default function CodeGenerator({ userId }: CodeGeneratorProps) {
   const [prompt, setPrompt] = useState("");
   const [language, setLanguage] = useState("typescript");
   const [code, setCode] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const navigate = useNavigate();
+
+  const { points, deductPoints, getTotalPoints, subscriptionType } = useUserPoints(userId);
+  const { recordUsage } = useUsageHistory(userId);
+  const { notifyParent } = useParentNotification(userId);
 
   const generateCode = async () => {
     if (!prompt.trim()) {
@@ -22,17 +36,32 @@ export default function CodeGenerator() {
       return;
     }
 
+    // Check if user has enough points
+    if (getTotalPoints() < 5) {
+      toast.error("Insufficient Azure AI Power Credits. Please upgrade to Pro or Pro+.");
+      navigate("/payment");
+      return;
+    }
+
     setIsGenerating(true);
     setCode("");
 
     try {
+      // Deduct points first
+      const { success, error: deductError } = await deductPoints(5);
+      if (!success) {
+        toast.error(deductError || "Failed to deduct credits");
+        setIsGenerating(false);
+        return;
+      }
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ prompt, language }),
+        body: JSON.stringify({ prompt, language, subscriptionType }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -106,7 +135,13 @@ export default function CodeGenerator() {
         }
       }
 
-      toast.success("Code generated successfully!");
+      // Record usage
+      await recordUsage("code_generation", language, prompt, fullCode);
+      
+      // Notify parent if applicable
+      await notifyParent("code_generation", prompt);
+
+      toast.success("Code generated successfully! (-5 credits)");
     } catch (error) {
       console.error("Error generating code:", error);
       toast.error("Something went wrong. Please try again.");
@@ -155,7 +190,7 @@ export default function CodeGenerator() {
               className="min-h-[120px] resize-none bg-muted/50 border-border focus:border-primary focus:glow-border transition-all"
             />
             <p className="text-xs text-muted-foreground">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate
+              Press <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate • Costs 5 credits
             </p>
           </div>
 

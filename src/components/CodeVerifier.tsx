@@ -3,7 +3,11 @@ import { ShieldCheck, CheckCircle, XCircle, Loader2, AlertTriangle } from "lucid
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
+import { useUserPoints } from "@/hooks/useUserPoints";
+import { useUsageHistory } from "@/hooks/useUsageHistory";
+import { useParentNotification } from "@/hooks/useParentNotification";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-code`;
 
@@ -14,12 +18,21 @@ interface VerificationResult {
   summary: string;
 }
 
-export default function CodeVerifier() {
+interface CodeVerifierProps {
+  userId?: string;
+}
+
+export default function CodeVerifier({ userId }: CodeVerifierProps) {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("typescript");
   const [isVerifying, setIsVerifying] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const navigate = useNavigate();
+
+  const { deductPoints, getTotalPoints } = useUserPoints(userId);
+  const { recordUsage } = useUsageHistory(userId);
+  const { notifyParent } = useParentNotification(userId);
 
   const verifyCode = async () => {
     if (!code.trim()) {
@@ -27,10 +40,25 @@ export default function CodeVerifier() {
       return;
     }
 
+    // Check if user has enough points
+    if (getTotalPoints() < 5) {
+      toast.error("Insufficient Azure AI Power Credits. Please upgrade to Pro or Pro+.");
+      navigate("/payment");
+      return;
+    }
+
     setIsVerifying(true);
     setResult(null);
 
     try {
+      // Deduct points first
+      const { success, error: deductError } = await deductPoints(5);
+      if (!success) {
+        toast.error(deductError || "Failed to deduct credits");
+        setIsVerifying(false);
+        return;
+      }
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -54,11 +82,17 @@ export default function CodeVerifier() {
 
       const data = await resp.json();
       setResult(data);
+
+      // Record usage
+      await recordUsage("code_verification", language, code.slice(0, 200), JSON.stringify(data));
+      
+      // Notify parent if applicable
+      await notifyParent("code_verification", `Verified ${language} code`);
       
       if (data.isValid) {
-        toast.success("Code verification passed!");
+        toast.success("Code verification passed! (-5 credits)");
       } else {
-        toast.warning("Code has some issues to review");
+        toast.warning("Code has some issues to review (-5 credits)");
       }
     } catch (error) {
       console.error("Error verifying code:", error);
@@ -97,7 +131,7 @@ export default function CodeVerifier() {
               className="min-h-[200px] resize-none bg-muted/50 border-border focus:border-green-500 font-mono text-sm transition-all"
             />
             <p className="text-xs text-muted-foreground">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to verify
+              Press <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to verify • Costs 5 credits
             </p>
           </div>
 

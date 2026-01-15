@@ -16,7 +16,9 @@ import {
   Layers, 
   ShieldCheck,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  Wallet,
+  Shield
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
@@ -39,7 +41,18 @@ export default function Dashboard() {
     checkSession();
   }, [navigate]);
 
-  const { points, isAdmin, getTotalPoints } = useUserPoints(user?.id);
+  const { 
+    points, 
+    isAdmin, 
+    getTotalPoints, 
+    subscriptionType,
+    ADMIN_DAILY_CREDITS,
+    ADMIN_MONTHLY_CREDITS,
+    ADMIN_APPROVAL_BANK,
+    USER_DAILY_CREDITS,
+    PRO_CREDITS,
+    PRO_PLUS_CREDITS
+  } = useUserPoints(user?.id);
   const { history } = useUsageHistory(user?.id);
   const { profile } = useUserProfile(user?.id);
 
@@ -66,6 +79,13 @@ export default function Dashboard() {
     return actionType;
   };
 
+  const getDailyLimit = () => {
+    if (isAdmin) return ADMIN_DAILY_CREDITS.toLocaleString();
+    if (subscriptionType === "pro_plus") return PRO_PLUS_CREDITS.toLocaleString();
+    if (subscriptionType === "pro") return PRO_CREDITS.toLocaleString();
+    return USER_DAILY_CREDITS.toLocaleString();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -89,48 +109,80 @@ export default function Dashboard() {
             </div>
           </div>
           
-          {isAdmin && (
-            <Badge variant="secondary" className="bg-primary/20 text-primary">
-              <Crown className="w-3 h-3 mr-1" />
-              Admin
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <>
+                <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-500">
+                  <Crown className="w-3 h-3 mr-1" />
+                  Admin
+                </Badge>
+                <Button variant="outline" size="sm" onClick={() => navigate("/admin")}>
+                  <Shield className="w-4 h-4 mr-1" />
+                  Admin Panel
+                </Button>
+              </>
+            )}
+            {subscriptionType === "pro" && (
+              <Badge className="bg-blue-500/20 text-blue-500">Pro</Badge>
+            )}
+            {subscriptionType === "pro_plus" && (
+              <Badge className="bg-purple-500/20 text-purple-500">Pro+</Badge>
+            )}
+          </div>
         </div>
 
-        {/* Points Overview */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {/* Credits Overview */}
+        <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
           <Card className="glass glow-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Zap className="w-5 h-5 text-primary" />
-                Daily Points
+                Daily Credits
               </CardTitle>
-              <CardDescription>Resets every day</CardDescription>
+              <CardDescription>Resets every day (no rollover)</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-4xl font-bold text-primary">{points?.daily_points || 0}</p>
+              <p className="text-4xl font-bold text-primary">{(points?.daily_points || 0).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                of {isAdmin ? 500 : 50} daily
+                of {getDailyLimit()} daily
               </p>
             </CardContent>
           </Card>
 
           {isAdmin && (
-            <Card className="glass glow-border">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-accent" />
-                  Monthly Points
-                </CardTitle>
-                <CardDescription>Resets every month</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold text-accent">{points?.monthly_points || 0}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  of 8,500 monthly
-                </p>
-              </CardContent>
-            </Card>
+            <>
+              <Card className="glass glow-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-accent" />
+                    Monthly Credits
+                  </CardTitle>
+                  <CardDescription>Resets every month</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-accent">{(points?.monthly_points || 0).toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    of {ADMIN_MONTHLY_CREDITS.toLocaleString()} monthly
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="glass glow-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Wallet className="w-5 h-5 text-yellow-500" />
+                    Approval Bank
+                  </CardTitle>
+                  <CardDescription>For user credit requests</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-yellow-500">{(points?.approval_bank_credits || 0).toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    of {ADMIN_APPROVAL_BANK.toLocaleString()} bank
+                  </p>
+                </CardContent>
+              </Card>
+            </>
           )}
 
           <Card className="glass glow-border">
@@ -139,51 +191,87 @@ export default function Dashboard() {
                 <TrendingUp className="w-5 h-5 text-green-500" />
                 Total Available
               </CardTitle>
-              <CardDescription>Points you can use now</CardDescription>
+              <CardDescription>Credits you can use now</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-4xl font-bold text-green-500">{getTotalPoints()}</p>
+              <p className="text-4xl font-bold text-green-500">{getTotalPoints().toLocaleString()}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                5 points per action
+                5 credits per action
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Premium Upgrade (for non-premium users) */}
-        {!points?.is_premium && !isAdmin && (
+        {/* Subscription Plans (for non-premium users) */}
+        {!isAdmin && subscriptionType === "free" && (
           <Card className="glass mb-8 border-primary/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-yellow-500" />
-                Upgrade to Premium
+                Upgrade Your Plan
               </CardTitle>
               <CardDescription>
-                Get more points and unlock premium features
+                Get more Azure AI Power Credits and access to premium AI models
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-lg bg-muted/50 border border-border">
-                  <p className="font-semibold text-lg">Monthly Plan</p>
-                  <p className="text-3xl font-bold text-primary my-2">₹2,300</p>
-                  <p className="text-sm text-muted-foreground mb-4">per month</p>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Pro Monthly */}
+                <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                  <p className="font-semibold text-lg text-blue-500">Pro Monthly</p>
+                  <p className="text-3xl font-bold text-primary my-2">₹3,000</p>
+                  <p className="text-sm text-muted-foreground mb-2">per month • 100 credits/day</p>
+                  <p className="text-xs text-muted-foreground mb-4">Copilot + Gemini models</p>
                   <Button 
-                    className="w-full"
-                    onClick={() => navigate("/payment?plan=monthly")}
+                    className="w-full bg-blue-500 hover:bg-blue-600"
+                    onClick={() => navigate("/payment?plan=pro_monthly")}
                   >
-                    Subscribe Monthly
+                    Subscribe Pro
                   </Button>
                 </div>
-                <div className="p-4 rounded-lg bg-primary/10 border border-primary/30">
-                  <p className="font-semibold text-lg">Yearly Plan</p>
-                  <p className="text-3xl font-bold text-primary my-2">₹27,600</p>
-                  <p className="text-sm text-muted-foreground mb-4">per year (save ₹0)</p>
+
+                {/* Pro Yearly */}
+                <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                  <p className="font-semibold text-lg text-blue-500">Pro Yearly</p>
+                  <p className="text-3xl font-bold text-primary my-2">₹35,900</p>
+                  <p className="text-sm text-muted-foreground mb-2">per year • Save ₹100</p>
+                  <p className="text-xs text-muted-foreground mb-4">Copilot + Gemini models</p>
                   <Button 
-                    className="w-full bg-primary"
-                    onClick={() => navigate("/payment?plan=yearly")}
+                    className="w-full bg-blue-500 hover:bg-blue-600"
+                    onClick={() => navigate("/payment?plan=pro_yearly")}
                   >
-                    Subscribe Yearly
+                    Subscribe Pro
+                  </Button>
+                </div>
+
+                {/* Pro+ Monthly */}
+                <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
+                  <p className="font-semibold text-lg text-purple-500">Pro+ Monthly</p>
+                  <p className="text-3xl font-bold text-primary my-2">₹5,000</p>
+                  <p className="text-sm text-muted-foreground mb-2">per month • 200 credits/day</p>
+                  <p className="text-xs text-muted-foreground mb-4">ChatGPT + Gemini + Copilot</p>
+                  <Button 
+                    className="w-full bg-purple-500 hover:bg-purple-600"
+                    onClick={() => navigate("/payment?plan=pro_plus_monthly")}
+                  >
+                    Subscribe Pro+
+                  </Button>
+                </div>
+
+                {/* Pro+ Yearly */}
+                <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/30 relative overflow-hidden">
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-green-500 text-white text-xs">Best Value</Badge>
+                  </div>
+                  <p className="font-semibold text-lg text-purple-500">Pro+ Yearly</p>
+                  <p className="text-3xl font-bold text-primary my-2">₹59,900</p>
+                  <p className="text-sm text-muted-foreground mb-2">per year • Save ₹100</p>
+                  <p className="text-xs text-muted-foreground mb-4">ChatGPT + Gemini + Copilot</p>
+                  <Button 
+                    className="w-full bg-purple-500 hover:bg-purple-600"
+                    onClick={() => navigate("/payment?plan=pro_plus_yearly")}
+                  >
+                    Subscribe Pro+
                   </Button>
                 </div>
               </div>
@@ -229,7 +317,7 @@ export default function Dashboard() {
                           </Badge>
                         )}
                         <Badge variant="secondary" className="text-xs">
-                          -{item.points_used || 5} pts
+                          -{item.points_used || 5} credits
                         </Badge>
                       </div>
                       {item.prompt && (

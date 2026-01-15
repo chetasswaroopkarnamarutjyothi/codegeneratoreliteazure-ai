@@ -107,34 +107,114 @@ export type Database = {
       profiles: {
         Row: {
           age: number
+          avatar_updated_at: string | null
+          avatar_url: string | null
           created_at: string
           email: string
           full_name: string
           id: string
           is_blocked: boolean | null
           parent_email: string | null
+          subscription_type: string | null
           updated_at: string
           user_id: string
+          username: string | null
         }
         Insert: {
           age: number
+          avatar_updated_at?: string | null
+          avatar_url?: string | null
           created_at?: string
           email: string
           full_name: string
           id?: string
           is_blocked?: boolean | null
           parent_email?: string | null
+          subscription_type?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
         }
         Update: {
           age?: number
+          avatar_updated_at?: string | null
+          avatar_url?: string | null
           created_at?: string
           email?: string
           full_name?: string
           id?: string
           is_blocked?: boolean | null
           parent_email?: string | null
+          subscription_type?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      project_collaborators: {
+        Row: {
+          created_at: string
+          id: string
+          invited_by: string
+          project_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_by: string
+          project_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_by?: string
+          project_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_collaborators_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          code: string | null
+          created_at: string
+          description: string | null
+          id: string
+          language: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          language: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          language?: string
+          name?: string
           updated_at?: string
           user_id?: string
         }
@@ -175,6 +255,7 @@ export type Database = {
       }
       user_points: {
         Row: {
+          approval_bank_credits: number | null
           created_at: string
           daily_points: number
           id: string
@@ -183,9 +264,11 @@ export type Database = {
           last_monthly_reset: string
           monthly_points: number
           premium_expires_at: string | null
+          reserved_credits: number | null
           user_id: string
         }
         Insert: {
+          approval_bank_credits?: number | null
           created_at?: string
           daily_points?: number
           id?: string
@@ -194,9 +277,11 @@ export type Database = {
           last_monthly_reset?: string
           monthly_points?: number
           premium_expires_at?: string | null
+          reserved_credits?: number | null
           user_id: string
         }
         Update: {
+          approval_bank_credits?: number | null
           created_at?: string
           daily_points?: number
           id?: string
@@ -205,6 +290,7 @@ export type Database = {
           last_monthly_reset?: string
           monthly_points?: number
           premium_expires_at?: string | null
+          reserved_credits?: number | null
           user_id?: string
         }
         Relationships: []
@@ -232,6 +318,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_username: { Args: { base_name: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
