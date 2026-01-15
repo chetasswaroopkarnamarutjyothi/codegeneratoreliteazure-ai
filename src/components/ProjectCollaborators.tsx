@@ -133,6 +133,34 @@ export default function ProjectCollaborators({
 
       if (error) throw error;
 
+      // Get project name and inviter info for email notification
+      const { data: projectData } = await supabase
+        .from("projects")
+        .select("name")
+        .eq("id", projectId)
+        .single();
+
+      const { data: inviterProfile } = await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("user_id", currentUserId)
+        .single();
+
+      // Send email notification via edge function
+      try {
+        await supabase.functions.invoke("send-collaboration-invite", {
+          body: {
+            invitedUserEmail: profile.email,
+            invitedByEmail: inviterProfile?.email || "",
+            invitedByName: inviterProfile?.full_name || "A user",
+            projectName: projectData?.name || "a project",
+            projectId,
+          },
+        });
+      } catch (emailError) {
+        console.log("Email notification failed (non-blocking):", emailError);
+      }
+
       setCollaborators([
         ...collaborators,
         {

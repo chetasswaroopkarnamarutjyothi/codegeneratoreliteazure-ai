@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.verify-code]
 verify_jwt = false
+
+[functions.send-collaboration-invite]
+verify_jwt = false
