@@ -31,8 +31,8 @@ export default function CodeVerifier({ userId }: CodeVerifierProps) {
   const navigate = useNavigate();
 
   const { deductPoints, getTotalPoints } = useUserPoints(userId);
-  const { recordUsage } = useUsageHistory(userId);
-  const { notifyParent } = useParentNotification(userId);
+  const { addHistoryItem } = useUsageHistory(userId);
+  const { notifyParent } = useParentNotification();
 
   const verifyCode = async () => {
     if (!code.trim()) {
@@ -84,10 +84,16 @@ export default function CodeVerifier({ userId }: CodeVerifierProps) {
       setResult(data);
 
       // Record usage
-      await recordUsage("code_verification", language, code.slice(0, 200), JSON.stringify(data));
+      await addHistoryItem({
+        action_type: "code_verification",
+        language,
+        prompt: code.slice(0, 200),
+        result: JSON.stringify(data),
+        points_used: 5,
+      });
       
       // Notify parent if applicable
-      await notifyParent("code_verification", `Verified ${language} code`);
+      await notifyParent("", "", "code_verification", `Verified ${language} code`);
       
       if (data.isValid) {
         toast.success("Code verification passed! (-5 credits)");
