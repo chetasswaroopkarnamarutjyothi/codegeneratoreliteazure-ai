@@ -319,6 +319,10 @@ export type Database = {
     }
     Functions: {
       generate_username: { Args: { base_name: string }; Returns: string }
+      grant_credits_from_bank: {
+        Args: { amount: number; grant_reason?: string; target_user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -327,6 +331,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      transfer_to_approval_bank: { Args: { amount: number }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user" | "premium"

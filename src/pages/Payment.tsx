@@ -7,7 +7,15 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Crown, Building2, Phone, MapPin, CheckCircle, Sparkles } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
-const PLANS = {
+const PLANS: Record<string, {
+  name: string;
+  amount: number;
+  credits: number;
+  period: string;
+  models: string;
+  color: string;
+  savings?: number;
+}> = {
   pro_monthly: {
     name: "Pro Monthly",
     amount: 3000,

@@ -27,8 +27,8 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
   const navigate = useNavigate();
 
   const { points, deductPoints, getTotalPoints, subscriptionType } = useUserPoints(userId);
-  const { recordUsage } = useUsageHistory(userId);
-  const { notifyParent } = useParentNotification(userId);
+  const { addHistoryItem } = useUsageHistory(userId);
+  const { notifyParent } = useParentNotification();
 
   const generateCode = async () => {
     if (!prompt.trim()) {
@@ -136,10 +136,16 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
       }
 
       // Record usage
-      await recordUsage("code_generation", language, prompt, fullCode);
+      await addHistoryItem({
+        action_type: "code_generation",
+        language,
+        prompt,
+        result: fullCode,
+        points_used: 5,
+      });
       
-      // Notify parent if applicable
-      await notifyParent("code_generation", prompt);
+      // Notify parent if applicable (would need profile info)
+      await notifyParent("", "", "code_generation", prompt);
 
       toast.success("Code generated successfully! (-5 credits)");
     } catch (error) {
