@@ -81,67 +81,75 @@ export function useUserPoints(userId: string | undefined) {
         throw error;
       }
 
+      // If no user_points exists, this is handled by database trigger on profile creation
+      // But as a fallback for existing users without points, we wait for admin to fix it
+      if (!data) {
+        console.warn("No user_points found for user. This should be created automatically on signup.");
+        setPoints(null);
+        setLoading(false);
+        return;
+      }
+
       // Check if daily reset is needed
-      if (data) {
-        const today = new Date().toISOString().split("T")[0];
-        const lastDailyReset = data.last_daily_reset;
+      const today = new Date().toISOString().split("T")[0];
+      const lastDailyReset = data.last_daily_reset;
 
-        if (lastDailyReset !== today) {
-          // Reset daily points - NO ROLLOVER
-          let defaultDaily = USER_DAILY_CREDITS;
-          
-          if (isAdmin) {
-            defaultDaily = ADMIN_DAILY_CREDITS;
-          } else if (subscriptionType === "pro_plus") {
-            defaultDaily = PRO_PLUS_CREDITS;
-          } else if (subscriptionType === "pro") {
-            defaultDaily = PRO_CREDITS;
-          }
-
-          const updatePayload: any = {
-            daily_points: defaultDaily,
-            last_daily_reset: today,
-          };
-
-          const { data: updatedData, error: updateError } = await supabase
-            .from("user_points")
-            .update(updatePayload)
-            .eq("user_id", userId)
-            .select()
-            .single();
-
-          if (!updateError && updatedData) {
-            setPoints(updatedData);
-            return;
-          }
+      if (lastDailyReset !== today) {
+        // Reset daily points - NO ROLLOVER
+        let defaultDaily = USER_DAILY_CREDITS;
+        
+        if (isAdmin) {
+          defaultDaily = ADMIN_DAILY_CREDITS;
+        } else if (subscriptionType === "pro_plus") {
+          defaultDaily = PRO_PLUS_CREDITS;
+        } else if (subscriptionType === "pro") {
+          defaultDaily = PRO_CREDITS;
         }
 
-        // Check if monthly reset is needed
-        const currentMonth = today.slice(0, 7);
-        const lastMonthlyReset = data.last_monthly_reset.slice(0, 7);
+        const updatePayload: Record<string, unknown> = {
+          daily_points: defaultDaily,
+          last_daily_reset: today,
+        };
 
-        if (currentMonth !== lastMonthlyReset && isAdmin) {
-          const { data: updatedData, error: updateError } = await supabase
-            .from("user_points")
-            .update({
-              monthly_points: ADMIN_MONTHLY_CREDITS,
-              approval_bank_credits: ADMIN_APPROVAL_BANK,
-              last_monthly_reset: today,
-            })
-            .eq("user_id", userId)
-            .select()
-            .single();
+        const { data: updatedData, error: updateError } = await supabase
+          .from("user_points")
+          .update(updatePayload)
+          .eq("user_id", userId)
+          .select()
+          .single();
 
-          if (!updateError && updatedData) {
-            setPoints(updatedData);
-            return;
-          }
+        if (!updateError && updatedData) {
+          setPoints(updatedData);
+          return;
+        }
+      }
+
+      // Check if monthly reset is needed
+      const currentMonth = today.slice(0, 7);
+      const lastMonthlyReset = data.last_monthly_reset.slice(0, 7);
+
+      if (currentMonth !== lastMonthlyReset && isAdmin) {
+        const { data: updatedData, error: updateError } = await supabase
+          .from("user_points")
+          .update({
+            monthly_points: ADMIN_MONTHLY_CREDITS,
+            approval_bank_credits: ADMIN_APPROVAL_BANK,
+            last_monthly_reset: today,
+          })
+          .eq("user_id", userId)
+          .select()
+          .single();
+
+        if (!updateError && updatedData) {
+          setPoints(updatedData);
+          return;
         }
       }
 
       setPoints(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
