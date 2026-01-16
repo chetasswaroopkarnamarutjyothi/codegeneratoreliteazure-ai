@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUsageHistory } from "@/hooks/useUsageHistory";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { CreditRequestForm } from "@/components/CreditRequestForm";
 import { 
   Zap, 
   History, 
@@ -280,6 +281,16 @@ export default function Dashboard() {
               </p>
             </CardContent>
           </Card>
+        )}
+
+        {/* Credit Request Form (for non-admin users) */}
+        {!isAdmin && user && (
+          <div className="mb-8">
+            <CreditRequestForm
+              userId={user.id}
+              currentCredits={points?.daily_points || 0}
+            />
+          </div>
         )}
 
         {/* Usage History */}
