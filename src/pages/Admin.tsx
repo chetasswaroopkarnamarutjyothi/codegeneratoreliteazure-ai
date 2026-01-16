@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, 
@@ -19,8 +20,12 @@ import {
   Wallet,
   ArrowRightLeft,
   Loader2,
-  Banknote
+  Banknote,
+  ClipboardList,
+  BarChart3
 } from "lucide-react";
+import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
+import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -311,7 +316,7 @@ export default function Admin() {
             </h1>
             <p className="text-muted-foreground">Manage users and grant credits</p>
           </div>
-          <Badge variant="secondary" className="bg-primary/20 text-primary">
+          <Badge variant="secondary" className="bg-primary/20 text-primary hidden sm:flex">
             <Crown className="w-3 h-3 mr-1" />
             Admin
           </Badge>
@@ -377,204 +382,247 @@ export default function Admin() {
           </div>
         )}
 
-        {/* Transfer to Approval Bank */}
-        <Card className="glass mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ArrowRightLeft className="w-5 h-5 text-green-500" />
-              Transfer to Approval Bank
-            </CardTitle>
-            <CardDescription>
-              Move credits from your daily limit to the Approval Bank for granting to users
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4 items-end">
-              <div className="flex-1 space-y-2">
-                <Label>Amount to Transfer</Label>
-                <Input
-                  type="number"
-                  placeholder="Enter credits amount"
-                  value={transferAmount}
-                  onChange={(e) => setTransferAmount(e.target.value)}
-                  min={1}
-                  max={adminCredits?.daily_points || 0}
-                />
-              </div>
-              <Button 
-                onClick={handleTransferToBank} 
-                disabled={isTransferring || !transferAmount}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {isTransferring ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <ArrowRightLeft className="w-4 h-4 mr-2" />
-                )}
-                Transfer to Bank
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Credits in the Approval Bank can be granted to users who need immediate credits.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Tabs for different admin sections */}
+        <Tabs defaultValue="requests" className="space-y-6">
+          <TabsList className="grid grid-cols-4 w-full max-w-lg">
+            <TabsTrigger value="requests" className="flex items-center gap-1">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">Requests</span>
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-1">
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">Users</span>
+            </TabsTrigger>
+            <TabsTrigger value="transfer" className="flex items-center gap-1">
+              <ArrowRightLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Transfer</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-1">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Search */}
-        <Card className="glass mb-6">
-          <CardContent className="pt-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search users by email or name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </CardContent>
-        </Card>
+          {/* Credit Requests Tab */}
+          <TabsContent value="requests">
+            <CreditRequestsPanel
+              approvalBankCredits={adminCredits?.approval_bank_credits || 0}
+              onRequestProcessed={() => {
+                if (user) fetchAdminCredits(user.id);
+                fetchUsers();
+              }}
+            />
+          </TabsContent>
 
-        {/* Grant Credits Modal */}
-        {selectedUser && (
-          <Card className="glass glow-border mb-6 border-green-500/30">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gift className="w-5 h-5 text-green-500" />
-                Grant Credits to {selectedUser.full_name}
-              </CardTitle>
-              <CardDescription>
-                Grant credits from your Approval Bank (Available: {(adminCredits?.approval_bank_credits || 0).toLocaleString()})
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Credits to Grant</Label>
-                <Input
-                  type="number"
-                  placeholder="Enter credits amount"
-                  value={grantPoints}
-                  onChange={(e) => setGrantPoints(e.target.value)}
-                  min={1}
-                  max={adminCredits?.approval_bank_credits || 0}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Reason (Optional)</Label>
-                <Input
-                  placeholder="Reason for granting credits"
-                  value={grantReason}
-                  onChange={(e) => setGrantReason(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleGrantFromBank} className="flex-1 bg-green-600 hover:bg-green-700">
-                  <Gift className="w-4 h-4 mr-2" />
-                  Grant from Bank
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedUser(null);
-                    setGrantPoints("");
-                    setGrantReason("");
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Users List */}
-        <Card className="glass">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              All Users ({filteredUsers.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {filteredUsers.map((profile) => {
-                const points = userPoints.get(profile.user_id);
-
-                return (
-                  <div
-                    key={profile.id}
-                    className={`flex items-center gap-4 p-4 rounded-lg border ${
-                      profile.is_blocked
-                        ? "bg-destructive/10 border-destructive/30"
-                        : "bg-muted/30 border-border/50"
-                    }`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium">{profile.full_name}</p>
-                        {profile.is_blocked && (
-                          <Badge variant="destructive" className="text-xs">
-                            Blocked
-                          </Badge>
-                        )}
-                        {points?.is_premium && (
-                          <Badge className="bg-yellow-500/20 text-yellow-500 text-xs">
-                            <Crown className="w-3 h-3 mr-1" />
-                            Premium
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{profile.email}</p>
-                      <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                        <span>Age: {profile.age}</span>
-                        <span>
-                          Points: {points?.daily_points || 0} daily
-                          {points?.monthly_points ? ` + ${points.monthly_points} monthly` : ""}
-                        </span>
-                        <span>Joined: {new Date(profile.created_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedUser(profile)}
-                        disabled={profile.is_blocked}
-                      >
-                        <Gift className="w-4 h-4 mr-1" />
-                        Grant
-                      </Button>
-                      <Button
-                        variant={profile.is_blocked ? "default" : "destructive"}
-                        size="sm"
-                        onClick={() => handleBlockUser(profile)}
-                      >
-                        {profile.is_blocked ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Unblock
-                          </>
-                        ) : (
-                          <>
-                            <Ban className="w-4 h-4 mr-1" />
-                            Block
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {filteredUsers.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No users found</p>
+          {/* Users Tab */}
+          <TabsContent value="users" className="space-y-6">
+            {/* Search */}
+            <Card className="glass">
+              <CardContent className="pt-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search users by email or name..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+
+            {/* Grant Credits Modal */}
+            {selectedUser && (
+              <Card className="glass glow-border border-green-500/30">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-green-500" />
+                    Grant Credits to {selectedUser.full_name}
+                  </CardTitle>
+                  <CardDescription>
+                    Grant credits from your Approval Bank (Available: {(adminCredits?.approval_bank_credits || 0).toLocaleString()})
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Credits to Grant</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter credits amount"
+                      value={grantPoints}
+                      onChange={(e) => setGrantPoints(e.target.value)}
+                      min={1}
+                      max={adminCredits?.approval_bank_credits || 0}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Reason (Optional)</Label>
+                    <Input
+                      placeholder="Reason for granting credits"
+                      value={grantReason}
+                      onChange={(e) => setGrantReason(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleGrantFromBank} className="flex-1 bg-green-600 hover:bg-green-700">
+                      <Gift className="w-4 h-4 mr-2" />
+                      Grant from Bank
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedUser(null);
+                        setGrantPoints("");
+                        setGrantReason("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Users List */}
+            <Card className="glass">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  All Users ({filteredUsers.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {filteredUsers.map((profile) => {
+                    const points = userPoints.get(profile.user_id);
+
+                    return (
+                      <div
+                        key={profile.id}
+                        className={`flex items-center gap-4 p-4 rounded-lg border ${
+                          profile.is_blocked
+                            ? "bg-destructive/10 border-destructive/30"
+                            : "bg-muted/30 border-border/50"
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-medium">{profile.full_name}</p>
+                            {profile.is_blocked && (
+                              <Badge variant="destructive" className="text-xs">
+                                Blocked
+                              </Badge>
+                            )}
+                            {points?.is_premium && (
+                              <Badge className="bg-yellow-500/20 text-yellow-500 text-xs">
+                                <Crown className="w-3 h-3 mr-1" />
+                                Premium
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{profile.email}</p>
+                          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                            <span>Age: {profile.age}</span>
+                            <span>
+                              Points: {points?.daily_points || 0} daily
+                              {points?.monthly_points ? ` + ${points.monthly_points} monthly` : ""}
+                            </span>
+                            <span>Joined: {new Date(profile.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedUser(profile)}
+                            disabled={profile.is_blocked}
+                          >
+                            <Gift className="w-4 h-4 mr-1" />
+                            Grant
+                          </Button>
+                          <Button
+                            variant={profile.is_blocked ? "default" : "destructive"}
+                            size="sm"
+                            onClick={() => handleBlockUser(profile)}
+                          >
+                            {profile.is_blocked ? (
+                              <>
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Unblock
+                              </>
+                            ) : (
+                              <>
+                                <Ban className="w-4 h-4 mr-1" />
+                                Block
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {filteredUsers.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No users found</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Transfer Tab */}
+          <TabsContent value="transfer">
+            <Card className="glass">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ArrowRightLeft className="w-5 h-5 text-green-500" />
+                  Transfer to Approval Bank
+                </CardTitle>
+                <CardDescription>
+                  Move credits from your daily limit to the Approval Bank for granting to users
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1 space-y-2">
+                    <Label>Amount to Transfer</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter credits amount"
+                      value={transferAmount}
+                      onChange={(e) => setTransferAmount(e.target.value)}
+                      min={1}
+                      max={adminCredits?.daily_points || 0}
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleTransferToBank} 
+                    disabled={isTransferring || !transferAmount}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {isTransferring ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <ArrowRightLeft className="w-4 h-4 mr-2" />
+                    )}
+                    Transfer to Bank
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Credits in the Approval Bank can be granted to users who need immediate credits.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <AdminAnalytics />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

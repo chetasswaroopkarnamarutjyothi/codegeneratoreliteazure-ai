@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          id: string
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           code: string
@@ -318,6 +354,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_credit_request: {
+        Args: { admin_notes_text?: string; request_id: string }
+        Returns: boolean
+      }
+      deny_credit_request: {
+        Args: { admin_notes_text?: string; request_id: string }
+        Returns: boolean
+      }
       generate_username: { Args: { base_name: string }; Returns: string }
       grant_credits_from_bank: {
         Args: { amount: number; grant_reason?: string; target_user_id: string }
