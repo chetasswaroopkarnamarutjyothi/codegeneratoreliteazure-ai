@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUsageHistory } from "@/hooks/useUsageHistory";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { CreditRequestForm } from "@/components/CreditRequestForm";
+import SupportTicketForm from "@/components/SupportTicketForm";
 import { 
   Zap, 
   History, 
@@ -19,7 +21,8 @@ import {
   Calendar,
   TrendingUp,
   Wallet,
-  Shield
+  Shield,
+  MessageSquare
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
@@ -283,14 +286,29 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* Credit Request Form (for non-admin users) */}
+        {/* Credit Request & Support Tickets (for non-admin users) */}
         {!isAdmin && user && (
-          <div className="mb-8">
-            <CreditRequestForm
-              userId={user.id}
-              currentCredits={points?.daily_points || 0}
-            />
-          </div>
+          <Tabs defaultValue="credits" className="mb-8">
+            <TabsList>
+              <TabsTrigger value="credits" className="flex items-center gap-1">
+                <Zap className="w-4 h-4" />
+                Request Credits
+              </TabsTrigger>
+              <TabsTrigger value="support" className="flex items-center gap-1">
+                <MessageSquare className="w-4 h-4" />
+                Support Tickets
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="credits">
+              <CreditRequestForm
+                userId={user.id}
+                currentCredits={points?.daily_points || 0}
+              />
+            </TabsContent>
+            <TabsContent value="support">
+              <SupportTicketForm userId={user.id} />
+            </TabsContent>
+          </Tabs>
         )}
 
         {/* Usage History */}

@@ -50,6 +50,39 @@ export type Database = {
         }
         Relationships: []
       }
+      email_notifications: {
+        Row: {
+          body: string
+          id: string
+          metadata: Json | null
+          notification_type: string
+          recipient_email: string
+          recipient_user_id: string | null
+          sent_at: string
+          subject: string
+        }
+        Insert: {
+          body: string
+          id?: string
+          metadata?: Json | null
+          notification_type: string
+          recipient_email: string
+          recipient_user_id?: string | null
+          sent_at?: string
+          subject: string
+        }
+        Update: {
+          body?: string
+          id?: string
+          metadata?: Json | null
+          notification_type?: string
+          recipient_email?: string
+          recipient_user_id?: string | null
+          sent_at?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           code: string
@@ -256,6 +289,48 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          admin_response: string | null
+          created_at: string
+          description: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          ticket_type: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          ticket_type: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          ticket_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       usage_history: {
         Row: {
           action_type: string
@@ -285,6 +360,39 @@ export type Database = {
           points_used?: number | null
           prompt?: string | null
           result?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_penalties: {
+        Row: {
+          created_at: string
+          daily_credit_reduction: number
+          id: string
+          is_active: boolean
+          penalty_end_date: string
+          penalty_start_date: string
+          penalty_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_credit_reduction?: number
+          id?: string
+          is_active?: boolean
+          penalty_end_date?: string
+          penalty_start_date?: string
+          penalty_type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_credit_reduction?: number
+          id?: string
+          is_active?: boolean
+          penalty_end_date?: string
+          penalty_start_date?: string
+          penalty_type?: string
           user_id?: string
         }
         Relationships: []
@@ -375,6 +483,16 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_profile_complete: { Args: { p_user_id: string }; Returns: boolean }
+      reset_daily_credits_with_penalties: { Args: never; Returns: undefined }
+      resolve_ticket: {
+        Args: {
+          p_admin_response?: string
+          p_status: string
+          p_ticket_id: string
+        }
+        Returns: boolean
+      }
       transfer_to_approval_bank: { Args: { amount: number }; Returns: boolean }
     }
     Enums: {

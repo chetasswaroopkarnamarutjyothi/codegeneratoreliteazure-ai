@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
+import { TicketsPanel } from "@/components/admin/TicketsPanel";
+import { NotificationsPanel } from "@/components/admin/NotificationsPanel";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -384,10 +386,14 @@ export default function Admin() {
 
         {/* Tabs for different admin sections */}
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid grid-cols-4 w-full max-w-lg">
+          <TabsList className="grid grid-cols-6 w-full max-w-2xl">
             <TabsTrigger value="requests" className="flex items-center gap-1">
               <ClipboardList className="w-4 h-4" />
               <span className="hidden sm:inline">Requests</span>
+            </TabsTrigger>
+            <TabsTrigger value="tickets" className="flex items-center gap-1">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">Tickets</span>
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-1">
               <Users className="w-4 h-4" />
@@ -396,6 +402,10 @@ export default function Admin() {
             <TabsTrigger value="transfer" className="flex items-center gap-1">
               <ArrowRightLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Transfer</span>
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex items-center gap-1">
+              <Wallet className="w-4 h-4" />
+              <span className="hidden sm:inline">Emails</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-1">
               <BarChart3 className="w-4 h-4" />
@@ -412,6 +422,16 @@ export default function Admin() {
                 fetchUsers();
               }}
             />
+          </TabsContent>
+
+          {/* Support Tickets Tab */}
+          <TabsContent value="tickets">
+            <TicketsPanel />
+          </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications">
+            <NotificationsPanel />
           </TabsContent>
 
           {/* Users Tab */}
