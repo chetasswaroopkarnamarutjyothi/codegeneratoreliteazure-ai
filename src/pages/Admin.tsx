@@ -503,80 +503,141 @@ export default function Admin() {
               </Card>
             )}
 
-            {/* Users List */}
+            {/* Users List - Enhanced with Full Credit Details */}
             <Card className="glass">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5" />
                   All Users ({filteredUsers.length})
                 </CardTitle>
+                <CardDescription>
+                  Complete list of all registered users with their credit balances
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                {/* Summary Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 p-4 rounded-lg bg-muted/30">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-primary">{users.length}</p>
+                    <p className="text-xs text-muted-foreground">Total Users</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-500">
+                      {Array.from(userPoints.values()).filter(p => p.is_premium).length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Premium Users</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-red-500">
+                      {users.filter(u => u.is_blocked).length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Blocked</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-accent">
+                      {Array.from(userPoints.values()).reduce((sum, p) => sum + (p.daily_points || 0), 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Total Daily Credits</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
                   {filteredUsers.map((profile) => {
                     const points = userPoints.get(profile.user_id);
+                    const isUserAdmin = points?.daily_points === 685000 || points?.approval_bank_credits === 285000;
 
                     return (
                       <div
                         key={profile.id}
-                        className={`flex items-center gap-4 p-4 rounded-lg border ${
+                        className={`p-4 rounded-lg border transition-all ${
                           profile.is_blocked
                             ? "bg-destructive/10 border-destructive/30"
-                            : "bg-muted/30 border-border/50"
+                            : isUserAdmin
+                            ? "bg-yellow-500/5 border-yellow-500/30"
+                            : "bg-muted/30 border-border/50 hover:border-primary/30"
                         }`}
                       >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium">{profile.full_name}</p>
-                            {profile.is_blocked && (
-                              <Badge variant="destructive" className="text-xs">
-                                Blocked
-                              </Badge>
-                            )}
-                            {points?.is_premium && (
-                              <Badge className="bg-yellow-500/20 text-yellow-500 text-xs">
-                                <Crown className="w-3 h-3 mr-1" />
-                                Premium
-                              </Badge>
-                            )}
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <p className="font-semibold">{profile.full_name || "No Name"}</p>
+                              {profile.is_blocked && (
+                                <Badge variant="destructive" className="text-xs">
+                                  <Ban className="w-3 h-3 mr-1" />
+                                  Blocked
+                                </Badge>
+                              )}
+                              {isUserAdmin && (
+                                <Badge className="bg-yellow-500/20 text-yellow-500 text-xs">
+                                  <Shield className="w-3 h-3 mr-1" />
+                                  Admin
+                                </Badge>
+                              )}
+                              {points?.is_premium && !isUserAdmin && (
+                                <Badge className="bg-purple-500/20 text-purple-500 text-xs">
+                                  <Crown className="w-3 h-3 mr-1" />
+                                  Premium
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">{profile.email}</p>
+                            
+                            {/* Credit Details Grid */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3 p-3 rounded bg-background/50">
+                              <div>
+                                <p className="text-xs text-muted-foreground">Daily Credits</p>
+                                <p className="font-bold text-primary">{(points?.daily_points || 0).toLocaleString()}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground">Monthly Credits</p>
+                                <p className="font-bold">{(points?.monthly_points || 0).toLocaleString()}</p>
+                              </div>
+                              {isUserAdmin && (
+                                <div>
+                                  <p className="text-xs text-muted-foreground">Approval Bank</p>
+                                  <p className="font-bold text-green-500">{(points?.approval_bank_credits || 0).toLocaleString()}</p>
+                                </div>
+                              )}
+                              <div>
+                                <p className="text-xs text-muted-foreground">Age</p>
+                                <p className="font-medium">{profile.age || "N/A"}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                              <span>Joined: {new Date(profile.created_at).toLocaleDateString()}</span>
+                              <span>ID: {profile.user_id.slice(0, 8)}...</span>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground">{profile.email}</p>
-                          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                            <span>Age: {profile.age}</span>
-                            <span>
-                              Points: {points?.daily_points || 0} daily
-                              {points?.monthly_points ? ` + ${points.monthly_points} monthly` : ""}
-                            </span>
-                            <span>Joined: {new Date(profile.created_at).toLocaleDateString()}</span>
+                          
+                          <div className="flex flex-col gap-2 ml-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedUser(profile)}
+                              disabled={profile.is_blocked}
+                            >
+                              <Gift className="w-4 h-4 mr-1" />
+                              Grant
+                            </Button>
+                            <Button
+                              variant={profile.is_blocked ? "default" : "destructive"}
+                              size="sm"
+                              onClick={() => handleBlockUser(profile)}
+                            >
+                              {profile.is_blocked ? (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  Unblock
+                                </>
+                              ) : (
+                                <>
+                                  <Ban className="w-4 h-4 mr-1" />
+                                  Block
+                                </>
+                              )}
+                            </Button>
                           </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedUser(profile)}
-                            disabled={profile.is_blocked}
-                          >
-                            <Gift className="w-4 h-4 mr-1" />
-                            Grant
-                          </Button>
-                          <Button
-                            variant={profile.is_blocked ? "default" : "destructive"}
-                            size="sm"
-                            onClick={() => handleBlockUser(profile)}
-                          >
-                            {profile.is_blocked ? (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Unblock
-                              </>
-                            ) : (
-                              <>
-                                <Ban className="w-4 h-4 mr-1" />
-                                Block
-                              </>
-                            )}
-                          </Button>
                         </div>
                       </div>
                     );
