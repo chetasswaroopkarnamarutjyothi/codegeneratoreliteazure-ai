@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import { Layers, Copy, Check, Loader2, Sparkles, Layout, Save } from "lucide-react";
+import { Layers, Copy, Check, Loader2, Sparkles, Layout, Save, ImageIcon, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
@@ -13,6 +14,7 @@ import { useParentNotification } from "@/hooks/useParentNotification";
 import { supabase } from "@/integrations/supabase/client";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-app`;
+const IMAGE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-image`;
 
 interface AppGeneratorProps {
   userId?: string;
@@ -26,6 +28,9 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
   const [copied, setCopied] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
@@ -209,6 +214,70 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
     }
   };
 
+  const generateImage = async () => {
+    if (!imagePrompt.trim()) {
+      toast.error("Please enter an image description");
+      return;
+    }
+
+    if (getTotalPoints() < 5) {
+      toast.error("Insufficient credits for image generation");
+      navigate("/payment");
+      return;
+    }
+
+    setIsGeneratingImage(true);
+    setGeneratedImage(null);
+
+    try {
+      const { success, error: deductError } = await deductPoints(5);
+      if (!success) {
+        toast.error(deductError || "Failed to deduct credits");
+        setIsGeneratingImage(false);
+        return;
+      }
+
+      const resp = await fetch(IMAGE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ prompt: imagePrompt }),
+      });
+
+      if (!resp.ok) {
+        if (resp.status === 429) {
+          toast.error("Rate limit exceeded. Please try again later.");
+        } else if (resp.status === 402) {
+          toast.error("Payment required. Please add credits.");
+        } else {
+          toast.error("Failed to generate image");
+        }
+        setIsGeneratingImage(false);
+        return;
+      }
+
+      const data = await resp.json();
+      if (data.imageUrl) {
+        setGeneratedImage(data.imageUrl);
+        await addHistoryItem({
+          action_type: "image_generation",
+          language: "image",
+          prompt: imagePrompt,
+          result: data.imageUrl,
+          points_used: 5,
+        });
+        toast.success("Image generated! (-5 credits)");
+      }
+    } catch (error) {
+      console.error("Image generation error:", error);
+      toast.error("Failed to generate image");
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* Input Section */}
@@ -323,6 +392,70 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
 
         <CodeOutput code={code} language={language} isGenerating={isGenerating} />
       </div>
+
+      {/* AI Image Generation Section */}
+      <Card className="glass">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ImageIcon className="w-5 h-5 text-accent" />
+            AI Image Generation for Apps
+          </CardTitle>
+          <CardDescription>
+            Generate custom images, icons, and assets for your application using AI
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-3">
+            <Input
+              placeholder="Describe the image you want (e.g., 'Modern app icon with gradient blue background')"
+              value={imagePrompt}
+              onChange={(e) => setImagePrompt(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              onClick={generateImage}
+              disabled={isGeneratingImage || !imagePrompt.trim()}
+              className="bg-accent hover:bg-accent/90"
+            >
+              {isGeneratingImage ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate (5 credits)
+                </>
+              )}
+            </Button>
+          </div>
+
+          {generatedImage && (
+            <div className="relative">
+              <img
+                src={generatedImage}
+                alt="Generated"
+                className="w-full max-w-md mx-auto rounded-lg border border-border"
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                className="absolute top-2 right-2"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = generatedImage;
+                  link.download = 'generated-image.png';
+                  link.click();
+                }}
+              >
+                <Download className="w-4 h-4 mr-1" />
+                Download
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

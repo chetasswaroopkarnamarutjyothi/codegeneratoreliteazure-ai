@@ -9,6 +9,7 @@ import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
 import WelcomeScreen from "@/components/WelcomeScreen";
+import ProfileCompletionGate from "@/components/ProfileCompletionGate";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -18,6 +19,7 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
   const [selectedTool, setSelectedTool] = useState<ToolType>("code-generator");
+  const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +29,8 @@ export default function Index() {
         setLoading(false);
         if (!session?.user) {
           navigate("/auth");
+        } else {
+          checkProfileComplete(session.user.id);
         }
       }
     );
@@ -36,11 +40,18 @@ export default function Index() {
       setLoading(false);
       if (!session?.user) {
         navigate("/auth");
+      } else {
+        checkProfileComplete(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkProfileComplete = async (userId: string) => {
+    const { data } = await supabase.rpc("is_profile_complete", { p_user_id: userId });
+    setProfileComplete(data === true);
+  };
 
   const handleLogout = async () => {
     sessionStorage.removeItem('2fa_completed');
@@ -48,7 +59,7 @@ export default function Index() {
     navigate("/auth");
   };
 
-  if (loading) {
+  if (loading || profileComplete === null) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -57,6 +68,16 @@ export default function Index() {
   }
 
   if (!user) return null;
+
+  // Show profile completion gate if profile is incomplete
+  if (!profileComplete) {
+    return (
+      <ProfileCompletionGate 
+        userId={user.id} 
+        onComplete={() => setProfileComplete(true)} 
+      />
+    );
+  }
 
   if (showWelcome) {
     return <WelcomeScreen onContinue={() => setShowWelcome(false)} />;

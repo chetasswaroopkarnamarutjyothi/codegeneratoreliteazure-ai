@@ -29,6 +29,7 @@ interface UserProfile {
   user_id: string;
   email: string;
   full_name: string;
+  username: string | null;
 }
 
 interface CreditRequestsPanelProps {
@@ -59,7 +60,7 @@ export function CreditRequestsPanel({ approvalBankCredits, onRequestProcessed }:
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
           .from("profiles")
-          .select("user_id, email, full_name")
+          .select("user_id, email, full_name, username")
           .in("user_id", userIds);
 
         if (profiles) {
@@ -77,6 +78,26 @@ export function CreditRequestsPanel({ approvalBankCredits, onRequestProcessed }:
 
   useEffect(() => {
     fetchRequests();
+
+    // Subscribe to realtime updates for credit requests
+    const channel = supabase
+      .channel('credit-requests-admin')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'credit_requests',
+        },
+        () => {
+          fetchRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleApprove = async (request: CreditRequest) => {
@@ -196,6 +217,7 @@ export function CreditRequestsPanel({ approvalBankCredits, onRequestProcessed }:
                         <div className="flex items-center gap-2 mb-1">
                           <User className="w-4 h-4 text-muted-foreground" />
                           <span className="font-medium">{user?.full_name || "Unknown"}</span>
+                          {user?.username && <span className="text-sm text-primary">@{user.username}</span>}
                           <span className="text-sm text-muted-foreground">({user?.email})</span>
                         </div>
                         <Badge variant="outline" className="text-lg font-bold">
