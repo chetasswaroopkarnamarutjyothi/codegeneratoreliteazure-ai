@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users } from "lucide-react";
+import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode } from "lucide-react";
+import QRCodeLogin from "@/components/QRCodeLogin";
 
-type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked";
+type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login";
 
 export default function Auth() {
   const [step, setStep] = useState<AuthStep>("login");
@@ -216,7 +217,7 @@ export default function Auth() {
       sessionStorage.setItem('2fa_completed', 'true');
       toast({
         title: "Profile created!",
-        description: "Welcome to Leo AI Platform",
+        description: "Welcome to StackMind Platform",
       });
       navigate("/");
     } catch (error: any) {
@@ -289,7 +290,7 @@ export default function Auth() {
           </div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            © {new Date().getFullYear()} Leo AI Limited. All rights reserved.
+            © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.
           </p>
         </div>
       </div>
@@ -395,7 +396,35 @@ export default function Auth() {
           </div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            © {new Date().getFullYear()} Leo AI Limited. All rights reserved.
+            © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // QR Login screen
+  if (step === "qr-login") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center">
+          <QRCodeLogin onAuthenticated={() => navigate("/")} />
+          
+          <Button
+            variant="ghost"
+            onClick={() => setStep("login")}
+            className="mt-4"
+          >
+            Back to Email Login
+          </Button>
+
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.
           </p>
         </div>
       </div>
@@ -415,7 +444,7 @@ export default function Auth() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            <span>Leo AI Platform</span>
+            <span>StackMind Platform</span>
           </div>
           <h1 className="text-3xl font-bold mb-2">
             {step === "login" ? "Welcome Back" : "Create Account"}
@@ -488,6 +517,30 @@ export default function Auth() {
             </Button>
           </form>
 
+          {/* QR Code Login Option */}
+          {step === "login" && (
+            <div className="mt-4">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/50" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+              
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => setStep("qr-login")}
+              >
+                <QrCode className="w-4 h-4 mr-2" />
+                Login with QR Code
+              </Button>
+            </div>
+          )}
+
           <div className="mt-6 text-center">
             <button
               type="button"
@@ -518,7 +571,7 @@ export default function Auth() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          © {new Date().getFullYear()} Leo AI Limited. All rights reserved.
+          © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.
         </p>
       </div>
     </div>

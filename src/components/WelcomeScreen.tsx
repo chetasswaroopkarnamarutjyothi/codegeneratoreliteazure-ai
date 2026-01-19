@@ -20,11 +20,11 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            <span>Welcome to Leo AI</span>
+            <span>Welcome to StackMind</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="gradient-text animate-gradient">Leo AI</span>
+            <span className="gradient-text animate-gradient">StackMind</span>
             <span className="text-foreground"> Platform</span>
           </h1>
 
@@ -95,7 +95,8 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
             <div className="grid md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="font-medium mb-1">Admin Credits (Daily Reset)</p>
-                <p className="text-muted-foreground">• Daily: 6,85,000 credits</p>
+                <p className="text-muted-foreground">• Daily: 8,85,000 credits</p>
+                <p className="text-muted-foreground">• Monthly: 91,85,000 credits</p>
                 <p className="text-muted-foreground">• Approval Bank: 2,85,000 credits (must be used within the day)</p>
               </div>
               <div>
@@ -128,7 +129,7 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
               </div>
               <h3 className="font-semibold text-sm">System</h3>
             </div>
-            <p className="text-muted-foreground">Leo AI Technologies Limited</p>
+            <p className="text-muted-foreground">StackMind Technologies Limited</p>
             <p className="text-xs text-muted-foreground mt-1">
               Full control: kchetasswaroop@gmail.com
             </p>
@@ -146,7 +147,7 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
           </Button>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            © {new Date().getFullYear()} Leo AI Technologies Limited. All rights reserved.
+            © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.
           </p>
         </div>
       </div>
