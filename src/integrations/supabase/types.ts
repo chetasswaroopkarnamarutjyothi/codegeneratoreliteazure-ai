@@ -289,6 +289,36 @@ export type Database = {
         }
         Relationships: []
       }
+      qr_login_tokens: {
+        Row: {
+          authenticated_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          status: string
+          token: string
+          user_id: string | null
+        }
+        Insert: {
+          authenticated_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          status?: string
+          token: string
+          user_id?: string | null
+        }
+        Update: {
+          authenticated_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          status?: string
+          token?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           admin_response: string | null
@@ -466,6 +496,7 @@ export type Database = {
         Args: { admin_notes_text?: string; request_id: string }
         Returns: boolean
       }
+      assign_random_admin_from_group: { Args: never; Returns: undefined }
       deny_credit_request: {
         Args: { admin_notes_text?: string; request_id: string }
         Returns: boolean
