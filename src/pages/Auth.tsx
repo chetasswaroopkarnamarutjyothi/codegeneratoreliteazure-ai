@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode } from "lucide-react";
+import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode, KeyRound } from "lucide-react";
 import QRCodeLogin from "@/components/QRCodeLogin";
+import LDAPAuth from "@/components/LDAPAuth";
 
-type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login";
+type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login";
 
 export default function Auth() {
   const [step, setStep] = useState<AuthStep>("login");
@@ -431,6 +432,29 @@ export default function Auth() {
     );
   }
 
+  // LDAP Login screen
+  if (step === "ldap-login") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center">
+          <LDAPAuth 
+            onBack={() => setStep("login")} 
+            onAuthenticated={() => navigate("/")} 
+          />
+
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Login/Signup screen
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -517,7 +541,7 @@ export default function Auth() {
             </Button>
           </form>
 
-          {/* QR Code Login Option */}
+          {/* Alternative Login Options */}
           {step === "login" && (
             <div className="mt-4">
               <div className="relative">
@@ -529,15 +553,26 @@ export default function Auth() {
                 </div>
               </div>
               
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full mt-4"
-                onClick={() => setStep("qr-login")}
-              >
-                <QrCode className="w-4 h-4 mr-2" />
-                Login with QR Code
-              </Button>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setStep("qr-login")}
+                >
+                  <QrCode className="w-4 h-4 mr-2" />
+                  QR Code
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 border-amber-500/30 hover:bg-amber-500/10"
+                  onClick={() => setStep("ldap-login")}
+                >
+                  <KeyRound className="w-4 h-4 mr-2 text-amber-500" />
+                  Employee
+                </Button>
+              </div>
             </div>
           )}
 

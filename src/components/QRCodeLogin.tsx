@@ -108,7 +108,11 @@ export default function QRCodeLogin({ onAuthenticated }: QRCodeLoginProps) {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const qrUrl = token ? `${window.location.origin}/auth/qr?token=${token}` : "";
+  // Use the published URL for production, preview URL for development
+  const baseUrl = import.meta.env.PROD 
+    ? "https://codegeneratoreliteazure-ai.lovable.app"
+    : window.location.origin;
+  const qrUrl = token ? `${baseUrl}/auth/qr?token=${token}` : "";
 
   return (
     <Card className="glass w-full max-w-md">

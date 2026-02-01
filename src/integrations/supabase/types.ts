@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_management: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          is_temporary: boolean | null
+          managed_by: string
+          notes: string | null
+          target_user_id: string
+          temp_expires_at: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          is_temporary?: boolean | null
+          managed_by: string
+          notes?: string | null
+          target_user_id: string
+          temp_expires_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          is_temporary?: boolean | null
+          managed_by?: string
+          notes?: string | null
+          target_user_id?: string
+          temp_expires_at?: string | null
+        }
+        Relationships: []
+      }
       credit_requests: {
         Row: {
           admin_notes: string | null
@@ -80,6 +113,27 @@ export type Database = {
           recipient_user_id?: string | null
           sent_at?: string
           subject?: string
+        }
+        Relationships: []
+      }
+      employee_ldap: {
+        Row: {
+          created_at: string
+          id: string
+          ldap_verified_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ldap_verified_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ldap_verified_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -502,6 +556,15 @@ export type Database = {
         Returns: boolean
       }
       generate_username: { Args: { base_name: string }; Returns: string }
+      grant_admin_role: {
+        Args: {
+          p_expires_at?: string
+          p_is_temporary?: boolean
+          p_notes?: string
+          p_target_user_id: string
+        }
+        Returns: boolean
+      }
       grant_credits_from_bank: {
         Args: { amount: number; grant_reason?: string; target_user_id: string }
         Returns: boolean
@@ -515,6 +578,7 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_profile_complete: { Args: { p_user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       reset_daily_credits_with_penalties: { Args: never; Returns: undefined }
       resolve_ticket: {
         Args: {
@@ -524,10 +588,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      revoke_admin_role: {
+        Args: { p_notes?: string; p_target_user_id: string }
+        Returns: boolean
+      }
       transfer_to_approval_bank: { Args: { amount: number }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "user" | "premium"
+      app_role: "admin" | "user" | "premium" | "employee"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -655,7 +723,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "premium"],
+      app_role: ["admin", "user", "premium", "employee"],
     },
   },
 } as const

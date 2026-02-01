@@ -11,3 +11,12 @@ verify_jwt = false
 
 [functions.send-collaboration-invite]
 verify_jwt = false
+
+[functions.verify-ldap]
+verify_jwt = false
+
+[functions.reset-daily-credits]
+verify_jwt = false
+
+[functions.generate-image]
+verify_jwt = false
