@@ -29,6 +29,7 @@ import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { TicketsPanel } from "@/components/admin/TicketsPanel";
 import { NotificationsPanel } from "@/components/admin/NotificationsPanel";
 import { AdminManagement } from "@/components/admin/AdminManagement";
+import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -400,7 +401,7 @@ export default function Admin() {
 
         {/* Tabs for different admin sections */}
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid grid-cols-7 w-full max-w-3xl">
+          <TabsList className="grid grid-cols-8 w-full max-w-4xl">
             <TabsTrigger value="requests" className="flex items-center gap-1">
               <ClipboardList className="w-4 h-4" />
               <span className="hidden sm:inline">Requests</span>
@@ -412,6 +413,10 @@ export default function Admin() {
             <TabsTrigger value="users" className="flex items-center gap-1">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Users</span>
+            </TabsTrigger>
+            <TabsTrigger value="usage" className="flex items-center gap-1">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Usage</span>
             </TabsTrigger>
             <TabsTrigger value="transfer" className="flex items-center gap-1">
               <ArrowRightLeft className="w-4 h-4" />
@@ -670,6 +675,11 @@ export default function Admin() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* User Usage Tab */}
+          <TabsContent value="usage">
+            <UserUsagePanel />
           </TabsContent>
 
           {/* Transfer Tab */}
