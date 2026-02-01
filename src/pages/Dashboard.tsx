@@ -328,36 +328,66 @@ export default function Dashboard() {
                 <p className="text-sm">Start generating code to see your history here</p>
               </div>
             ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="space-y-4 max-h-[600px] overflow-y-auto">
                 {history.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-start gap-4 p-4 rounded-lg bg-muted/30 border border-border/50"
+                    className="p-4 rounded-lg bg-muted/30 border border-border/50"
                   >
-                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                      {getActionIcon(item.action_type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium">{getActionLabel(item.action_type)}</p>
-                        {item.language && (
-                          <Badge variant="outline" className="text-xs">
-                            {item.language}
-                          </Badge>
-                        )}
-                        <Badge variant="secondary" className="text-xs">
-                          -{item.points_used || 5} credits
-                        </Badge>
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+                        {getActionIcon(item.action_type)}
                       </div>
-                      {item.prompt && (
-                        <p className="text-sm text-muted-foreground truncate">
-                          {item.prompt}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <p className="font-medium">{getActionLabel(item.action_type)}</p>
+                          {item.language && (
+                            <Badge variant="outline" className="text-xs">
+                              {item.language}
+                            </Badge>
+                          )}
+                          <Badge variant="secondary" className="text-xs">
+                            -{item.points_used || 5} credits
+                          </Badge>
+                        </div>
+                        {item.prompt && (
+                          <p className="text-sm text-muted-foreground mb-2">
+                            <span className="font-medium text-foreground">Prompt:</span> {item.prompt}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(item.created_at).toLocaleString()}
                         </p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(item.created_at).toLocaleString()}
-                      </p>
+                      </div>
                     </div>
+                    
+                    {/* Show the generated code */}
+                    {item.result && (
+                      <div className="mt-3 pt-3 border-t border-border/50">
+                        <p className="text-xs font-medium text-muted-foreground mb-2">Generated Code:</p>
+                        <div className="relative">
+                          <pre className="bg-background/80 rounded-lg p-3 text-xs overflow-x-auto max-h-48 overflow-y-auto border border-border/30">
+                            <code className="text-foreground whitespace-pre-wrap break-all">
+                              {item.result.length > 2000 
+                                ? item.result.substring(0, 2000) + "\n\n... (truncated)" 
+                                : item.result}
+                            </code>
+                          </pre>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-2 right-2 h-7 text-xs"
+                            onClick={async () => {
+                              await navigator.clipboard.writeText(item.result!);
+                              // Show toast
+                            }}
+                          >
+                            <Code2 className="w-3 h-3 mr-1" />
+                            Copy
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
