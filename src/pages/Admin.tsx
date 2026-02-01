@@ -28,6 +28,7 @@ import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { TicketsPanel } from "@/components/admin/TicketsPanel";
 import { NotificationsPanel } from "@/components/admin/NotificationsPanel";
+import { AdminManagement } from "@/components/admin/AdminManagement";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -69,6 +70,7 @@ export default function Admin() {
   const [adminCredits, setAdminCredits] = useState<AdminCredits | null>(null);
   const [transferAmount, setTransferAmount] = useState("");
   const [isTransferring, setIsTransferring] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -100,6 +102,18 @@ export default function Admin() {
       }
 
       setIsAdmin(true);
+      
+      // Check if super admin (Chetas Swaroop)
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("user_id", session.user.id)
+        .single();
+      
+      if (profileData?.email === "kchetasswaroop@gmail.com") {
+        setIsSuperAdmin(true);
+      }
+      
       await Promise.all([fetchUsers(), fetchAdminCredits(session.user.id)]);
       setLoading(false);
     };
@@ -386,7 +400,7 @@ export default function Admin() {
 
         {/* Tabs for different admin sections */}
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid grid-cols-6 w-full max-w-2xl">
+          <TabsList className="grid grid-cols-7 w-full max-w-3xl">
             <TabsTrigger value="requests" className="flex items-center gap-1">
               <ClipboardList className="w-4 h-4" />
               <span className="hidden sm:inline">Requests</span>
@@ -402,6 +416,10 @@ export default function Admin() {
             <TabsTrigger value="transfer" className="flex items-center gap-1">
               <ArrowRightLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Transfer</span>
+            </TabsTrigger>
+            <TabsTrigger value="manage-admins" className="flex items-center gap-1">
+              <Crown className="w-4 h-4" />
+              <span className="hidden sm:inline">Admins</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-1">
               <Wallet className="w-4 h-4" />
@@ -697,6 +715,17 @@ export default function Admin() {
                 </p>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Admin Management Tab */}
+          <TabsContent value="manage-admins">
+            <AdminManagement 
+              isSuperAdmin={isSuperAdmin}
+              onAdminChanged={() => {
+                fetchUsers();
+                if (user) fetchAdminCredits(user.id);
+              }}
+            />
           </TabsContent>
 
           {/* Analytics Tab */}
