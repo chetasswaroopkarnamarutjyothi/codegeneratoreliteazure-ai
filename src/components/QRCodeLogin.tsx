@@ -110,7 +110,7 @@ export default function QRCodeLogin({ onAuthenticated }: QRCodeLoginProps) {
 
   // Use the published URL for production, preview URL for development
   const baseUrl = import.meta.env.PROD 
-    ? "https://codegeneratoreliteazure-ai.lovable.app"
+    ? "https://codegeneratorelitestackmindlimited-ai.lovable.app"
     : window.location.origin;
   const qrUrl = token ? `${baseUrl}/auth/qr?token=${token}` : "";
 

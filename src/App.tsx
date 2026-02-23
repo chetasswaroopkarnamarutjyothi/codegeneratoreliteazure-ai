@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Payment from "./pages/Payment";
 import Admin from "./pages/Admin";
 import Projects from "./pages/Projects";
+import StackChat from "./pages/StackChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/payment" element={<Payment />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/projects" element={<Projects />} />
+          <Route path="/stack-chat" element={<StackChat />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

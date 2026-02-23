@@ -124,6 +124,10 @@ export default function Dashboard() {
                   <Shield className="w-4 h-4 mr-1" />
                   Admin Panel
                 </Button>
+                <Button variant="outline" size="sm" onClick={() => navigate("/stack-chat")}>
+                  <MessageSquare className="w-4 h-4 mr-1" />
+                  Stack Chat
+                </Button>
               </>
             )}
             {subscriptionType === "pro" && (
