@@ -99,7 +99,7 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
                 <p className="font-medium mb-1">Admin Credits (Daily Reset)</p>
                 <p className="text-muted-foreground">• Daily: 8,85,000 credits</p>
                 <p className="text-muted-foreground">• Monthly: 91,85,000 credits</p>
-                <p className="text-muted-foreground">​</p>
+                <p className="text-muted-foreground">​• Approval Bank: 2,85,000 credits (must be used within the day)</p>
               </div>
               <div>
                 <p className="font-medium mb-1">Standard Users</p>
