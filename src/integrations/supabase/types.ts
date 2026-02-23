@@ -47,6 +47,118 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_channel_members: {
+        Row: {
+          channel_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_channel_members_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "chat_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_channels: {
+        Row: {
+          channel_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_archived: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          channel_type?: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_archived?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          channel_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_archived?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          channel_id: string
+          content: string
+          created_at: string
+          file_url: string | null
+          id: string
+          is_deleted: boolean | null
+          is_edited: boolean | null
+          message_type: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel_id: string
+          content: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
+          message_type?: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string
+          content?: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
+          message_type?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "chat_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_requests: {
         Row: {
           admin_notes: string | null
@@ -134,6 +246,33 @@ export type Database = {
           id?: string
           ldap_verified_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      employee_terminations: {
+        Row: {
+          created_at: string
+          employee_user_id: string
+          id: string
+          reason: string
+          terminated_at: string
+          terminated_by: string
+        }
+        Insert: {
+          created_at?: string
+          employee_user_id: string
+          id?: string
+          reason: string
+          terminated_at?: string
+          terminated_by: string
+        }
+        Update: {
+          created_at?: string
+          employee_user_id?: string
+          id?: string
+          reason?: string
+          terminated_at?: string
+          terminated_by?: string
         }
         Relationships: []
       }
@@ -372,6 +511,56 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      support_chat_access: {
+        Row: {
+          access_type: string
+          amount_paid: number
+          channel_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          issue_resolved: boolean | null
+          priority_level: number | null
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          access_type?: string
+          amount_paid: number
+          channel_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          issue_resolved?: boolean | null
+          priority_level?: number | null
+          starts_at?: string
+          user_id: string
+        }
+        Update: {
+          access_type?: string
+          amount_paid?: number
+          channel_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          issue_resolved?: boolean | null
+          priority_level?: number | null
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_chat_access_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "chat_channels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       support_tickets: {
         Row: {

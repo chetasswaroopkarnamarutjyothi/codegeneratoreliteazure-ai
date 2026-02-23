@@ -22,7 +22,8 @@ import {
   Loader2,
   Banknote,
   ClipboardList,
-  BarChart3
+  BarChart3,
+  UserX
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -30,6 +31,7 @@ import { TicketsPanel } from "@/components/admin/TicketsPanel";
 import { NotificationsPanel } from "@/components/admin/NotificationsPanel";
 import { AdminManagement } from "@/components/admin/AdminManagement";
 import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
+import { EmployeeTermination } from "@/components/admin/EmployeeTermination";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -401,7 +403,7 @@ export default function Admin() {
 
         {/* Tabs for different admin sections */}
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid grid-cols-8 w-full max-w-4xl">
+          <TabsList className="grid grid-cols-9 w-full max-w-5xl">
             <TabsTrigger value="requests" className="flex items-center gap-1">
               <ClipboardList className="w-4 h-4" />
               <span className="hidden sm:inline">Requests</span>
@@ -425,6 +427,10 @@ export default function Admin() {
             <TabsTrigger value="manage-admins" className="flex items-center gap-1">
               <Crown className="w-4 h-4" />
               <span className="hidden sm:inline">Admins</span>
+            </TabsTrigger>
+            <TabsTrigger value="termination" className="flex items-center gap-1">
+              <UserX className="w-4 h-4" />
+              <span className="hidden sm:inline">Terminate</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-1">
               <Wallet className="w-4 h-4" />
@@ -736,6 +742,11 @@ export default function Admin() {
                 if (user) fetchAdminCredits(user.id);
               }}
             />
+          </TabsContent>
+
+          {/* Employee Termination Tab */}
+          <TabsContent value="termination">
+            <EmployeeTermination isSuperAdmin={isSuperAdmin} />
           </TabsContent>
 
           {/* Analytics Tab */}
