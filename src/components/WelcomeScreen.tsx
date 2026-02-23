@@ -24,7 +24,9 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="gradient-text animate-gradient">StackMind</span>
+            <span className="gradient-text animate-gradient">CodeNova
+
+            </span>
             <span className="text-foreground"> Platform</span>
           </h1>
 
@@ -137,11 +139,9 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
         </div>
 
         <div className="text-center">
-          <Button
-            onClick={onContinue}
-            size="lg"
-            className="glow-primary hover:scale-[1.02] transition-transform"
-          >
+          <Button onClick={onContinue} size="lg"
+          className="glow-primary hover:scale-[1.02] transition-transform">
+
             I Understand, Continue to Platform
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -151,6 +151,6 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
