@@ -99,7 +99,7 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
                 <p className="font-medium mb-1">Admin Credits (Daily Reset)</p>
                 <p className="text-muted-foreground">• Daily: 8,85,000 credits</p>
                 <p className="text-muted-foreground">• Monthly: 91,85,000 credits</p>
-                <p className="text-muted-foreground">• Approval Bank: 2,85,000 credits (must be used within the day)</p>
+                <p className="text-muted-foreground">​</p>
               </div>
               <div>
                 <p className="font-medium mb-1">Standard Users</p>
@@ -116,11 +116,12 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
                 <User className="w-4 h-4" />
               </div>
-              <h3 className="font-semibold text-sm">Code Author & Website Owner</h3>
+              <h3 className="font-semibold text-sm">​​​​​​​​​​Software Developer & Web Owner       </h3>
             </div>
             <p className="text-muted-foreground">Karnam Chetas Swaroop</p>
             <p className="text-xs text-muted-foreground mt-1">
-              (VII F Shishya Beml Public School Bangalore)
+              ​Student — Grade VII, Shishya BEML Public School, Bengaluru
+      
             </p>
           </div>
 
@@ -139,8 +140,7 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
         </div>
 
         <div className="text-center">
-          <Button onClick={onContinue} size="lg"
-          className="glow-primary hover:scale-[1.02] transition-transform">
+          <Button onClick={onContinue} size="lg" className="glow-primary hover:scale-[1.02] transition-transform">
 
             I Understand, Continue to Platform
             <ArrowRight className="w-4 h-4 ml-2" />
