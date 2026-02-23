@@ -130,11 +130,11 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
               <div className="p-2 rounded-lg bg-accent/10 text-accent">
                 <Shield className="w-4 h-4" />
               </div>
-              <h3 className="font-semibold text-sm">System</h3>
+              <h3 className="font-semibold text-sm">​Platfrom Control  </h3>
             </div>
             <p className="text-muted-foreground">StackMind Technologies Limited</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Full control: kchetasswaroop@gmail.com
+              Full control: Karnam Chetas Swaroop   
             </p>
           </div>
         </div>
