@@ -64,6 +64,8 @@ interface EmployeeProfile {
   avatar_url: string | null;
   last_active_at: string | null;
   ooo_until: string | null;
+  employee_id?: string | null;
+  manager_id?: string | null;
 }
 
 const AUTO_AWAY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
@@ -160,7 +162,7 @@ export default function StackChat() {
     if (!empRoles) return;
 
     const userIds = [...new Set(empRoles.map(r => r.user_id))];
-    const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, email, designation, status, status_message, avatar_url, last_active_at, ooo_until").in("user_id", userIds);
+    const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, email, designation, status, status_message, avatar_url, last_active_at, ooo_until").in("user_id", userIds) as any;
     
     if (profiles) {
       setEmployees(profiles as EmployeeProfile[]);
@@ -374,6 +376,7 @@ export default function StackChat() {
                           <Badge variant="outline" className="text-[10px] shrink-0">{getStatusLabel(emp.status || "available")}</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
+                          {emp.employee_id && <span className="font-mono mr-1">{emp.employee_id} •</span>}
                           {emp.designation || "Employee"} • {emp.email}
                         </p>
                         {emp.status_message && (

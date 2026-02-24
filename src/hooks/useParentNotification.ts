@@ -26,7 +26,7 @@ export function useParentNotification() {
           action_type: `parent_notified_${actionType}`,
           prompt: `Parent (${parentEmail}) notified about: ${details}`,
           result: "Notification sent",
-          points_used: 0,
+          points_used: 0, // Parent notifications are free
         });
       }
     } catch (error) {

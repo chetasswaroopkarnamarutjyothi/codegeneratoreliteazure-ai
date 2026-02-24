@@ -172,7 +172,7 @@ export function useUserPoints(userId: string | undefined) {
     const totalAvailable = points.daily_points + (isAdmin ? points.monthly_points : 0);
     
     if (totalAvailable < amount) {
-      return { success: false, error: "Insufficient Azure AI Power Credits. Please upgrade to Pro or Pro+." };
+      return { success: false, error: "Insufficient CodeNova Credits. Please upgrade to Pro or Pro+." };
     }
 
     try {
@@ -187,7 +187,7 @@ export function useUserPoints(userId: string | undefined) {
         newDailyPoints = 0;
         newMonthlyPoints = points.monthly_points - remaining;
       } else {
-        return { success: false, error: "Insufficient Azure AI Power Credits. Please upgrade to Pro or Pro+." };
+        return { success: false, error: "Insufficient CodeNova Credits. Please upgrade to Pro or Pro+." };
       }
 
       const { error } = await supabase

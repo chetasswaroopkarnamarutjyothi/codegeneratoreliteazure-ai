@@ -219,7 +219,7 @@ export default function Dashboard() {
                 Upgrade Your Plan
               </CardTitle>
               <CardDescription>
-                Get more Azure AI Power Credits and access to premium AI models
+                Get more CodeNova Credits and access to premium AI models
               </CardDescription>
             </CardHeader>
             <CardContent>

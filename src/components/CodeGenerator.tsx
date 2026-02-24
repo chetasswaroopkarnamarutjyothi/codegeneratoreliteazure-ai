@@ -38,7 +38,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
 
     // Check if user has enough points
     if (getTotalPoints() < 5) {
-      toast.error("Insufficient Azure AI Power Credits. Please upgrade to Pro or Pro+.");
+      toast.error("Insufficient CodeNova Credits. Please upgrade to Pro or Pro+.");
       navigate("/payment");
       return;
     }

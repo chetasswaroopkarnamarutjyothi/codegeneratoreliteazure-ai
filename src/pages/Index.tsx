@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen } from "lucide-react";
+import codenovaIcon from "@/assets/codenova-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -155,7 +156,7 @@ export default function Index() {
         {/* Header */}
         <header className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
-            <Sparkles className="w-4 h-4" />
+            <img src={codenovaIcon} alt="CodeNova" className="w-5 h-5 rounded" />
             <span>CodeNova AI by StackMind Technologies</span>
           </div>
 
