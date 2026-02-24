@@ -31,7 +31,7 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
           </h1>
 
           <p className="text-lg text-muted-foreground mb-6">
-            Generate production-ready code, build complete applications, and verify your code with the power of AI.
+            CodeNova AI by StackMind Technologies — Generate production-ready code, build complete applications, and verify your code with the power of AI.
           </p>
         </div>
 
