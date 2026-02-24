@@ -182,7 +182,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
           <div className="p-2 rounded-lg bg-primary/10 text-primary">
             <Terminal className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-semibold">Describe your code</h2>
+          <h2 className="text-lg font-semibold">CodeNova AI — Describe your code</h2>
         </div>
 
         <div className="flex gap-4 items-start">

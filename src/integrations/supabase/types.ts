@@ -372,11 +372,16 @@ export type Database = {
           avatar_updated_at: string | null
           avatar_url: string | null
           created_at: string
+          designation: string | null
           email: string
           full_name: string
           id: string
           is_blocked: boolean | null
+          last_active_at: string | null
+          ooo_until: string | null
           parent_email: string | null
+          status: string | null
+          status_message: string | null
           subscription_type: string | null
           updated_at: string
           user_id: string
@@ -387,11 +392,16 @@ export type Database = {
           avatar_updated_at?: string | null
           avatar_url?: string | null
           created_at?: string
+          designation?: string | null
           email: string
           full_name: string
           id?: string
           is_blocked?: boolean | null
+          last_active_at?: string | null
+          ooo_until?: string | null
           parent_email?: string | null
+          status?: string | null
+          status_message?: string | null
           subscription_type?: string | null
           updated_at?: string
           user_id: string
@@ -402,11 +412,16 @@ export type Database = {
           avatar_updated_at?: string | null
           avatar_url?: string | null
           created_at?: string
+          designation?: string | null
           email?: string
           full_name?: string
           id?: string
           is_blocked?: boolean | null
+          last_active_at?: string | null
+          ooo_until?: string | null
           parent_email?: string | null
+          status?: string | null
+          status_message?: string | null
           subscription_type?: string | null
           updated_at?: string
           user_id?: string

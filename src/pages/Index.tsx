@@ -86,11 +86,11 @@ export default function Index() {
   const getToolTitle = () => {
     switch (selectedTool) {
       case "code-generator":
-        return { text: "Code", gradient: true };
+        return { text: "CodeNova", gradient: true };
       case "app-generator":
-        return { text: "App", gradient: true };
+        return { text: "CodeNova", gradient: true };
       case "code-verifier":
-        return { text: "Code", gradient: true };
+        return { text: "CodeNova", gradient: true };
     }
   };
 
@@ -99,7 +99,7 @@ export default function Index() {
       case "code-generator":
         return "Generator";
       case "app-generator":
-        return "Generator";
+        return "App Builder";
       case "code-verifier":
         return "Verifier";
     }
@@ -108,11 +108,11 @@ export default function Index() {
   const getToolDescription = () => {
     switch (selectedTool) {
       case "code-generator":
-        return "Transform your ideas into production-ready code. Simply describe what you need, select your language, and let AI do the heavy lifting.";
+        return "Transform your ideas into production-ready code with CodeNova AI by StackMind Technologies.";
       case "app-generator":
-        return "Generate complete applications with all the components, logic, and styling you need. Describe your app and watch it come to life.";
+        return "Generate complete applications with CodeNova AI. Describe your app and watch it come to life.";
       case "code-verifier":
-        return "Paste your code to check for errors, bugs, and get suggestions for improvements. Keep your code clean and error-free.";
+        return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
     }
   };
 
@@ -156,7 +156,7 @@ export default function Index() {
         <header className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            <span>Powered by AI</span>
+            <span>CodeNova AI by StackMind Technologies</span>
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">
@@ -205,7 +205,7 @@ export default function Index() {
               <User className="w-4 h-4" />
             </div>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">Code Author:</span> Karnam Chetas Swaroop
+              <span className="font-medium text-foreground">CodeNova AI</span> by StackMind Technologies — Author: Karnam Chetas Swaroop
             </p>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function Index() {
       {/* Footer */}
       <footer className="relative z-10 py-6 text-center border-t border-border/50">
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Leo AI Technologies. All rights reserved.
+          © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved. | CodeNova AI
         </p>
       </footer>
     </div>

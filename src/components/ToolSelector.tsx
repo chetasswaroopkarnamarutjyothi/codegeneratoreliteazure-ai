@@ -10,21 +10,21 @@ interface ToolSelectorProps {
 const tools = [
   {
     id: "code-generator" as ToolType,
-    name: "Code Generator",
-    description: "Generate code snippets",
+    name: "CodeNova Generator",
+    description: "Generate code with CodeNova AI",
     icon: Code2,
     color: "primary",
   },
   {
     id: "app-generator" as ToolType,
-    name: "App Generator",
+    name: "CodeNova App Builder",
     description: "Generate full applications",
     icon: Layers,
     color: "accent",
   },
   {
     id: "code-verifier" as ToolType,
-    name: "Code Verifier",
+    name: "CodeNova Verifier",
     description: "Check code for errors",
     icon: ShieldCheck,
     color: "green-500",
