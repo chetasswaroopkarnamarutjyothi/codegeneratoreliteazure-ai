@@ -91,21 +91,14 @@ export default function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
           </CardContent>
         </Card>
 
-        {/* Admin Credits Info */}
+        {/* Platform Info */}
         <Card className="glass mb-6">
           <CardContent className="pt-6">
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="font-medium mb-1">Admin Credits (Daily Reset)</p>
-                <p className="text-muted-foreground">• Daily: 8,85,000 credits</p>
-                <p className="text-muted-foreground">• Monthly: 91,85,000 credits</p>
-                <p className="text-muted-foreground">​• Approval Bank: 2,85,000 credits (must be used within the day)</p>
-              </div>
-              <div>
-                <p className="font-medium mb-1">Standard Users</p>
-                <p className="text-muted-foreground">• Daily: 50 credits</p>
-                <p className="text-muted-foreground">• Each action costs 5 credits</p>
-              </div>
+            <div className="text-sm">
+              <p className="font-medium mb-1">Standard Users</p>
+              <p className="text-muted-foreground">• Daily: 50 CodeNova Credits</p>
+              <p className="text-muted-foreground">• Each action costs 5 credits</p>
+              <p className="text-muted-foreground">• Upgrade to Pro or Pro+ for more credits</p>
             </div>
           </CardContent>
         </Card>
