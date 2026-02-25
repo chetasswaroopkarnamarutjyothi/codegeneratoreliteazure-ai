@@ -25,11 +25,13 @@ import {
   Clock,
   MinusCircle,
   Calendar,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CreateChannelDialog } from "@/components/chat/CreateChannelDialog";
 import { ChannelSidebar } from "@/components/chat/ChannelSidebar";
 import { EmployeeStatusSettings } from "@/components/chat/EmployeeStatusSettings";
+import { PaidSupportAccess } from "@/components/chat/PaidSupportAccess";
 import type { User } from "@supabase/supabase-js";
 
 interface Channel {
@@ -87,6 +89,7 @@ export default function StackChat() {
   const [employees, setEmployees] = useState<EmployeeProfile[]>([]);
   const [showPeople, setShowPeople] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showPaidSupport, setShowPaidSupport] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const awayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -137,10 +140,21 @@ export default function StackChat() {
       const emp = roleSet.has("employee");
       const adm = roleSet.has("admin");
 
+      // Non-employees can still access if they have paid support access
       if (!emp && !adm) {
-        toast.error("Stack Chat is only available for employees");
-        navigate("/");
-        return;
+        const { data: accessData } = await supabase
+          .from("support_chat_access")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .eq("is_active", true)
+          .gte("expires_at", new Date().toISOString())
+          .limit(1)
+          .maybeSingle();
+        
+        if (!accessData) {
+          // Show paid support dialog instead of redirecting
+          setShowPaidSupport(true);
+        }
       }
 
       setIsEmployee(emp);
@@ -319,6 +333,12 @@ export default function StackChat() {
         </Badge>
         <div className="flex-1" />
         <div className="flex items-center gap-1">
+          {!isEmployee && !isAdmin && (
+            <Button variant="outline" size="sm" onClick={() => setShowPaidSupport(true)} className="text-primary border-primary/30">
+              <Shield className="w-4 h-4 mr-1" />
+              Get Support Access — ₹4,500
+            </Button>
+          )}
           <Button variant="ghost" size="sm" onClick={() => { setShowPeople(!showPeople); setSelectedChannel(null); }}>
             <Users className="w-4 h-4 mr-1" />
             People
@@ -497,6 +517,17 @@ export default function StackChat() {
           onClose={() => setShowStatusSettings(false)}
           userId={user.id}
           onUpdated={fetchEmployees}
+        />
+      )}
+
+      {showPaidSupport && user && (
+        <PaidSupportAccess
+          open={showPaidSupport}
+          onClose={() => setShowPaidSupport(false)}
+          userId={user.id}
+          onAccessGranted={async () => {
+            if (user) await fetchChannels(user.id);
+          }}
         />
       )}
     </div>

@@ -15,10 +15,10 @@ export interface UserPoints {
   created_at: string;
 }
 
-// Admin credits: 285,000 daily, 81,00,000 (8,100,000) monthly, 85,000 approval bank
-const ADMIN_DAILY_CREDITS = 285000;
-const ADMIN_MONTHLY_CREDITS = 8100000;
-const ADMIN_APPROVAL_BANK = 85000;
+// Admin credits: 8,85,000 daily, 91,85,000 monthly, 2,85,000 approval bank
+const ADMIN_DAILY_CREDITS = 885000;
+const ADMIN_MONTHLY_CREDITS = 9185000;
+const ADMIN_APPROVAL_BANK = 285000;
 
 // Regular user credits
 const USER_DAILY_CREDITS = 50;
@@ -71,6 +71,33 @@ export function useUserPoints(userId: string | undefined) {
     }
 
     try {
+      // Always check admin status fresh to avoid stale state issues
+      let userIsAdmin = false;
+      let userSubType = "free";
+
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (roleData) {
+        userIsAdmin = true;
+        setIsAdmin(true);
+      }
+
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("subscription_type")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (profileData?.subscription_type) {
+        userSubType = profileData.subscription_type;
+        setSubscriptionType(userSubType);
+      }
+
       const { data, error } = await supabase
         .from("user_points")
         .select("*")
@@ -81,8 +108,6 @@ export function useUserPoints(userId: string | undefined) {
         throw error;
       }
 
-      // If no user_points exists, this is handled by database trigger on profile creation
-      // But as a fallback for existing users without points, we wait for admin to fix it
       if (!data) {
         console.warn("No user_points found for user. This should be created automatically on signup.");
         setPoints(null);
@@ -90,19 +115,20 @@ export function useUserPoints(userId: string | undefined) {
         return;
       }
 
-      // Check if daily reset is needed
-      const today = new Date().toISOString().split("T")[0];
+      // Use UTC date for reset comparison
+      const now = new Date();
+      const today = now.toISOString().split("T")[0];
       const lastDailyReset = data.last_daily_reset;
 
       if (lastDailyReset !== today) {
         // Reset daily points - NO ROLLOVER
         let defaultDaily = USER_DAILY_CREDITS;
         
-        if (isAdmin) {
+        if (userIsAdmin) {
           defaultDaily = ADMIN_DAILY_CREDITS;
-        } else if (subscriptionType === "pro_plus") {
+        } else if (userSubType === "pro_plus") {
           defaultDaily = PRO_PLUS_CREDITS;
-        } else if (subscriptionType === "pro") {
+        } else if (userSubType === "pro") {
           defaultDaily = PRO_CREDITS;
         }
 
@@ -111,31 +137,20 @@ export function useUserPoints(userId: string | undefined) {
           last_daily_reset: today,
         };
 
+        // Admin monthly + approval bank reset
+        if (userIsAdmin) {
+          const currentMonth = today.slice(0, 7);
+          const lastMonthlyReset = data.last_monthly_reset.slice(0, 7);
+          if (currentMonth !== lastMonthlyReset) {
+            updatePayload.monthly_points = ADMIN_MONTHLY_CREDITS;
+            updatePayload.approval_bank_credits = ADMIN_APPROVAL_BANK;
+            updatePayload.last_monthly_reset = today;
+          }
+        }
+
         const { data: updatedData, error: updateError } = await supabase
           .from("user_points")
           .update(updatePayload)
-          .eq("user_id", userId)
-          .select()
-          .single();
-
-        if (!updateError && updatedData) {
-          setPoints(updatedData);
-          return;
-        }
-      }
-
-      // Check if monthly reset is needed
-      const currentMonth = today.slice(0, 7);
-      const lastMonthlyReset = data.last_monthly_reset.slice(0, 7);
-
-      if (currentMonth !== lastMonthlyReset && isAdmin) {
-        const { data: updatedData, error: updateError } = await supabase
-          .from("user_points")
-          .update({
-            monthly_points: ADMIN_MONTHLY_CREDITS,
-            approval_bank_credits: ADMIN_APPROVAL_BANK,
-            last_monthly_reset: today,
-          })
           .eq("user_id", userId)
           .select()
           .single();
@@ -153,11 +168,7 @@ export function useUserPoints(userId: string | undefined) {
     } finally {
       setLoading(false);
     }
-  }, [userId, isAdmin, subscriptionType]);
-
-  useEffect(() => {
-    checkAdminStatus();
-  }, [checkAdminStatus]);
+  }, [userId]);
 
   useEffect(() => {
     fetchPoints();

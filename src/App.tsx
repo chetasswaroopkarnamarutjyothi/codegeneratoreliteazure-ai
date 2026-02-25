@@ -12,6 +12,7 @@ import Payment from "./pages/Payment";
 import Admin from "./pages/Admin";
 import Projects from "./pages/Projects";
 import StackChat from "./pages/StackChat";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/admin" element={<Admin />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/stack-chat" element={<StackChat />} />
+          <Route path="/about" element={<About />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
