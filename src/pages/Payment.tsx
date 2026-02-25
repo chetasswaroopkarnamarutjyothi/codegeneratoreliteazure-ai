@@ -92,10 +92,42 @@ export default function Payment() {
 
       if (error) throw error;
 
+      // Notify admin about the payment request
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (adminRoles) {
+        for (const admin of adminRoles) {
+          const { data: adminProfile } = await supabase
+            .from("profiles")
+            .select("email")
+            .eq("user_id", admin.user_id)
+            .single();
+
+          if (adminProfile) {
+            await supabase.from("email_notifications").insert({
+              recipient_user_id: admin.user_id,
+              recipient_email: adminProfile.email,
+              notification_type: "payment_request",
+              subject: `New Payment Request - ${plan.name}`,
+              body: `A user has submitted a payment request.\n\nPlan: ${plan.name}\nAmount: ₹${plan.amount.toLocaleString()}\nUser Email: ${user.email}\nCredits: ${plan.credits}/day\nPeriod: ${plan.period}\n\nPlease process this request and provide the payment email to the user.`,
+              metadata: JSON.stringify({
+                plan: planKey,
+                amount: plan.amount,
+                user_email: user.email,
+                user_id: user.id,
+              }),
+            });
+          }
+        }
+      }
+
       setRequestSent(true);
       toast({
         title: "Request submitted!",
-        description: "Please visit our branch to complete payment.",
+        description: "Your payment details have been recorded. Our team will get back to you with the payment email.",
       });
     } catch (error: any) {
       toast({
@@ -129,9 +161,9 @@ export default function Payment() {
                 <CheckCircle className="w-16 h-16" />
               </div>
               <h1 className="text-3xl font-bold mb-4">Request Submitted!</h1>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Your {plan.name} upgrade request has been recorded. Please visit our branch
-                to complete the payment process.
+               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Your {plan.name} upgrade request has been recorded. Our team will review
+                your request and provide you with the payment email shortly.
               </p>
               
               <div className="bg-muted/30 rounded-lg p-6 mb-6 text-left max-w-md mx-auto">
@@ -163,8 +195,8 @@ export default function Payment() {
               </div>
 
               <p className="text-sm text-muted-foreground mb-6">
-                Show this confirmation at our branch along with your email ID.
-                Your account will be upgraded within 24 hours of payment.
+                The admin has been notified of your request. You will receive an email 
+                with payment instructions. Your account will be upgraded within 24 hours of payment.
               </p>
 
               <Button onClick={() => navigate("/dashboard")}>
@@ -211,8 +243,8 @@ export default function Payment() {
                 </span>
               )}
             </CardTitle>
-            <CardDescription>
-              {plan.credits} Azure AI Power Credits per day
+          <CardDescription>
+              {plan.credits} CodeNova Credits per day
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -268,7 +300,7 @@ export default function Payment() {
             <div className="flex items-start gap-3">
               <MapPin className="w-5 h-5 text-primary mt-0.5" />
               <div>
-                <p className="font-medium">Leo AI Technologies</p>
+                <p className="font-medium">StackMind Technologies Limited</p>
                 <p className="text-sm text-muted-foreground">
                   Contact support for branch location details
                 </p>
@@ -279,7 +311,7 @@ export default function Payment() {
               <div>
                 <p className="font-medium">Contact Support</p>
                 <p className="text-sm text-muted-foreground">
-                  Email us for appointment scheduling
+                  Submit a request first and our team will get back to you
                 </p>
               </div>
             </div>

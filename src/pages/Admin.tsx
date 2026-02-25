@@ -23,7 +23,8 @@ import {
   Banknote,
   ClipboardList,
   BarChart3,
-  UserX
+  UserX,
+  UserPlus
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -293,6 +294,55 @@ export default function Admin() {
       toast({
         title: "Error",
         description: error.message || "Failed to update user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePromoteToEmployee = async (profile: UserProfile) => {
+    try {
+      // Check if already employee
+      const { data: existingRole } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", profile.user_id)
+        .eq("role", "employee")
+        .maybeSingle();
+
+      if (existingRole) {
+        toast({ title: "Already an employee", description: `${profile.full_name} is already an employee.` });
+        return;
+      }
+
+      // Add employee role
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .insert({ user_id: profile.user_id, role: "employee" });
+
+      if (roleError) throw roleError;
+
+      // Add LDAP record
+      await supabase
+        .from("employee_ldap")
+        .insert({ user_id: profile.user_id })
+        .throwOnError();
+
+      // Update credits to employee level (100 daily)
+      await supabase
+        .from("user_points")
+        .update({ daily_points: 100 })
+        .eq("user_id", profile.user_id);
+
+      toast({
+        title: "User promoted!",
+        description: `${profile.full_name} is now an employee with 100 daily credits.`,
+      });
+
+      await fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to promote user",
         variant: "destructive",
       });
     }
@@ -648,6 +698,16 @@ export default function Admin() {
                             >
                               <Gift className="w-4 h-4 mr-1" />
                               Grant
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handlePromoteToEmployee(profile)}
+                              disabled={profile.is_blocked}
+                              className="border-amber-500/30 hover:bg-amber-500/10 text-amber-500"
+                            >
+                              <UserPlus className="w-4 h-4 mr-1" />
+                              Employee
                             </Button>
                             <Button
                               variant={profile.is_blocked ? "default" : "destructive"}
