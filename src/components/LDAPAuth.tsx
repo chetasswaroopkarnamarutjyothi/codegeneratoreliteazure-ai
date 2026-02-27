@@ -34,48 +34,21 @@ export default function LDAPAuth({ onBack, onAuthenticated }: LDAPAuthProps) {
 
     setLoading(true);
     try {
-      // Verify employee ID exists in the profiles table (designation field stores employee_id as SM-EMP-XXXX)
+      // Verify employee ID exists in the employee_ids table
       const { data, error } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, email")
-        .or(`designation.ilike.%${employeeId.trim()}%,username.eq.${employeeId.trim()}`)
-        .limit(1);
+        .from("employee_ids")
+        .select("id, employee_id, is_used")
+        .eq("employee_id", employeeId.trim().toUpperCase())
+        .maybeSingle();
 
-      // Also check if employee_id matches pattern in any profile
-      // Employee IDs are stored or can be searched by pattern
-      const { data: allProfiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, email, designation");
+      if (error) throw error;
 
-      // Search for matching employee ID in profiles
-      const matchedProfile = allProfiles?.find(p => {
-        // Check if the designation or any field contains the employee ID
-        return p.designation?.includes(employeeId.trim());
-      });
-
-      if (!matchedProfile && (!data || data.length === 0)) {
+      if (!data) {
         // Notify admin about invalid employee ID attempt
         await notifyAdminInvalidEmployeeId(employeeId.trim());
         toast.error("Invalid Employee ID. The admin has been notified.");
         setLoading(false);
         return;
-      }
-
-      // Verify employee has the employee role
-      const userId = matchedProfile?.user_id || data?.[0]?.user_id;
-      if (userId) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId)
-          .in("role", ["employee", "admin"]);
-
-        if (!roleData || roleData.length === 0) {
-          await notifyAdminInvalidEmployeeId(employeeId.trim());
-          toast.error("Invalid Employee ID. The admin has been notified.");
-          setLoading(false);
-          return;
-        }
       }
 
       toast.success("Employee ID verified! Please enter the secret code.");

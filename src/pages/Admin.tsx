@@ -24,7 +24,8 @@ import {
   ClipboardList,
   BarChart3,
   UserX,
-  UserPlus
+  UserPlus,
+  IdCard
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -34,6 +35,7 @@ import { AdminManagement } from "@/components/admin/AdminManagement";
 import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
 import { EmployeeTermination } from "@/components/admin/EmployeeTermination";
 import type { User } from "@supabase/supabase-js";
+import { EmployeeIdGenerator } from "@/components/admin/EmployeeIdGenerator";
 
 interface UserProfile {
   id: string;
@@ -453,7 +455,7 @@ export default function Admin() {
 
         {/* Tabs for different admin sections */}
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid grid-cols-9 w-full max-w-5xl">
+          <TabsList className="grid grid-cols-10 w-full max-w-6xl">
             <TabsTrigger value="requests" className="flex items-center gap-1">
               <ClipboardList className="w-4 h-4" />
               <span className="hidden sm:inline">Requests</span>
@@ -473,6 +475,10 @@ export default function Admin() {
             <TabsTrigger value="transfer" className="flex items-center gap-1">
               <ArrowRightLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Transfer</span>
+            </TabsTrigger>
+            <TabsTrigger value="employee-ids" className="flex items-center gap-1">
+              <IdCard className="w-4 h-4" />
+              <span className="hidden sm:inline">Emp IDs</span>
             </TabsTrigger>
             <TabsTrigger value="manage-admins" className="flex items-center gap-1">
               <Crown className="w-4 h-4" />
@@ -791,6 +797,11 @@ export default function Admin() {
                 </p>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Employee IDs Tab */}
+          <TabsContent value="employee-ids">
+            <EmployeeIdGenerator />
           </TabsContent>
 
           {/* Admin Management Tab */}

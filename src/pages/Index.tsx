@@ -13,6 +13,8 @@ import WelcomeScreen from "@/components/WelcomeScreen";
 import ProfileCompletionGate from "@/components/ProfileCompletionGate";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export default function Index() {
@@ -128,8 +130,10 @@ export default function Index() {
 
       <div className="relative z-10 container mx-auto px-4 py-12 flex-1">
         {/* User menu */}
-        <div className="absolute top-4 right-4 flex items-center gap-3">
+        <div className="absolute top-4 right-4 flex items-center gap-3 flex-wrap justify-end">
           <PointsDisplay userId={user.id} />
+          <ThemeToggle />
+          <LanguageSwitcher userId={user.id} />
           <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
             <LayoutDashboard className="w-4 h-4 mr-1" />
             Dashboard

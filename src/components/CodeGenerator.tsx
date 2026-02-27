@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import CodeOutput from "./CodeOutput";
+import { ProfessionalCodeToggle } from "./ProfessionalCodeToggle";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUsageHistory } from "@/hooks/useUsageHistory";
 import { useParentNotification } from "@/hooks/useParentNotification";
@@ -23,12 +24,28 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
   const [code, setCode] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [professionalMode, setProfessionalMode] = useState(false);
+  const [isEmployee, setIsEmployee] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
-  const { points, deductPoints, getTotalPoints, subscriptionType } = useUserPoints(userId);
+  const { points, deductPoints, getTotalPoints, subscriptionType, isAdmin } = useUserPoints(userId);
   const { addHistoryItem } = useUsageHistory(userId);
   const { notifyParent } = useParentNotification();
+
+  useEffect(() => {
+    if (!userId) return;
+    const checkEmployee = async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "employee")
+        .maybeSingle();
+      setIsEmployee(!!data);
+    };
+    checkEmployee();
+  }, [userId]);
 
   const generateCode = async () => {
     if (!prompt.trim()) {
@@ -36,11 +53,30 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
       return;
     }
 
+    const creditCost = professionalMode ? 50 : 5;
+
     // Check if user has enough points
-    if (getTotalPoints() < 5) {
-      toast.error("Insufficient CodeNova Credits. Please upgrade to Pro or Pro+.");
+    if (getTotalPoints() < creditCost) {
+      toast.error(`Insufficient CodeNova Credits. Need ${creditCost} credits.`);
       navigate("/payment");
       return;
+    }
+
+    // Professional mode: check monthly limit for free users
+    if (professionalMode && subscriptionType === "free" && !isAdmin && !isEmployee) {
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      const { count } = await supabase
+        .from("professional_code_usage")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId!)
+        .gte("used_at", startOfMonth.toISOString());
+      if ((count || 0) >= 1) {
+        toast.error("Free users can generate professional code once per month. Upgrade to Pro+ (₹5,000 + ₹2,000) for unlimited.");
+        navigate("/payment?plan=pro_plus_monthly");
+        return;
+      }
     }
 
     setIsGenerating(true);
@@ -48,7 +84,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
 
     try {
       // Deduct points first
-      const { success, error: deductError } = await deductPoints(5);
+      const { success, error: deductError } = await deductPoints(creditCost);
       if (!success) {
         toast.error(deductError || "Failed to deduct credits");
         setIsGenerating(false);
@@ -61,7 +97,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ prompt, language, subscriptionType }),
+        body: JSON.stringify({ prompt, language, subscriptionType, professionalMode }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -137,17 +173,42 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
 
       // Record usage
       await addHistoryItem({
-        action_type: "code_generation",
+        action_type: professionalMode ? "professional_code_generation" : "code_generation",
         language,
         prompt,
         result: fullCode,
-        points_used: 5,
+        points_used: creditCost,
       });
+
+      // Track professional code usage
+      if (professionalMode && userId) {
+        await supabase.from("professional_code_usage").insert({
+          user_id: userId,
+          prompt,
+          language,
+          credits_used: creditCost,
+        });
+
+        // Employee salary deduction check (50+ times)
+        if (isEmployee) {
+          const startOfMonth = new Date();
+          startOfMonth.setDate(1);
+          startOfMonth.setHours(0, 0, 0, 0);
+          const { count } = await supabase
+            .from("professional_code_usage")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", userId)
+            .gte("used_at", startOfMonth.toISOString());
+          if ((count || 0) >= 50) {
+            toast.warning("⚠️ 50+ professional codes this month. 10% salary deduction will apply automatically.");
+          }
+        }
+      }
       
-      // Notify parent if applicable (would need profile info)
+      // Notify parent if applicable
       await notifyParent("", "", "code_generation", prompt);
 
-      toast.success("Code generated successfully! (-5 credits)");
+      toast.success(`Code generated successfully! (-${creditCost} credits)`);
     } catch (error) {
       console.error("Error generating code:", error);
       toast.error("Something went wrong. Please try again.");
@@ -195,8 +256,16 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
               placeholder="e.g., Create a function that validates email addresses with regex..."
               className="min-h-[120px] resize-none bg-muted/50 border-border focus:border-primary focus:glow-border transition-all"
             />
+            <ProfessionalCodeToggle
+              userId={userId}
+              subscriptionType={subscriptionType}
+              isAdmin={isAdmin}
+              isEmployee={isEmployee}
+              enabled={professionalMode}
+              onToggle={setProfessionalMode}
+            />
             <p className="text-xs text-muted-foreground">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate • Costs 5 credits
+              Press <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate • Costs {professionalMode ? 50 : 5} credits
             </p>
           </div>
 
