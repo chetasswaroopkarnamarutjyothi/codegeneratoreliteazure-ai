@@ -228,6 +228,33 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_ids: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          employee_id: string
+          generated_by: string
+          id: string
+          is_used: boolean | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          employee_id: string
+          generated_by: string
+          id?: string
+          is_used?: boolean | null
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          employee_id?: string
+          generated_by?: string
+          id?: string
+          is_used?: boolean | null
+        }
+        Relationships: []
+      }
       employee_ldap: {
         Row: {
           created_at: string
@@ -363,6 +390,33 @@ export type Database = {
           points_granted?: number
           reason?: string | null
           target_user_id?: string
+        }
+        Relationships: []
+      }
+      professional_code_usage: {
+        Row: {
+          credits_used: number | null
+          id: string
+          language: string | null
+          prompt: string | null
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          credits_used?: number | null
+          id?: string
+          language?: string | null
+          prompt?: string | null
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          credits_used?: number | null
+          id?: string
+          language?: string | null
+          prompt?: string | null
+          used_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -648,6 +702,27 @@ export type Database = {
           points_used?: number | null
           prompt?: string | null
           result?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_language_preference: {
+        Row: {
+          id: string
+          language_code: string
+          set_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          language_code?: string
+          set_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          language_code?: string
+          set_at?: string
           user_id?: string
         }
         Relationships: []

@@ -11,12 +11,24 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, language } = await req.json();
+    const { prompt, language, professionalMode } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
+
+    const professionalInstructions = professionalMode 
+      ? `\n\nIMPORTANT: This is a PROFESSIONAL CODE request. Generate fully functional, production-ready, enterprise-grade code with:
+- Complete error handling and input validation
+- Comprehensive inline documentation and JSDoc comments
+- Type safety (if applicable)
+- Unit test examples
+- Performance optimizations
+- Security best practices
+- Clean architecture patterns
+- All necessary imports and dependencies listed` 
+      : '';
 
     const systemPrompt = `You are an expert code generator. Generate clean, well-commented, production-ready code based on the user's request.
 
@@ -27,7 +39,7 @@ IMPORTANT RULES:
 - Make the code complete and runnable
 - Use modern syntax and patterns
 - Handle edge cases where appropriate
-
+${professionalInstructions}
 Language: ${language}`;
 
     console.log(`Generating ${language} code for prompt: ${prompt.substring(0, 100)}...`);
