@@ -51,12 +51,51 @@ export default function LDAPAuth({ onBack, onAuthenticated }: LDAPAuthProps) {
         return;
       }
 
+      // Notify admin that this employee ID is being used
+      await notifyAdminEmployeeIdLocked(employeeId.trim());
+
       toast.success("Employee ID verified! Please enter the secret code.");
       setStep("verify-code");
     } catch (error) {
       toast.error("Verification failed. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const notifyAdminEmployeeIdLocked = async (empId: string) => {
+    try {
+      // Try to get the user's name from session
+      const { data: { session } } = await supabase.auth.getSession();
+      const userName = session?.user?.email || "Unknown User";
+
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (adminRoles) {
+        for (const admin of adminRoles) {
+          const { data: adminProfile } = await supabase
+            .from("profiles")
+            .select("email")
+            .eq("user_id", admin.user_id)
+            .single();
+
+          if (adminProfile) {
+            await supabase.from("email_notifications").insert({
+              recipient_user_id: admin.user_id,
+              recipient_email: adminProfile.email,
+              notification_type: "employee_id_locked",
+              subject: `🔒 Employee ID Locked by ${userName}`,
+              body: `Employee ID ${empId} has been locked/used by ${userName} at ${new Date().toISOString()}.`,
+              metadata: JSON.stringify({ employee_id: empId, locked_by: userName }),
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to notify admin about locked ID:", err);
     }
   };
 
@@ -263,7 +302,7 @@ export default function LDAPAuth({ onBack, onAuthenticated }: LDAPAuthProps) {
           </div>
           <CardTitle>Employee Verification</CardTitle>
           <CardDescription>
-            Enter your Employee ID (e.g., SM-EMP-0001) to proceed with LDAP authentication
+            Enter your Employee ID (e.g., SM-EMP-12345) to proceed with LDAP authentication
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -272,7 +311,7 @@ export default function LDAPAuth({ onBack, onAuthenticated }: LDAPAuthProps) {
             <Input
               id="employeeId"
               type="text"
-              placeholder="SM-EMP-XXXX"
+              placeholder="SM-EMP-XXXXX"
               value={employeeId}
               onChange={(e) => setEmployeeId(e.target.value.toUpperCase())}
               onKeyDown={(e) => e.key === "Enter" && verifyEmployeeId()}

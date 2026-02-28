@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import Projects from "./pages/Projects";
 import StackChat from "./pages/StackChat";
 import About from "./pages/About";
+import CodeIDE from "./pages/CodeIDE";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/projects" element={<Projects />} />
           <Route path="/stack-chat" element={<StackChat />} />
           <Route path="/about" element={<About />} />
+          <Route path="/ide" element={<CodeIDE />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,38 +1,63 @@
-import { Moon, Sun } from "lucide-react";
+import { Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 
+const themes = [
+  { id: "dark", label: "🌙 Midnight Dark", class: "dark" },
+  { id: "light", label: "☀️ Clean Light", class: "light" },
+  { id: "ocean", label: "🌊 Ocean Blue", class: "theme-ocean" },
+  { id: "forest", label: "🌿 Forest Green", class: "theme-forest" },
+  { id: "sunset", label: "🌅 Sunset Warm", class: "theme-sunset" },
+] as const;
+
+type ThemeId = (typeof themes)[number]["id"];
+
 export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(true);
+  const [currentTheme, setCurrentTheme] = useState<ThemeId>("dark");
 
   useEffect(() => {
-    const root = document.documentElement;
-    const stored = localStorage.getItem("theme");
-    if (stored === "light") {
-      root.classList.remove("dark");
-      setIsDark(false);
-    } else {
-      root.classList.add("dark");
-      setIsDark(true);
+    const stored = localStorage.getItem("codenova-theme") as ThemeId | null;
+    if (stored && themes.find((t) => t.id === stored)) {
+      applyTheme(stored);
     }
   }, []);
 
-  const toggle = () => {
+  const applyTheme = (themeId: ThemeId) => {
     const root = document.documentElement;
-    if (isDark) {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      setIsDark(false);
-    } else {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      setIsDark(true);
+    // Remove all theme classes
+    root.classList.remove("dark", "light", "theme-ocean", "theme-forest", "theme-sunset");
+    const theme = themes.find((t) => t.id === themeId);
+    if (theme) {
+      root.classList.add(theme.class);
     }
+    setCurrentTheme(themeId);
+    localStorage.setItem("codenova-theme", themeId);
   };
 
   return (
-    <Button variant="ghost" size="sm" onClick={toggle} title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" title="Change Theme">
+          <Palette className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {themes.map((theme) => (
+          <DropdownMenuItem
+            key={theme.id}
+            onClick={() => applyTheme(theme.id)}
+            className={currentTheme === theme.id ? "bg-primary/20 font-semibold" : ""}
+          >
+            {theme.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
