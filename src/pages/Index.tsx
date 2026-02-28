@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info } from "lucide-react";
+import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal } from "lucide-react";
 import codenovaIcon from "@/assets/codenova-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -141,6 +141,10 @@ export default function Index() {
           <Button variant="ghost" size="sm" onClick={() => navigate("/projects")}>
             <FolderOpen className="w-4 h-4 mr-1" />
             Projects
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/ide")}>
+            <Terminal className="w-4 h-4 mr-1" />
+            IDE
           </Button>
           <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
             <Settings className="w-4 h-4 mr-1" />

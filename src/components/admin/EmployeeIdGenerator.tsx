@@ -63,29 +63,27 @@ export function EmployeeIdGenerator() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
 
-      // Get the latest employee ID number
-      const { data: lastId } = await supabase
-        .from("employee_ids")
-        .select("employee_id")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
 
-      let startNum = 1;
-      if (lastId?.employee_id) {
-        const match = lastId.employee_id.match(/SM-EMP-(\d+)/);
-        if (match) startNum = parseInt(match[1]) + 1;
-      }
+
+      // Generate unique 5-digit random employee IDs
+      const existingIds = new Set<string>();
+      const { data: allExisting } = await supabase
+        .from("employee_ids")
+        .select("employee_id");
+      if (allExisting) allExisting.forEach(e => existingIds.add(e.employee_id));
 
       const newIds: string[] = [];
       const rows = [];
-      for (let i = 0; i < num; i++) {
-        const empId = `SM-EMP-${String(startNum + i).padStart(4, "0")}`;
-        newIds.push(empId);
-        rows.push({
-          employee_id: empId,
-          generated_by: session.user.id,
-        });
+      while (newIds.length < num) {
+        const randomNum = Math.floor(10000 + Math.random() * 90000); // 5-digit random
+        const empId = `SM-EMP-${randomNum}`;
+        if (!existingIds.has(empId) && !newIds.includes(empId)) {
+          newIds.push(empId);
+          rows.push({
+            employee_id: empId,
+            generated_by: session.user.id,
+          });
+        }
       }
 
       const { error } = await supabase.from("employee_ids").insert(rows);
