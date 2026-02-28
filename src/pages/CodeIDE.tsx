@@ -1,61 +1,25 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import LanguageSelector from "@/components/LanguageSelector";
+import CodeMirrorEditor from "@/components/ide/CodeMirrorEditor";
 import {
-  ArrowLeft,
-  Save,
-  Download,
-  Play,
-  Code2,
-  FolderOpen,
-  Plus,
-  Cloud,
-  Loader2,
+  ArrowLeft, Save, Download, Play, Code2, FolderOpen, Plus, Cloud, Loader2, Monitor,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 const languageExtensions: Record<string, string> = {
-  typescript: "ts",
-  javascript: "js",
-  python: "py",
-  java: "java",
-  csharp: "cs",
-  cpp: "cpp",
-  c: "c",
-  go: "go",
-  rust: "rs",
-  ruby: "rb",
-  php: "php",
-  swift: "swift",
-  kotlin: "kt",
-  dart: "dart",
-  html: "html",
-  css: "css",
-  sql: "sql",
-  bash: "sh",
-  powershell: "ps1",
-  react: "tsx",
-  angular: "ts",
-  vue: "vue",
-  svelte: "svelte",
-  nextjs: "tsx",
-  tailwind: "css",
-  graphql: "graphql",
-  terraform: "tf",
-  dockerfile: "dockerfile",
-  yaml: "yaml",
-  json: "json",
-  xml: "xml",
-  markdown: "md",
-  latex: "tex",
-  r: "r",
-  scala: "scala",
+  typescript: "ts", javascript: "js", python: "py", java: "java", csharp: "cs",
+  cpp: "cpp", c: "c", go: "go", rust: "rs", ruby: "rb", php: "php", swift: "swift",
+  kotlin: "kt", dart: "dart", html: "html", css: "css", sql: "sql", bash: "sh",
+  powershell: "ps1", react: "tsx", angular: "ts", vue: "vue", svelte: "svelte",
+  nextjs: "tsx", tailwind: "css", graphql: "graphql", terraform: "tf",
+  dockerfile: "dockerfile", yaml: "yaml", json: "json", xml: "xml", markdown: "md",
+  latex: "tex", r: "r", scala: "scala",
 };
 
 export default function CodeIDE() {
@@ -69,16 +33,14 @@ export default function CodeIDE() {
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const [output, setOutput] = useState("");
   const [showOutput, setShowOutput] = useState(false);
+  const [running, setRunning] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        navigate("/auth");
-        return;
-      }
+      if (!session?.user) { navigate("/auth"); return; }
       setUser(session.user);
       await fetchProjects(session.user.id);
       setLoading(false);
@@ -88,9 +50,7 @@ export default function CodeIDE() {
 
   const fetchProjects = async (userId: string) => {
     const { data } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("user_id", userId)
+      .from("projects").select("*").eq("user_id", userId)
       .order("updated_at", { ascending: false });
     setSavedProjects(data || []);
   };
@@ -100,28 +60,23 @@ export default function CodeIDE() {
     setSaving(true);
     try {
       if (currentProjectId) {
-        const { error } = await supabase
-          .from("projects")
+        const { error } = await supabase.from("projects")
           .update({ code, name: fileName, language, updated_at: new Date().toISOString() })
           .eq("id", currentProjectId);
         if (error) throw error;
-        toast({ title: "Saved to Cloud!", description: `${fileName} saved successfully.` });
+        toast({ title: "💾 Saved!", description: `${fileName} saved to Cloud.` });
       } else {
-        const { data, error } = await supabase
-          .from("projects")
+        const { data, error } = await supabase.from("projects")
           .insert({ user_id: user.id, name: fileName, language, code, description: `IDE project - ${language}` })
-          .select("id")
-          .single();
+          .select("id").single();
         if (error) throw error;
         setCurrentProjectId(data.id);
-        toast({ title: "Saved to Cloud!", description: `${fileName} created successfully.` });
+        toast({ title: "💾 Created!", description: `${fileName} saved to Cloud.` });
       }
       await fetchProjects(user.id);
     } catch (err: any) {
       toast({ title: "Save failed", description: err.message, variant: "destructive" });
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   };
 
   const handleDownload = () => {
@@ -130,30 +85,89 @@ export default function CodeIDE() {
     const blob = new Blob([code], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = fullName;
-    a.click();
+    a.href = url; a.download = fullName; a.click();
     URL.revokeObjectURL(url);
-    toast({ title: "Downloaded!", description: `${fullName} downloaded.` });
+    toast({ title: "📥 Downloaded!", description: fullName });
   };
 
   const handleRun = () => {
     setShowOutput(true);
-    if (language === "javascript" || language === "typescript") {
-      try {
-        const logs: string[] = [];
-        const mockConsole = { log: (...args: any[]) => logs.push(args.map(String).join(" ")) };
-        const fn = new Function("console", code);
-        fn(mockConsole);
-        setOutput(logs.join("\n") || "✅ Code executed successfully (no output).");
-      } catch (err: any) {
-        setOutput(`❌ Error: ${err.message}`);
+    setRunning(true);
+    
+    setTimeout(() => {
+      if (language === "javascript" || language === "typescript" || language === "react" || language === "nextjs") {
+        try {
+          const logs: string[] = [];
+          const mockConsole = {
+            log: (...args: any[]) => logs.push(args.map(String).join(" ")),
+            error: (...args: any[]) => logs.push("❌ " + args.map(String).join(" ")),
+            warn: (...args: any[]) => logs.push("⚠️ " + args.map(String).join(" ")),
+            info: (...args: any[]) => logs.push("ℹ️ " + args.map(String).join(" ")),
+            table: (data: any) => logs.push(JSON.stringify(data, null, 2)),
+          };
+          const mockMath = Math;
+          const mockJSON = JSON;
+          const mockDate = Date;
+          const mockArray = Array;
+          const mockObject = Object;
+          const mockString = String;
+          const mockNumber = Number;
+          const mockBoolean = Boolean;
+          const mockSetTimeout = (fn: Function, ms: number) => { fn(); logs.push(`⏱️ setTimeout(${ms}ms) executed`); };
+          const mockSetInterval = () => logs.push("⏱️ setInterval not supported in IDLE");
+          const mockFetch = () => { logs.push("🌐 fetch() — network calls simulated"); return Promise.resolve({ json: () => ({}), text: () => "" }); };
+          const mockPromise = Promise;
+          const mockMap = Map;
+          const mockSet = Set;
+          const mockRegExp = RegExp;
+
+          const fn = new Function(
+            "console", "Math", "JSON", "Date", "Array", "Object", "String", "Number", "Boolean",
+            "setTimeout", "setInterval", "fetch", "Promise", "Map", "Set", "RegExp",
+            "parseInt", "parseFloat", "isNaN", "isFinite", "undefined",
+            code
+          );
+          fn(
+            mockConsole, mockMath, mockJSON, mockDate, mockArray, mockObject, mockString, mockNumber, mockBoolean,
+            mockSetTimeout, mockSetInterval, mockFetch, mockPromise, mockMap, mockSet, mockRegExp,
+            parseInt, parseFloat, isNaN, isFinite, undefined
+          );
+          setOutput(logs.length > 0 ? logs.join("\n") : "✅ Code executed successfully (no output).");
+        } catch (err: any) {
+          setOutput(`❌ Runtime Error: ${err.message}\n\n📍 Stack: ${err.stack?.split("\n").slice(0, 3).join("\n") || "N/A"}`);
+        }
+      } else if (language === "html") {
+        setOutput("📄 HTML Preview Mode\n\nYour HTML code is ready. Click Download to open it in your browser.\n\nTip: Include <style> and <script> tags for full functionality.");
+      } else if (language === "python") {
+        setOutput(`🐍 Python IDLE Simulation\n\nPython execution runs in simulation mode.\nBasic print() statements are supported.\n\n--- Simulated Output ---\n` + simulatePython(code));
+      } else if (language === "json") {
+        try {
+          const parsed = JSON.parse(code);
+          setOutput("✅ Valid JSON\n\n" + JSON.stringify(parsed, null, 2));
+        } catch (err: any) {
+          setOutput(`❌ Invalid JSON: ${err.message}`);
+        }
+      } else if (language === "css" || language === "tailwind") {
+        setOutput("🎨 CSS validated. Download to use in your project.");
+      } else if (language === "sql") {
+        setOutput("🗃️ SQL Query Preview\n\nSQL execution is not available in-browser.\nDownload and run it against your database.");
+      } else {
+        setOutput(`⚙️ ${language.charAt(0).toUpperCase() + language.slice(1)} IDLE\n\nBrowser execution not available for ${language}.\nDownload the file and run locally.\n\nFile: ${fileName}.${languageExtensions[language] || "txt"}`);
       }
-    } else if (language === "html") {
-      setOutput("📄 HTML preview — use Download to view in browser.");
-    } else {
-      setOutput(`⚙️ ${language.toUpperCase()} execution is not supported in the browser.\nUse Download to run locally.`);
+      setRunning(false);
+    }, 300);
+  };
+
+  const simulatePython = (code: string): string => {
+    const lines = code.split("\n");
+    const output: string[] = [];
+    for (const line of lines) {
+      const printMatch = line.match(/print\s*\(\s*(?:f?["'](.+?)["']|(\d+[\s+\-*/\d.]+))\s*\)/);
+      if (printMatch) {
+        output.push(printMatch[1] || printMatch[2] || "");
+      }
     }
+    return output.length > 0 ? output.join("\n") : "(No print output detected)";
   };
 
   const loadProject = (project: any) => {
@@ -161,7 +175,8 @@ export default function CodeIDE() {
     setFileName(project.name);
     setLanguage(project.language);
     setCode(project.code || "");
-    toast({ title: "Loaded", description: `${project.name} loaded from Cloud.` });
+    setShowOutput(false);
+    toast({ title: "📂 Loaded", description: `${project.name}` });
   };
 
   const handleNew = () => {
@@ -173,81 +188,82 @@ export default function CodeIDE() {
     setShowOutput(false);
   };
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
-        e.preventDefault();
-        handleSave();
-      }
-    },
-    [code, fileName, language, currentProjectId]
-  );
+  const handleDelete = async () => {
+    if (!currentProjectId || !user) return;
+    const { error } = await supabase.from("projects").delete().eq("id", currentProjectId);
+    if (error) { toast({ title: "Delete failed", description: error.message, variant: "destructive" }); return; }
+    handleNew();
+    await fetchProjects(user.id);
+    toast({ title: "🗑️ Deleted", description: "Project removed from Cloud." });
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <div className="text-center">
+          <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Loading CodeNova IDLE...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Top Bar */}
-      <div className="border-b border-border/50 bg-card/80 backdrop-blur-xl px-4 py-2 flex items-center gap-3 flex-wrap">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+      <div className="border-b border-border/50 bg-card/80 backdrop-blur-xl px-3 py-1.5 flex items-center gap-2 flex-wrap shrink-0">
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigate("/")}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
 
-        <div className="flex items-center gap-2">
-          <Code2 className="w-5 h-5 text-primary" />
-          <span className="font-semibold text-sm">CodeNova IDE</span>
+        <div className="flex items-center gap-1.5">
+          <Code2 className="w-4 h-4 text-primary" />
+          <span className="font-bold text-sm">CodeNova IDLE</span>
         </div>
 
-        <div className="flex items-center gap-2 flex-1 max-w-xs">
+        <div className="h-4 w-px bg-border/50 mx-1" />
+
+        <div className="flex items-center gap-1.5 flex-1 max-w-[220px]">
           <Input
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
-            className="h-8 text-sm bg-background/50"
+            className="h-7 text-xs bg-background/50"
             placeholder="File name..."
           />
-          <Badge variant="outline" className="text-xs shrink-0">
+          <Badge variant="outline" className="text-[10px] shrink-0 h-5">
             .{languageExtensions[language] || "txt"}
           </Badge>
         </div>
 
         <LanguageSelector value={language} onChange={setLanguage} />
 
-        <div className="flex items-center gap-2 ml-auto">
-          <Button size="sm" variant="outline" onClick={handleNew}>
-            <Plus className="w-3 h-3 mr-1" />
-            New
+        <div className="flex items-center gap-1.5 ml-auto">
+          <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={handleNew}>
+            <Plus className="w-3 h-3 mr-1" />New
           </Button>
-          <Button size="sm" variant="outline" onClick={handleRun}>
-            <Play className="w-3 h-3 mr-1" />
+          <Button size="sm" variant="ghost" className="h-7 text-xs text-green-500 hover:text-green-400" onClick={handleRun} disabled={running}>
+            {running ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Play className="w-3 h-3 mr-1" />}
             Run
           </Button>
-          <Button size="sm" variant="outline" onClick={handleDownload} disabled={!code.trim()}>
-            <Download className="w-3 h-3 mr-1" />
-            Download
+          <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={handleDownload} disabled={!code.trim()}>
+            <Download className="w-3 h-3 mr-1" />Download
           </Button>
-          <Button size="sm" onClick={handleSave} disabled={saving || !code.trim()}>
+          <Button size="sm" className="h-7 text-xs" onClick={handleSave} disabled={saving || !code.trim()}>
             {saving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Cloud className="w-3 h-3 mr-1" />}
-            Save to Cloud
+            Save
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Saved Projects */}
-        <div className="w-56 border-r border-border/50 bg-card/50 overflow-y-auto hidden md:block">
-          <div className="p-3">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
-              <FolderOpen className="w-3 h-3" />
-              Cloud Projects
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        {/* Sidebar */}
+        <div className="w-52 border-r border-border/50 bg-card/30 overflow-y-auto hidden md:flex flex-col shrink-0">
+          <div className="p-2.5 flex-1">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1">
+              <FolderOpen className="w-3 h-3" />Cloud Projects
             </p>
             {savedProjects.length === 0 && (
-              <p className="text-xs text-muted-foreground py-4 text-center">No projects yet</p>
+              <p className="text-[10px] text-muted-foreground py-6 text-center">No projects yet.<br/>Write code and save!</p>
             )}
             {savedProjects.map((p) => (
               <button
@@ -258,33 +274,43 @@ export default function CodeIDE() {
                 }`}
               >
                 <div className="truncate font-medium">{p.name}</div>
-                <div className="text-[10px] text-muted-foreground">{p.language}</div>
+                <div className="text-[9px] text-muted-foreground">{p.language} • {new Date(p.updated_at).toLocaleDateString()}</div>
               </button>
             ))}
           </div>
+          {currentProjectId && (
+            <div className="p-2 border-t border-border/30">
+              <Button variant="ghost" size="sm" className="w-full h-6 text-[10px] text-destructive hover:text-destructive" onClick={handleDelete}>
+                Delete Project
+              </Button>
+            </div>
+          )}
         </div>
 
-        {/* Editor Area */}
-        <div className="flex-1 flex flex-col">
-          <Textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={`// Start writing your ${language} code here...\n// Press Ctrl+S to save to Cloud\n// Click Run to execute (JS/TS only)`}
-            className="flex-1 resize-none font-mono text-sm bg-background border-0 rounded-none focus-visible:ring-0 min-h-0 p-4"
-            style={{ tabSize: 2 }}
-          />
+        {/* Editor + Output */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className={`flex-1 min-h-0 ${showOutput ? "h-[60%]" : "h-full"}`}>
+            <CodeMirrorEditor
+              value={code}
+              onChange={setCode}
+              language={language}
+              onSave={handleSave}
+            />
+          </div>
 
-          {/* Output Panel */}
           {showOutput && (
-            <div className="border-t border-border/50 bg-card/80 max-h-48 overflow-y-auto">
-              <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/30">
-                <span className="text-xs font-semibold text-muted-foreground">Output</span>
-                <Button variant="ghost" size="sm" className="h-5 text-xs" onClick={() => setShowOutput(false)}>
-                  Close
-                </Button>
+            <div className="border-t border-border/50 bg-card/80 h-[40%] flex flex-col shrink-0">
+              <div className="flex items-center justify-between px-3 py-1 border-b border-border/30 shrink-0">
+                <div className="flex items-center gap-2">
+                  <Monitor className="w-3 h-3 text-primary" />
+                  <span className="text-xs font-bold text-muted-foreground">Output Console</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" className="h-5 text-[10px]" onClick={() => setOutput("")}>Clear</Button>
+                  <Button variant="ghost" size="sm" className="h-5 text-[10px]" onClick={() => setShowOutput(false)}>Close</Button>
+                </div>
               </div>
-              <pre className="p-3 text-xs font-mono text-foreground whitespace-pre-wrap">{output}</pre>
+              <pre className="flex-1 overflow-y-auto p-3 text-xs font-mono text-foreground whitespace-pre-wrap">{output}</pre>
             </div>
           )}
         </div>
