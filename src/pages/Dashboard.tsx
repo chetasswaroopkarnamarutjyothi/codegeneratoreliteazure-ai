@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUsageHistory } from "@/hooks/useUsageHistory";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { CreditRequestForm } from "@/components/CreditRequestForm";
 import SupportTicketForm from "@/components/SupportTicketForm";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Zap, 
   History, 
@@ -22,7 +25,11 @@ import {
   TrendingUp,
   Wallet,
   Shield,
-  MessageSquare
+  MessageSquare,
+  ArrowRightLeft,
+  Landmark,
+  ArrowDownToLine,
+  ArrowUpFromLine
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
@@ -50,6 +57,10 @@ export default function Dashboard() {
     isAdmin, 
     getTotalPoints, 
     subscriptionType,
+    transferToApprovalBank,
+    transferToCreditsBank,
+    withdrawFromCreditsBank,
+    refetch,
     ADMIN_DAILY_CREDITS,
     ADMIN_MONTHLY_CREDITS,
     ADMIN_APPROVAL_BANK,
@@ -59,6 +70,11 @@ export default function Dashboard() {
   } = useUserPoints(user?.id);
   const { history } = useUsageHistory(user?.id);
   const { profile } = useUserProfile(user?.id);
+  const { toast } = useToast();
+
+  const [transferAmount, setTransferAmount] = useState("");
+  const [transferTarget, setTransferTarget] = useState<"approval" | "bank">("approval");
+  const [transferring, setTransferring] = useState(false);
 
   if (loading) {
     return (
@@ -140,7 +156,7 @@ export default function Dashboard() {
         </div>
 
         {/* Credits Overview */}
-        <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
           <Card className="glass glow-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
@@ -178,15 +194,31 @@ export default function Dashboard() {
               <Card className="glass glow-border">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Wallet className="w-5 h-5 text-yellow-500" />
+                    <Wallet className="w-5 h-5 text-primary" />
                     Approval Bank
                   </CardTitle>
                   <CardDescription>For user credit requests</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-4xl font-bold text-yellow-500">{(points?.approval_bank_credits || 0).toLocaleString()}</p>
+                  <p className="text-4xl font-bold text-primary">{(points?.approval_bank_credits || 0).toLocaleString()}</p>
                   <p className="text-sm text-muted-foreground mt-1">
                     of {ADMIN_APPROVAL_BANK.toLocaleString()} bank
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="glass glow-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Landmark className="w-5 h-5 text-accent" />
+                    Credits Bank
+                  </CardTitle>
+                  <CardDescription>Your personal savings</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-accent">{(points?.credits_bank || 0).toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    stored credits
                   </p>
                 </CardContent>
               </Card>
@@ -209,6 +241,92 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Admin Transfer Section */}
+        {isAdmin && (
+          <Card className="glass mb-8 border-primary/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ArrowRightLeft className="w-5 h-5 text-primary" />
+                Credit Transfers
+              </CardTitle>
+              <CardDescription>Transfer daily credits to Approval Bank or Credits Bank, or withdraw from Credits Bank</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex-1 min-w-[120px]">
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Amount</label>
+                  <Input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={transferAmount}
+                    onChange={(e) => setTransferAmount(e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+                <div className="min-w-[200px]">
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Destination</label>
+                  <Select value={transferTarget} onValueChange={(v: "approval" | "bank") => setTransferTarget(v)}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="approval">
+                        <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> Approval Bank</span>
+                      </SelectItem>
+                      <SelectItem value="bank">
+                        <span className="flex items-center gap-1"><Landmark className="w-3 h-3" /> Credits Bank</span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  size="sm"
+                  className="h-9"
+                  disabled={transferring || !transferAmount || Number(transferAmount) <= 0}
+                  onClick={async () => {
+                    setTransferring(true);
+                    const amt = Number(transferAmount);
+                    const result = transferTarget === "approval"
+                      ? await transferToApprovalBank(amt)
+                      : await transferToCreditsBank(amt);
+                    if (result.success) {
+                      toast({ title: "✅ Transfer Complete", description: `${amt.toLocaleString()} credits transferred to ${transferTarget === "approval" ? "Approval Bank" : "Credits Bank"}.` });
+                      setTransferAmount("");
+                    } else {
+                      toast({ title: "Transfer Failed", description: result.error, variant: "destructive" });
+                    }
+                    setTransferring(false);
+                  }}
+                >
+                  <ArrowUpFromLine className="w-3 h-3 mr-1" />
+                  Transfer
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-9"
+                  disabled={transferring || !transferAmount || Number(transferAmount) <= 0}
+                  onClick={async () => {
+                    setTransferring(true);
+                    const amt = Number(transferAmount);
+                    const result = await withdrawFromCreditsBank(amt);
+                    if (result.success) {
+                      toast({ title: "✅ Withdrawal Complete", description: `${amt.toLocaleString()} credits withdrawn from Credits Bank to Daily.` });
+                      setTransferAmount("");
+                    } else {
+                      toast({ title: "Withdrawal Failed", description: result.error, variant: "destructive" });
+                    }
+                    setTransferring(false);
+                  }}
+                >
+                  <ArrowDownToLine className="w-3 h-3 mr-1" />
+                  Withdraw from Bank
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Subscription Plans (for non-premium users) */}
         {!isAdmin && subscriptionType === "free" && (

@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import LanguageSelector from "@/components/LanguageSelector";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import CodeMirrorEditor from "@/components/ide/CodeMirrorEditor";
 import {
   ArrowLeft, Save, Download, Play, Code2, FolderOpen, Plus, Cloud, Loader2, Monitor,
@@ -235,7 +241,19 @@ export default function CodeIDE() {
           </Badge>
         </div>
 
-        <LanguageSelector value={language} onChange={setLanguage} />
+        <Select value={language} onValueChange={setLanguage}>
+          <SelectTrigger className="w-[140px] h-7 text-xs bg-background/50">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(languageExtensions).map(([lang, ext]) => (
+              <SelectItem key={lang} value={lang}>
+                <span className="capitalize">{lang}</span>
+                <span className="text-muted-foreground ml-1">.{ext}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <div className="flex items-center gap-1.5 ml-auto">
           <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={handleNew}>
