@@ -51,10 +51,22 @@ export default function LDAPAuth({ onBack, onAuthenticated }: LDAPAuthProps) {
         return;
       }
 
-      // Notify admin that this employee ID is being used
+      if (data.is_used) {
+        toast.error("This Employee ID has already been used/locked.");
+        setLoading(false);
+        return;
+      }
+
+      // Mark the employee ID as used/locked
+      await supabase
+        .from("employee_ids")
+        .update({ is_used: true })
+        .eq("id", data.id);
+
+      // Notify admin that this employee ID is being locked
       await notifyAdminEmployeeIdLocked(employeeId.trim());
 
-      toast.success("Employee ID verified! Please enter the secret code.");
+      toast.success("Employee ID verified & locked! Please enter the secret code.");
       setStep("verify-code");
     } catch (error) {
       toast.error("Verification failed. Please try again.");

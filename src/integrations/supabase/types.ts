@@ -857,6 +857,14 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_profile_complete: { Args: { p_user_id: string }; Returns: boolean }
+      is_project_collaborator: {
+        Args: { p_project_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_project_owner: {
+        Args: { p_project_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       reset_daily_credits_with_penalties: { Args: never; Returns: undefined }
       resolve_ticket: {
