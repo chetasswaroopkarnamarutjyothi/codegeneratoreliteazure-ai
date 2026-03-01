@@ -8,6 +8,7 @@ export interface UserPoints {
   monthly_points: number;
   approval_bank_credits: number;
   reserved_credits: number;
+  credits_bank: number;
   last_daily_reset: string;
   last_monthly_reset: string;
   is_premium: boolean;
@@ -15,10 +16,10 @@ export interface UserPoints {
   created_at: string;
 }
 
-// Admin credits: 8,85,000 daily, 91,85,000 monthly, 2,85,000 approval bank
-const ADMIN_DAILY_CREDITS = 885000;
+// Admin credits: 10,95,000 daily, 91,85,000 monthly, 5,85,000 approval bank
+const ADMIN_DAILY_CREDITS = 1095000;
 const ADMIN_MONTHLY_CREDITS = 9185000;
-const ADMIN_APPROVAL_BANK = 285000;
+const ADMIN_APPROVAL_BANK = 585000;
 
 // Regular user credits
 const USER_DAILY_CREDITS = 50;
@@ -255,6 +256,60 @@ export function useUserPoints(userId: string | undefined) {
     }
   };
 
+  const transferToCreditsBank = async (amount: number): Promise<{ success: boolean; error?: string }> => {
+    if (!userId || !points || !isAdmin) {
+      return { success: false, error: "Only admins can transfer to credits bank" };
+    }
+    if (points.daily_points < amount) {
+      return { success: false, error: "Insufficient daily credits" };
+    }
+    try {
+      const { error } = await supabase
+        .from("user_points")
+        .update({
+          daily_points: points.daily_points - amount,
+          credits_bank: (points.credits_bank || 0) + amount,
+        })
+        .eq("user_id", userId);
+      if (error) throw error;
+      setPoints({
+        ...points,
+        daily_points: points.daily_points - amount,
+        credits_bank: (points.credits_bank || 0) + amount,
+      });
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const withdrawFromCreditsBank = async (amount: number): Promise<{ success: boolean; error?: string }> => {
+    if (!userId || !points || !isAdmin) {
+      return { success: false, error: "Only admins can withdraw from credits bank" };
+    }
+    if ((points.credits_bank || 0) < amount) {
+      return { success: false, error: "Insufficient credits bank balance" };
+    }
+    try {
+      const { error } = await supabase
+        .from("user_points")
+        .update({
+          daily_points: points.daily_points + amount,
+          credits_bank: (points.credits_bank || 0) - amount,
+        })
+        .eq("user_id", userId);
+      if (error) throw error;
+      setPoints({
+        ...points,
+        daily_points: points.daily_points + amount,
+        credits_bank: (points.credits_bank || 0) - amount,
+      });
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
+
   const getTotalPoints = () => {
     if (!points) return 0;
     return points.daily_points + (isAdmin ? points.monthly_points : 0);
@@ -269,6 +324,8 @@ export function useUserPoints(userId: string | undefined) {
     deductPoints, 
     getTotalPoints,
     transferToApprovalBank,
+    transferToCreditsBank,
+    withdrawFromCreditsBank,
     refetch: fetchPoints,
     ADMIN_DAILY_CREDITS,
     ADMIN_MONTHLY_CREDITS,

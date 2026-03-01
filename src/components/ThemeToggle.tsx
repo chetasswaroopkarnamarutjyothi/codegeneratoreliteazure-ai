@@ -5,24 +5,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 
 const themes = [
-  // Dark themes
   { id: "dark", label: "🌙 Midnight Dark", class: "dark", group: "dark" },
-  { id: "ocean", label: "🌊 Ocean Blue", class: "theme-ocean", group: "dark" },
-  { id: "forest", label: "🌿 Forest Green", class: "theme-forest", group: "dark" },
-  { id: "sunset", label: "🌅 Sunset Warm", class: "theme-sunset", group: "dark" },
-  { id: "purple", label: "💜 Purple Haze", class: "theme-purple", group: "dark" },
-  // Light themes
   { id: "light", label: "☀️ Clean Light", class: "light", group: "light" },
-  { id: "rose-light", label: "🌸 Rose Light", class: "theme-rose-light", group: "light" },
-  { id: "sky-light", label: "🩵 Sky Light", class: "theme-sky-light", group: "light" },
-  { id: "mint-light", label: "🍃 Mint Light", class: "theme-mint-light", group: "light" },
-  { id: "sand-light", label: "🏖️ Sand Light", class: "theme-sand-light", group: "light" },
+  { id: "hybrid", label: "🌓 Hybrid Mix", class: "theme-hybrid", group: "mix" },
 ] as const;
 
 type ThemeId = (typeof themes)[number]["id"] | "system";
@@ -61,9 +51,6 @@ export function ThemeToggle() {
     localStorage.setItem("codenova-theme", themeId);
   };
 
-  const darkThemes = themes.filter(t => t.group === "dark");
-  const lightThemes = themes.filter(t => t.group === "light");
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -80,19 +67,7 @@ export function ThemeToggle() {
           System Default
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-[10px] text-muted-foreground">DARK THEMES</DropdownMenuLabel>
-        {darkThemes.map((theme) => (
-          <DropdownMenuItem
-            key={theme.id}
-            onClick={() => applyTheme(theme.id)}
-            className={currentTheme === theme.id ? "bg-primary/20 font-semibold" : ""}
-          >
-            {theme.label}
-          </DropdownMenuItem>
-        ))}
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-[10px] text-muted-foreground">LIGHT THEMES</DropdownMenuLabel>
-        {lightThemes.map((theme) => (
+        {themes.map((theme) => (
           <DropdownMenuItem
             key={theme.id}
             onClick={() => applyTheme(theme.id)}
