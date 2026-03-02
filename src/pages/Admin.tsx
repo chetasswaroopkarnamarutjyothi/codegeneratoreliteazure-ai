@@ -25,7 +25,8 @@ import {
   BarChart3,
   UserX,
   UserPlus,
-  IdCard
+  IdCard,
+  Landmark
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -36,6 +37,7 @@ import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
 import { EmployeeTermination } from "@/components/admin/EmployeeTermination";
 import type { User } from "@supabase/supabase-js";
 import { EmployeeIdGenerator } from "@/components/admin/EmployeeIdGenerator";
+import { SetUserCreditsPanel } from "@/components/admin/SetUserCreditsPanel";
 
 interface UserProfile {
   id: string;
@@ -53,14 +55,14 @@ interface UserPointsData {
   monthly_points: number;
   is_premium: boolean;
   approval_bank_credits: number;
-  reserved_credits: number;
+  credits_bank: number;
 }
 
 interface AdminCredits {
   daily_points: number;
   monthly_points: number;
   approval_bank_credits: number;
-  reserved_credits: number;
+  credits_bank: number;
 }
 
 export default function Admin() {
@@ -131,7 +133,7 @@ export default function Admin() {
     try {
       const { data, error } = await supabase
         .from("user_points")
-        .select("daily_points, monthly_points, approval_bank_credits, reserved_credits")
+        .select("daily_points, monthly_points, approval_bank_credits, credits_bank")
         .eq("user_id", userId)
         .single();
 
@@ -441,11 +443,11 @@ export default function Admin() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-yellow-500/20">
-                    <ArrowRightLeft className="w-5 h-5 text-yellow-500" />
+                    <Landmark className="w-5 h-5 text-yellow-500" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Reserved</p>
-                    <p className="text-2xl font-bold">{(adminCredits.reserved_credits || 0).toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground">Credits Bank</p>
+                    <p className="text-2xl font-bold">{(adminCredits.credits_bank || 0).toLocaleString()}</p>
                   </div>
                 </div>
               </CardContent>
@@ -455,7 +457,7 @@ export default function Admin() {
 
         {/* Tabs for different admin sections */}
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid grid-cols-10 w-full max-w-6xl">
+          <TabsList className="grid grid-cols-11 w-full max-w-7xl">
             <TabsTrigger value="requests" className="flex items-center gap-1">
               <ClipboardList className="w-4 h-4" />
               <span className="hidden sm:inline">Requests</span>
@@ -467,6 +469,10 @@ export default function Admin() {
             <TabsTrigger value="users" className="flex items-center gap-1">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Users</span>
+            </TabsTrigger>
+            <TabsTrigger value="set-credits" className="flex items-center gap-1">
+              <Banknote className="w-4 h-4" />
+              <span className="hidden sm:inline">Set Credits</span>
             </TabsTrigger>
             <TabsTrigger value="usage" className="flex items-center gap-1">
               <BarChart3 className="w-4 h-4" />
@@ -505,6 +511,18 @@ export default function Admin() {
               onRequestProcessed={() => {
                 if (user) fetchAdminCredits(user.id);
                 fetchUsers();
+              }}
+            />
+          </TabsContent>
+
+          {/* Set User Credits Tab */}
+          <TabsContent value="set-credits">
+            <SetUserCreditsPanel 
+              users={users}
+              searchQuery={searchQuery}
+              onCreditsSet={() => {
+                fetchUsers();
+                if (user) fetchAdminCredits(user.id);
               }}
             />
           </TabsContent>

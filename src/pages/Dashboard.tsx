@@ -402,8 +402,23 @@ export default function Dashboard() {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-4 text-center">
-                Visit our branch to complete payment. Contact support for location details.
+                Submit payment proof with Transaction ID. Admin will verify and activate.
               </p>
+
+              {/* Client Team Chat Access */}
+              <div className="mt-6 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
+                <p className="font-semibold text-lg text-green-500">Client Team Chat Access</p>
+                <p className="text-3xl font-bold text-primary my-2">₹4,500</p>
+                <p className="text-sm text-muted-foreground mb-2">1 week access to StackMind Chat</p>
+                <p className="text-xs text-muted-foreground mb-4">Direct support from our team</p>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => navigate("/payment?plan=chat_access")}
+                >
+                  Get Chat Access
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}

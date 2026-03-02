@@ -19,7 +19,8 @@ import {
   Clock,
   Layers,
   ExternalLink,
-  Share2
+  Share2,
+  Pencil
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import ProjectCollaborators from "@/components/ProjectCollaborators";
@@ -249,6 +250,18 @@ export default function Projects() {
 
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="shadow-lg"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/ide?project=${project.id}`);
+                }}
+              >
+                <Pencil className="w-4 h-4 mr-1" />
+                Edit
+              </Button>
               {project.code && (
                 <Button
                   size="sm"
@@ -267,7 +280,7 @@ export default function Projects() {
                   ) : (
                     <>
                       <Copy className="w-4 h-4 mr-1" />
-                      Copy Code
+                      Copy
                     </>
                   )}
                 </Button>
@@ -309,6 +322,10 @@ export default function Projects() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => navigate(`/ide?project=${project.id}`)}>
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Edit in IDE
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => project.code && handleCopy(project.code, project.id)}>
                       <Copy className="w-4 h-4 mr-2" />
                       Copy code
