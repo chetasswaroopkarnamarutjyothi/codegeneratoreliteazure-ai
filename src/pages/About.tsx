@@ -116,6 +116,33 @@ export default function About() {
                     aspiring developers.
                   </p>
                 </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+        {/* CEO Quote */}
+        <Card className="glass glow-border mb-8">
+          <CardContent className="pt-6">
+            <div className="relative">
+              <div className="text-6xl text-primary/20 font-serif absolute -top-2 -left-2">"</div>
+              <blockquote className="pl-8 pr-4 py-4 text-muted-foreground leading-relaxed italic text-lg">
+                Building CodeNova has been a journey of exploration into how intelligent systems can transform 
+                simple ideas into functional solutions. My goal was to create something that reflects the practical 
+                side of artificial intelligence while also encouraging learners to experiment, question, and grow 
+                their technical skills. This project represents my commitment to understanding technology deeply 
+                and applying it in meaningful ways.
+              </blockquote>
+              <div className="pl-8 mt-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/30">
+                  <img src={ceoPhoto} alt="Karnam Chetas Swaroop" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <p className="font-semibold">
+                    — <span className="gradient-text animate-gradient">Karnam Chetas Swaroop</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">Founder & CEO, StackMind Technologies Limited</p>
+                </div>
               </div>
             </div>
           </CardContent>
