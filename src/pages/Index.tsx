@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import CodeGenerator from "@/components/CodeGenerator";
 import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
+import AIChat from "@/components/AIChat";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import ProfileCompletionGate from "@/components/ProfileCompletionGate";
@@ -88,34 +89,28 @@ export default function Index() {
 
   const getToolTitle = () => {
     switch (selectedTool) {
-      case "code-generator":
-        return { text: "CodeNova", gradient: true };
-      case "app-generator":
-        return { text: "CodeNova", gradient: true };
-      case "code-verifier":
-        return { text: "CodeNova", gradient: true };
+      case "code-generator": return { text: "CodeNova", gradient: true };
+      case "app-generator": return { text: "CodeNova", gradient: true };
+      case "code-verifier": return { text: "CodeNova", gradient: true };
+      case "ai-chat": return { text: "CodeNova", gradient: true };
     }
   };
 
   const getToolSubtitle = () => {
     switch (selectedTool) {
-      case "code-generator":
-        return "Generator";
-      case "app-generator":
-        return "App Builder";
-      case "code-verifier":
-        return "Verifier";
+      case "code-generator": return "Generator";
+      case "app-generator": return "App Builder";
+      case "code-verifier": return "Verifier";
+      case "ai-chat": return "AI Chat";
     }
   };
 
   const getToolDescription = () => {
     switch (selectedTool) {
-      case "code-generator":
-        return "Transform your ideas into production-ready code with CodeNova AI by StackMind Technologies.";
-      case "app-generator":
-        return "Generate complete applications with CodeNova AI. Describe your app and watch it come to life.";
-      case "code-verifier":
-        return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
+      case "code-generator": return "Transform your ideas into production-ready code with CodeNova AI by StackMind Technologies.";
+      case "app-generator": return "Generate complete applications with CodeNova AI. Describe your app and watch it come to life.";
+      case "code-verifier": return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
+      case "ai-chat": return "Have multi-turn conversations with CodeNova AI. Ask questions, debug code, and get explanations.";
     }
   };
 
@@ -190,6 +185,7 @@ export default function Index() {
           {selectedTool === "code-generator" && <CodeGenerator userId={user.id} />}
           {selectedTool === "app-generator" && <AppGenerator userId={user.id} />}
           {selectedTool === "code-verifier" && <CodeVerifier userId={user.id} />}
+          {selectedTool === "ai-chat" && <AIChat userId={user.id} />}
         </div>
 
         {/* Feature Cards */}
