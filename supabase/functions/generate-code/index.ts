@@ -5,6 +5,113 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Advanced model routing based on task complexity
+function selectModel(prompt: string, language: string, professionalMode: boolean): string {
+  const complexityIndicators = [
+    'architecture', 'design pattern', 'microservice', 'distributed', 'algorithm',
+    'optimization', 'machine learning', 'neural', 'cryptograph', 'concurrent',
+    'real-time', 'scalab', 'enterprise', 'full-stack', 'database design',
+    'security audit', 'performance', 'system design', 'api gateway', 'oauth',
+  ];
+  
+  const promptLower = prompt.toLowerCase();
+  const complexityScore = complexityIndicators.filter(i => promptLower.includes(i)).length;
+  
+  // Use the most powerful model for complex professional tasks
+  if (professionalMode && complexityScore >= 2) {
+    return 'google/gemini-2.5-pro';
+  }
+  // Use strong model for professional mode or complex prompts
+  if (professionalMode || complexityScore >= 1) {
+    return 'google/gemini-3-pro-preview';
+  }
+  // Default: fast and capable
+  return 'google/gemini-3-flash-preview';
+}
+
+// Advanced system prompt with chain-of-thought reasoning
+function buildSystemPrompt(language: string, professionalMode: boolean, prompt: string): string {
+  const basePrompt = `You are CodeNova AI — an elite-tier code generation engine that surpasses conventional AI assistants. You don't just write code; you architect solutions.
+
+## YOUR CORE ADVANTAGES OVER OTHER AI TOOLS:
+1. **Deep Contextual Analysis**: Before writing a single line, you mentally model the entire solution architecture
+2. **Multi-Paradigm Mastery**: You seamlessly blend OOP, functional, reactive, and procedural patterns based on what's optimal
+3. **Production-Grade by Default**: Every output includes error handling, edge cases, type safety, and documentation
+4. **Security-First Thinking**: You proactively identify and mitigate vulnerabilities (XSS, injection, CSRF, race conditions)
+5. **Performance Awareness**: You consider time/space complexity, memory allocation patterns, and scalability
+
+## LANGUAGE: ${language}
+
+## OUTPUT RULES:
+- Output ONLY the code. No explanations before or after the code block
+- Include rich inline comments explaining WHY, not just WHAT
+- Use modern ${language} idioms and best practices
+- Handle ALL edge cases (null, undefined, empty, boundary values, concurrent access)
+- Include type annotations/hints where the language supports them`;
+
+  if (professionalMode) {
+    return `${basePrompt}
+
+## 🔥 PROFESSIONAL MODE — MAXIMUM QUALITY ENGAGED:
+
+### Architecture Requirements:
+- Apply SOLID principles rigorously
+- Use appropriate design patterns (Factory, Strategy, Observer, Repository, etc.)
+- Implement clean separation of concerns
+- Create extensible, maintainable code structures
+
+### Documentation Requirements:
+- Full JSDoc/docstring for every public function, class, and module
+- Inline comments for complex logic blocks
+- Usage examples in documentation
+- Parameter validation descriptions
+- Return type documentation with edge case notes
+
+### Testing Requirements:
+- Include comprehensive unit test examples
+- Cover edge cases, error paths, and boundary conditions
+- Add integration test suggestions as comments
+- Include performance benchmark suggestions
+
+### Security Requirements:
+- Input sanitization and validation at every entry point
+- Parameterized queries for any database operations
+- Proper authentication/authorization patterns
+- OWASP Top 10 awareness in implementation
+- Rate limiting and abuse prevention patterns
+
+### Performance Requirements:
+- Optimize hot paths and critical sections
+- Use appropriate data structures (HashMap vs Array, Set vs List, etc.)
+- Implement lazy loading/evaluation where beneficial
+- Consider memory footprint and garbage collection pressure
+- Add caching strategies where appropriate
+
+### Error Handling:
+- Custom error types/classes for domain-specific errors
+- Graceful degradation patterns
+- Retry logic with exponential backoff for network operations
+- Comprehensive logging with structured data
+- User-friendly error messages separate from debug info
+
+### Code Quality:
+- Follow language-specific style guides (PEP 8, Google Style, etc.)
+- Use meaningful variable and function names (no single letters except loop indices)
+- Keep functions under 30 lines where possible
+- Cyclomatic complexity under 10 per function
+- DRY principle — extract reusable utilities`;
+  }
+
+  return `${basePrompt}
+
+## STANDARD MODE — CLEAN & FUNCTIONAL:
+- Write clean, readable code
+- Include helpful comments
+- Handle common edge cases
+- Follow ${language} best practices
+- Make the code complete and immediately runnable`;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -18,31 +125,15 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const professionalInstructions = professionalMode 
-      ? `\n\nIMPORTANT: This is a PROFESSIONAL CODE request. Generate fully functional, production-ready, enterprise-grade code with:
-- Complete error handling and input validation
-- Comprehensive inline documentation and JSDoc comments
-- Type safety (if applicable)
-- Unit test examples
-- Performance optimizations
-- Security best practices
-- Clean architecture patterns
-- All necessary imports and dependencies listed` 
-      : '';
+    const model = selectModel(prompt, language, professionalMode);
+    const systemPrompt = buildSystemPrompt(language, professionalMode, prompt);
 
-    const systemPrompt = `You are an expert code generator. Generate clean, well-commented, production-ready code based on the user's request.
+    // Enhanced user prompt with chain-of-thought trigger
+    const enhancedUserPrompt = professionalMode
+      ? `Think step-by-step about the best architecture for this request, then generate the complete implementation:\n\n${prompt}`
+      : prompt;
 
-IMPORTANT RULES:
-- Only output the code itself, no explanations before or after
-- Include helpful comments within the code
-- Follow best practices for the ${language} language
-- Make the code complete and runnable
-- Use modern syntax and patterns
-- Handle edge cases where appropriate
-${professionalInstructions}
-Language: ${language}`;
-
-    console.log(`Generating ${language} code for prompt: ${prompt.substring(0, 100)}...`);
+    console.log(`[CodeNova AI] Model: ${model} | Lang: ${language} | Pro: ${professionalMode} | Prompt: ${prompt.substring(0, 80)}...`);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -51,12 +142,14 @@ Language: ${language}`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
+        model,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt },
+          { role: 'user', content: enhancedUserPrompt },
         ],
         stream: true,
+        temperature: professionalMode ? 0.2 : 0.4, // Lower temperature = more precise
+        top_p: 0.95,
       }),
     });
 
