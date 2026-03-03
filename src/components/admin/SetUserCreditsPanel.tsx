@@ -39,7 +39,7 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
     pro_yearly: { daily: 100, label: "Pro Yearly (100/day)" },
     pro_plus_monthly: { daily: 200, label: "Pro+ Monthly (200/day)" },
     pro_plus_yearly: { daily: 200, label: "Pro+ Yearly (200/day)" },
-    custom: { daily: 0, label: "Custom" },
+    custom: { daily: 0, label: "Custom (up to 10,000,000/day)" },
   };
 
   const filteredUsers = users.filter(
@@ -56,8 +56,8 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
     const credits = planType === "custom" ? Number(dailyCredits) : plans[planType].daily;
     const days = Number(duration);
 
-    if (!credits || credits <= 0) {
-      toast({ title: "Enter valid credits", variant: "destructive" });
+    if (!credits || credits <= 0 || credits > 10000000) {
+      toast({ title: "Enter valid credits (1 - 10,000,000)", variant: "destructive" });
       return;
     }
 
@@ -142,7 +142,7 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
           Set User Daily Credits
         </CardTitle>
         <CardDescription>
-          After verifying payment with Transaction ID, set the user's daily credits for their plan period.
+          After verifying payment with Transaction ID, set the user's daily credits (max 10,000,000/day).
           Monthly ÷ days = daily credits. Yearly ÷ 365 = daily credits.
         </CardDescription>
       </CardHeader>
@@ -214,10 +214,11 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
             <Label>Daily Credits</Label>
             <Input
               type="number"
-              placeholder="Credits per day"
+              placeholder="Credits per day (max 10M)"
               value={dailyCredits}
               onChange={(e) => setDailyCredits(e.target.value)}
               disabled={planType !== "custom"}
+              max={10000000}
             />
           </div>
           <div className="space-y-2">
