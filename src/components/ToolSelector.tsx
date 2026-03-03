@@ -1,6 +1,6 @@
-import { Code2, Layers, ShieldCheck } from "lucide-react";
+import { Code2, Layers, ShieldCheck, MessageSquare } from "lucide-react";
 
-export type ToolType = "code-generator" | "app-generator" | "code-verifier";
+export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat";
 
 interface ToolSelectorProps {
   value: ToolType;
@@ -29,11 +29,18 @@ const tools = [
     icon: ShieldCheck,
     color: "green-500",
   },
+  {
+    id: "ai-chat" as ToolType,
+    name: "CodeNova Chat",
+    description: "Multi-turn AI conversations",
+    icon: MessageSquare,
+    color: "purple-500",
+  },
 ];
 
 export default function ToolSelector({ value, onChange }: ToolSelectorProps) {
   return (
-    <div className="grid md:grid-cols-3 gap-4 w-full max-w-4xl mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-5xl mx-auto">
       {tools.map((tool) => {
         const Icon = tool.icon;
         const isSelected = value === tool.id;
@@ -42,23 +49,25 @@ export default function ToolSelector({ value, onChange }: ToolSelectorProps) {
           <button
             key={tool.id}
             onClick={() => onChange(tool.id)}
-            className={`glass rounded-xl p-6 text-left transition-all duration-300 hover:scale-[1.02] ${
+            className={`glass rounded-xl p-5 text-left transition-all duration-300 hover:scale-[1.02] ${
               isSelected 
                 ? "glow-border ring-2 ring-primary" 
                 : "hover:glow-border"
             }`}
           >
-            <div className={`p-3 rounded-lg w-fit mb-4 ${
+            <div className={`p-3 rounded-lg w-fit mb-3 ${
               tool.color === "primary" 
                 ? "bg-primary/20 text-primary" 
                 : tool.color === "accent" 
                 ? "bg-accent/20 text-accent"
+                : tool.color === "purple-500"
+                ? "bg-purple-500/20 text-purple-500"
                 : "bg-green-500/20 text-green-500"
             }`}>
               <Icon className="w-6 h-6" />
             </div>
-            <h3 className="font-semibold text-lg mb-1">{tool.name}</h3>
-            <p className="text-sm text-muted-foreground">{tool.description}</p>
+            <h3 className="font-semibold text-base mb-1">{tool.name}</h3>
+            <p className="text-xs text-muted-foreground">{tool.description}</p>
           </button>
         );
       })}
