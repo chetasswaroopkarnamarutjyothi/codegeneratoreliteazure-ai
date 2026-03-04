@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, User, Send, Loader2, Trash2, Sparkles, Code2, Save, FolderOpen, Plus, X } from "lucide-react";
+import { Bot, User, Send, Loader2, Trash2, Sparkles, Code2, Save, FolderOpen, Plus, X, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,6 +31,20 @@ interface SavedConversation {
 
 interface AIchatProps {
   userId?: string;
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button onClick={copy} className="flex items-center gap-1 hover:text-foreground transition-colors">
+      {copied ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+    </button>
+  );
 }
 
 export default function AIChat({ userId }: AIchatProps) {
@@ -425,9 +439,12 @@ export default function AIChat({ userId }: AIchatProps) {
                         {extractCodeBlocks(msg.content).map((part, i) =>
                           part.type === "code" ? (
                             <div key={i} className="rounded-lg overflow-hidden border border-border/50 my-2">
-                              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/80 text-xs text-muted-foreground border-b border-border/50">
-                                <Code2 className="w-3 h-3" />
-                                {part.language}
+                              <div className="flex items-center justify-between px-3 py-1.5 bg-muted/80 text-xs text-muted-foreground border-b border-border/50">
+                                <div className="flex items-center gap-2">
+                                  <Code2 className="w-3 h-3" />
+                                  {part.language}
+                                </div>
+                                <CopyButton text={part.content} />
                               </div>
                               <CodeOutput code={part.content} language={part.language || "typescript"} isGenerating={false} />
                             </div>
