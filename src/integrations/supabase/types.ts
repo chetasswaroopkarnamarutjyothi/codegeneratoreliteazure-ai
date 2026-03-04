@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_credit_allocations: {
+        Row: {
+          admin_user_id: string
+          allocation_date: string
+          created_at: string
+          credits_allocated: number
+          id: string
+        }
+        Insert: {
+          admin_user_id: string
+          allocation_date?: string
+          created_at?: string
+          credits_allocated?: number
+          id?: string
+        }
+        Update: {
+          admin_user_id?: string
+          allocation_date?: string
+          created_at?: string
+          credits_allocated?: number
+          id?: string
+        }
+        Relationships: []
+      }
       admin_management: {
         Row: {
           action_type: string
@@ -44,6 +68,33 @@ export type Database = {
           notes?: string | null
           target_user_id?: string
           temp_expires_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          messages: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          messages?: Json
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          messages?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
