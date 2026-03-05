@@ -437,14 +437,7 @@ export default function Auth() {
                 <ArrowLeft className="w-3 h-3" /> Back to Login
               </button>
               </div>
-              {step === "login" && (
-                <div className="text-right">
-                  <button type="button" onClick={() => setStep("forgot-password")} className="text-xs text-primary hover:underline">
-                    Forgot password?
-                  </button>
-                </div>
-              )}
-            </div>
+          </div>
           <p className="text-center text-xs text-muted-foreground mt-6">© {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.</p>
         </div>
       </div>
