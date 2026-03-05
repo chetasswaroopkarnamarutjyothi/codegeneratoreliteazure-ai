@@ -501,6 +501,13 @@ export default function Auth() {
                   minLength={6}
                 />
               </div>
+              {step === "login" && (
+                <div className="text-right -mt-1">
+                  <button type="button" onClick={() => setStep("forgot-password")} className="text-xs text-primary hover:underline">
+                    Forgot password?
+                  </button>
+                </div>
+              )}
             </div>
 
             {step === "signup" && (
