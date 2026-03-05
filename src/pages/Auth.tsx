@@ -10,7 +10,7 @@ import QRCodeLogin from "@/components/QRCodeLogin";
 import LDAPAuth from "@/components/LDAPAuth";
 import { lovable } from "@/integrations/lovable/index";
 
-type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login";
+type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login" | "forgot-password";
 
 export default function Auth() {
   const [step, setStep] = useState<AuthStep>("login");
