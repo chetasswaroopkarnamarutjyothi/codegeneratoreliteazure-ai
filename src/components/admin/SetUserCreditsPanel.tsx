@@ -98,7 +98,7 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
       
       await supabase.from("profiles").update({ subscription_type: subType }).eq("user_id", selectedUserId);
 
-      await supabase.from("user_points").update({ daily_points: credits, is_premium: true }).eq("user_id", selectedUserId);
+      await supabase.from("user_points").update({ daily_points: credits, custom_daily_limit: credits, is_premium: true } as any).eq("user_id", selectedUserId);
 
       if (transactionId) {
         await supabase.from("payments").insert({
