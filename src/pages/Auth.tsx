@@ -613,8 +613,8 @@ export default function Auth() {
                 }}
                 disabled={loading}
               >
-                <Chrome className="w-4 h-4 mr-2" />
-                Sign up with Google
+                <img src={codenovaIcon} alt="CodeNova" className="w-4 h-4 mr-2 rounded-sm" />
+                Sign up with CodeNova AI
               </Button>
             </div>
           )}
