@@ -436,8 +436,15 @@ export default function Auth() {
               <button type="button" onClick={() => setStep("login")} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 mx-auto">
                 <ArrowLeft className="w-3 h-3" /> Back to Login
               </button>
+              </div>
+              {step === "login" && (
+                <div className="text-right">
+                  <button type="button" onClick={() => setStep("forgot-password")} className="text-xs text-primary hover:underline">
+                    Forgot password?
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
           <p className="text-center text-xs text-muted-foreground mt-6">© {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.</p>
         </div>
       </div>
