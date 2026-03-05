@@ -5,11 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode, KeyRound, Chrome, ArrowLeft } from "lucide-react";
-import codenovaIcon from "@/assets/codenova-icon.png";
+import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode, KeyRound, ArrowLeft } from "lucide-react";
 import QRCodeLogin from "@/components/QRCodeLogin";
 import LDAPAuth from "@/components/LDAPAuth";
-import { lovable } from "@/integrations/lovable/index";
 
 type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login" | "forgot-password";
 

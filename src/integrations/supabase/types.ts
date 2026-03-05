@@ -816,6 +816,7 @@ export type Database = {
           approval_bank_credits: number | null
           created_at: string
           credits_bank: number | null
+          custom_daily_limit: number | null
           daily_points: number
           id: string
           is_premium: boolean | null
@@ -830,6 +831,7 @@ export type Database = {
           approval_bank_credits?: number | null
           created_at?: string
           credits_bank?: number | null
+          custom_daily_limit?: number | null
           daily_points?: number
           id?: string
           is_premium?: boolean | null
@@ -844,6 +846,7 @@ export type Database = {
           approval_bank_credits?: number | null
           created_at?: string
           credits_bank?: number | null
+          custom_daily_limit?: number | null
           daily_points?: number
           id?: string
           is_premium?: boolean | null
