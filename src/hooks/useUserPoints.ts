@@ -125,7 +125,10 @@ export function useUserPoints(userId: string | undefined) {
         // Reset daily points - NO ROLLOVER
         let defaultDaily = USER_DAILY_CREDITS;
         
-        if (userIsAdmin) {
+        // Use custom_daily_limit if set by admin
+        if ((data as any).custom_daily_limit && (data as any).custom_daily_limit > 0) {
+          defaultDaily = (data as any).custom_daily_limit;
+        } else if (userIsAdmin) {
           defaultDaily = ADMIN_DAILY_CREDITS;
         } else if (userSubType === "pro_plus") {
           defaultDaily = PRO_PLUS_CREDITS;
