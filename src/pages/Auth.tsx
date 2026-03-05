@@ -566,8 +566,8 @@ export default function Auth() {
                 }}
                 disabled={loading}
               >
-                <Chrome className="w-4 h-4 mr-2" />
-                Continue with Google
+                <img src={codenovaIcon} alt="CodeNova" className="w-4 h-4 mr-2 rounded-sm" />
+                Continue with CodeNova AI
               </Button>
 
               <div className="flex gap-2 mt-3">
