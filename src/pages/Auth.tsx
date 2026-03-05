@@ -546,29 +546,6 @@ export default function Auth() {
                   <span className="bg-background px-2 text-muted-foreground">Or</span>
                 </div>
               </div>
-              
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full mt-4"
-                onClick={async () => {
-                  setLoading(true);
-                  try {
-                    const { error } = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: window.location.origin,
-                    });
-                    if (error) throw error;
-                  } catch (err: any) {
-                    toast({ title: "Error", description: err.message || "Google sign in failed", variant: "destructive" });
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                disabled={loading}
-              >
-                <img src={codenovaIcon} alt="CodeNova" className="w-4 h-4 mr-2 rounded-sm" />
-                Continue with CodeNova AI
-              </Button>
 
               <div className="flex gap-2 mt-3">
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setStep("qr-login")}>
@@ -580,42 +557,6 @@ export default function Auth() {
                   Employee
                 </Button>
               </div>
-            </div>
-          )}
-
-          {step === "signup" && (
-            <div className="mt-4">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border/50" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or</span>
-                </div>
-              </div>
-              
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full mt-4"
-                onClick={async () => {
-                  setLoading(true);
-                  try {
-                    const { error } = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: window.location.origin,
-                    });
-                    if (error) throw error;
-                  } catch (err: any) {
-                    toast({ title: "Error", description: err.message || "Google sign up failed", variant: "destructive" });
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                disabled={loading}
-              >
-                <img src={codenovaIcon} alt="CodeNova" className="w-4 h-4 mr-2 rounded-sm" />
-                Sign up with CodeNova AI
-              </Button>
             </div>
           )}
 
