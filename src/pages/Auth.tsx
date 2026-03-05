@@ -380,6 +380,70 @@ export default function Auth() {
     );
   }
 
+  if (step === "forgot-password") {
+    const handleForgotPassword = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast({ title: "Reset link sent!", description: "Check your email for the password reset link." });
+        setStep("login");
+      } catch (error: any) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        </div>
+        <div className="relative z-10 w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-2">Reset Password</h1>
+            <p className="text-muted-foreground">Enter your email to receive a password reset link.</p>
+          </div>
+          <div className="glass rounded-2xl p-6 glow-border">
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input id="reset-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 bg-background/50 border-border/50 focus:border-primary" required />
+                </div>
+              </div>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    Sending...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Send Reset Link
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                )}
+              </Button>
+            </form>
+            <div className="mt-4 text-center">
+              <button type="button" onClick={() => setStep("login")} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 mx-auto">
+                <ArrowLeft className="w-3 h-3" /> Back to Login
+              </button>
+            </div>
+          </div>
+          <p className="text-center text-xs text-muted-foreground mt-6">© {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
