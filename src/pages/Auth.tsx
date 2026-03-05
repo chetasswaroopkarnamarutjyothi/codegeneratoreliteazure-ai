@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode, KeyRound } from "lucide-react";
+import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode, KeyRound, Chrome } from "lucide-react";
 import QRCodeLogin from "@/components/QRCodeLogin";
 import LDAPAuth from "@/components/LDAPAuth";
+import { lovable } from "@/integrations/lovable/index";
 
 type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login";
 
@@ -474,7 +475,30 @@ export default function Auth() {
                 </div>
               </div>
               
-              <div className="flex gap-2 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mt-4"
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    const { error } = await lovable.auth.signInWithOAuth("google", {
+                      redirect_uri: window.location.origin,
+                    });
+                    if (error) throw error;
+                  } catch (err: any) {
+                    toast({ title: "Error", description: err.message || "Google sign in failed", variant: "destructive" });
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+              >
+                <Chrome className="w-4 h-4 mr-2" />
+                Continue with Google
+              </Button>
+
+              <div className="flex gap-2 mt-3">
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setStep("qr-login")}>
                   <QrCode className="w-4 h-4 mr-2" />
                   QR Code
@@ -484,6 +508,42 @@ export default function Auth() {
                   Employee
                 </Button>
               </div>
+            </div>
+          )}
+
+          {step === "signup" && (
+            <div className="mt-4">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/50" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+              
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mt-4"
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    const { error } = await lovable.auth.signInWithOAuth("google", {
+                      redirect_uri: window.location.origin,
+                    });
+                    if (error) throw error;
+                  } catch (err: any) {
+                    toast({ title: "Error", description: err.message || "Google sign up failed", variant: "destructive" });
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+              >
+                <Chrome className="w-4 h-4 mr-2" />
+                Sign up with Google
+              </Button>
             </div>
           )}
 
