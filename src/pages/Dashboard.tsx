@@ -121,18 +121,25 @@ export default function Dashboard() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        {/* Creative Header */}
+        <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate("/")}
+              className="hover:scale-110 transition-transform"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Dashboard</h1>
-              <p className="text-muted-foreground">Welcome back, {profile?.full_name || user?.email}</p>
+              <h1 className="text-3xl font-bold">
+                <span className="gradient-text animate-gradient">Dashboard</span>
+              </h1>
+              <p className="text-muted-foreground flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                Welcome back, {profile?.full_name || user?.email}
+              </p>
             </div>
           </div>
           
