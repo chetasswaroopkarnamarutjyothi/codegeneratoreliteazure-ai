@@ -29,7 +29,10 @@ import {
   ArrowRightLeft,
   Landmark,
   ArrowDownToLine,
-  ArrowUpFromLine
+  ArrowUpFromLine,
+  Video,
+  Clapperboard,
+  Sparkles
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
