@@ -1,6 +1,6 @@
-import { Code2, Layers, ShieldCheck, MessageSquare } from "lucide-react";
+import { Code2, Layers, ShieldCheck, MessageSquare, Video } from "lucide-react";
 
-export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat";
+export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "video-generator";
 
 interface ToolSelectorProps {
   value: ToolType;
@@ -13,61 +13,80 @@ const tools = [
     name: "CodeNova Generator",
     description: "Generate code with CodeNova AI",
     icon: Code2,
-    color: "primary",
+    gradient: "from-primary to-primary/60",
+    bgGlow: "bg-primary/20 text-primary",
+    ring: "ring-primary",
   },
   {
     id: "app-generator" as ToolType,
     name: "CodeNova App Builder",
     description: "Generate full applications",
     icon: Layers,
-    color: "accent",
+    gradient: "from-accent to-accent/60",
+    bgGlow: "bg-accent/20 text-accent",
+    ring: "ring-accent",
   },
   {
     id: "code-verifier" as ToolType,
     name: "CodeNova Verifier",
     description: "Check code for errors",
     icon: ShieldCheck,
-    color: "green-500",
+    gradient: "from-green-500 to-emerald-500",
+    bgGlow: "bg-green-500/20 text-green-500",
+    ring: "ring-green-500",
   },
   {
     id: "ai-chat" as ToolType,
     name: "CodeNova Chat",
     description: "Multi-turn AI conversations",
     icon: MessageSquare,
-    color: "purple-500",
+    gradient: "from-purple-500 to-pink-500",
+    bgGlow: "bg-purple-500/20 text-purple-500",
+    ring: "ring-purple-500",
+  },
+  {
+    id: "video-generator" as ToolType,
+    name: "CodeNova Video AI",
+    description: "AI-powered marketing videos",
+    icon: Video,
+    gradient: "from-orange-500 to-red-500",
+    bgGlow: "bg-orange-500/20 text-orange-500",
+    ring: "ring-orange-500",
   },
 ];
 
 export default function ToolSelector({ value, onChange }: ToolSelectorProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-5xl mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 w-full max-w-6xl mx-auto">
       {tools.map((tool) => {
         const Icon = tool.icon;
         const isSelected = value === tool.id;
-        
+
         return (
           <button
             key={tool.id}
             onClick={() => onChange(tool.id)}
-            className={`glass rounded-xl p-5 text-left transition-all duration-300 hover:scale-[1.02] ${
-              isSelected 
-                ? "glow-border ring-2 ring-primary" 
+            className={`group glass rounded-xl p-4 text-left transition-all duration-300 hover:scale-[1.03] relative overflow-hidden ${
+              isSelected
+                ? `glow-border ${tool.ring} ring-2`
                 : "hover:glow-border"
             }`}
           >
-            <div className={`p-3 rounded-lg w-fit mb-3 ${
-              tool.color === "primary" 
-                ? "bg-primary/20 text-primary" 
-                : tool.color === "accent" 
-                ? "bg-accent/20 text-accent"
-                : tool.color === "purple-500"
-                ? "bg-purple-500/20 text-purple-500"
-                : "bg-green-500/20 text-green-500"
-            }`}>
-              <Icon className="w-6 h-6" />
+            {/* Animated gradient background on hover */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+            
+            <div className="relative z-10">
+              <div className={`p-2.5 rounded-lg w-fit mb-2.5 ${tool.bgGlow} group-hover:scale-110 transition-transform duration-300`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-sm mb-0.5">{tool.name}</h3>
+              <p className="text-xs text-muted-foreground leading-tight">{tool.description}</p>
             </div>
-            <h3 className="font-semibold text-base mb-1">{tool.name}</h3>
-            <p className="text-xs text-muted-foreground">{tool.description}</p>
+
+            {/* Selection indicator */}
+            {isSelected && (
+              <div className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-r ${tool.gradient} animate-pulse`} />
+            )}
           </button>
         );
       })}

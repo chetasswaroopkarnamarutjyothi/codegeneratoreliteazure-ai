@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal } from "lucide-react";
+import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal, Video, Clapperboard, Brain, Cpu } from "lucide-react";
 import codenovaIcon from "@/assets/codenova-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import CodeGenerator from "@/components/CodeGenerator";
 import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
 import AIChat from "@/components/AIChat";
+import VideoGenerator from "@/components/VideoGenerator";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import ProfileCompletionGate from "@/components/ProfileCompletionGate";
@@ -102,6 +103,7 @@ export default function Index() {
       case "app-generator": return "App Builder";
       case "code-verifier": return "Verifier";
       case "ai-chat": return "AI Chat";
+      case "video-generator": return "Video AI";
     }
   };
 
@@ -111,15 +113,17 @@ export default function Index() {
       case "app-generator": return "Generate complete applications with CodeNova AI. Describe your app and watch it come to life.";
       case "code-verifier": return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
       case "ai-chat": return "Have multi-turn conversations with CodeNova AI. Ask questions, debug code, and get explanations.";
+      case "video-generator": return "Create stunning marketing videos, promo concepts, and storyboards with CodeNova Video AI.";
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Background effects */}
+      {/* Enhanced background effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "2s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_hsl(var(--background))_70%)]" />
       </div>
 
@@ -186,10 +190,11 @@ export default function Index() {
           {selectedTool === "app-generator" && <AppGenerator userId={user.id} />}
           {selectedTool === "code-verifier" && <CodeVerifier userId={user.id} />}
           {selectedTool === "ai-chat" && <AIChat userId={user.id} />}
+          {selectedTool === "video-generator" && <VideoGenerator userId={user.id} />}
         </div>
 
-        {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-4 mt-12 max-w-4xl mx-auto">
+        {/* Feature Cards - Enhanced */}
+        <div className="grid md:grid-cols-4 gap-4 mt-12 max-w-5xl mx-auto">
           <FeatureCard
             icon={<Zap className="w-5 h-5" />}
             title="Lightning Fast"
@@ -201,9 +206,14 @@ export default function Index() {
             description="TypeScript, Python, Angular, React, and more"
           />
           <FeatureCard
-            icon={<Sparkles className="w-5 h-5" />}
-            title="Smart Context"
-            description="AI understands best practices and patterns"
+            icon={<Brain className="w-5 h-5" />}
+            title="Smart Routing"
+            description="AI auto-selects the best model for your task"
+          />
+          <FeatureCard
+            icon={<Video className="w-5 h-5" />}
+            title="Video AI"
+            description="Generate marketing videos and storyboards"
           />
         </div>
 

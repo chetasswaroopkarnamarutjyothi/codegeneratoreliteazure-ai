@@ -29,7 +29,10 @@ import {
   ArrowRightLeft,
   Landmark,
   ArrowDownToLine,
-  ArrowUpFromLine
+  ArrowUpFromLine,
+  Video,
+  Clapperboard,
+  Sparkles
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
@@ -85,6 +88,7 @@ export default function Dashboard() {
   }
 
   const getActionIcon = (actionType: string) => {
+    if (actionType.includes("video")) return <Video className="w-4 h-4" />;
     if (actionType.includes("code_generation")) return <Code2 className="w-4 h-4" />;
     if (actionType.includes("app_generation")) return <Layers className="w-4 h-4" />;
     if (actionType.includes("code_verification")) return <ShieldCheck className="w-4 h-4" />;
@@ -92,6 +96,7 @@ export default function Dashboard() {
   };
 
   const getActionLabel = (actionType: string) => {
+    if (actionType.includes("video")) return "Video Generated";
     if (actionType.includes("code_generation")) return "Code Generated";
     if (actionType.includes("app_generation")) return "App Generated";
     if (actionType.includes("code_verification")) return "Code Verified";
@@ -107,25 +112,34 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Enhanced animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute top-1/2 right-0 w-[300px] h-[300px] bg-green-500/5 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: "3s" }} />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        {/* Creative Header */}
+        <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate("/")}
+              className="hover:scale-110 transition-transform"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Dashboard</h1>
-              <p className="text-muted-foreground">Welcome back, {profile?.full_name || user?.email}</p>
+              <h1 className="text-3xl font-bold">
+                <span className="gradient-text animate-gradient">Dashboard</span>
+              </h1>
+              <p className="text-muted-foreground flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                Welcome back, {profile?.full_name || user?.email}
+              </p>
             </div>
           </div>
           
@@ -140,9 +154,13 @@ export default function Dashboard() {
                   <Shield className="w-4 h-4 mr-1" />
                   Admin Panel
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => navigate("/stack-chat")}>
+                <Button variant="outline" size="sm" onClick={() => navigate("/stack-chat")} className="hover:scale-105 transition-transform">
                   <MessageSquare className="w-4 h-4 mr-1" />
                   Stack Chat
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => navigate("/marketing")} className="hover:scale-105 transition-transform">
+                  <Clapperboard className="w-4 h-4 mr-1" />
+                  Marketing
                 </Button>
               </>
             )}
