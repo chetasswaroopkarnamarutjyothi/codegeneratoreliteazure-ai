@@ -154,9 +154,13 @@ export default function Dashboard() {
                   <Shield className="w-4 h-4 mr-1" />
                   Admin Panel
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => navigate("/stack-chat")}>
+                <Button variant="outline" size="sm" onClick={() => navigate("/stack-chat")} className="hover:scale-105 transition-transform">
                   <MessageSquare className="w-4 h-4 mr-1" />
                   Stack Chat
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => navigate("/marketing")} className="hover:scale-105 transition-transform">
+                  <Clapperboard className="w-4 h-4 mr-1" />
+                  Marketing
                 </Button>
               </>
             )}
