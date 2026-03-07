@@ -15,6 +15,7 @@ import Projects from "./pages/Projects";
 import StackChat from "./pages/StackChat";
 import About from "./pages/About";
 import CodeIDE from "./pages/CodeIDE";
+import Marketing from "./pages/Marketing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
