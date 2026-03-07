@@ -193,8 +193,8 @@ export default function Index() {
           {selectedTool === "video-generator" && <VideoGenerator userId={user.id} />}
         </div>
 
-        {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-4 mt-12 max-w-4xl mx-auto">
+        {/* Feature Cards - Enhanced */}
+        <div className="grid md:grid-cols-4 gap-4 mt-12 max-w-5xl mx-auto">
           <FeatureCard
             icon={<Zap className="w-5 h-5" />}
             title="Lightning Fast"
@@ -206,9 +206,14 @@ export default function Index() {
             description="TypeScript, Python, Angular, React, and more"
           />
           <FeatureCard
-            icon={<Sparkles className="w-5 h-5" />}
-            title="Smart Context"
-            description="AI understands best practices and patterns"
+            icon={<Brain className="w-5 h-5" />}
+            title="Smart Routing"
+            description="AI auto-selects the best model for your task"
+          />
+          <FeatureCard
+            icon={<Video className="w-5 h-5" />}
+            title="Video AI"
+            description="Generate marketing videos and storyboards"
           />
         </div>
 
