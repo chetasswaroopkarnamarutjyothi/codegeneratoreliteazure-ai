@@ -96,6 +96,7 @@ export default function Dashboard() {
   };
 
   const getActionLabel = (actionType: string) => {
+    if (actionType.includes("video")) return "Video Generated";
     if (actionType.includes("code_generation")) return "Code Generated";
     if (actionType.includes("app_generation")) return "App Generated";
     if (actionType.includes("code_verification")) return "Code Verified";
