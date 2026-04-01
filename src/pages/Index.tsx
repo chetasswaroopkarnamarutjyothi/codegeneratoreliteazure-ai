@@ -191,7 +191,7 @@ export default function Index() {
           {selectedTool === "app-generator" && <AppGenerator userId={user.id} />}
           {selectedTool === "code-verifier" && <CodeVerifier userId={user.id} />}
           {selectedTool === "ai-chat" && <AIChat userId={user.id} />}
-          {selectedTool === "video-generator" && <VideoGenerator userId={user.id} />}
+          {selectedTool === "code-refactor" && <CodeRefactor userId={user.id} />}
         </div>
 
         {/* Feature Cards - Enhanced */}
