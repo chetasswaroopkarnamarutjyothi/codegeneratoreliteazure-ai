@@ -813,11 +813,6 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
-          {/* Employee IDs Tab */}
-          <TabsContent value="employee-ids">
-            <EmployeeIdGenerator />
-          </TabsContent>
-
           {/* Admin Management Tab */}
           <TabsContent value="manage-admins">
             <AdminManagement 
