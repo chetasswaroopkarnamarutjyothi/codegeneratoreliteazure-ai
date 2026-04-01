@@ -52,10 +52,20 @@ export default function CodeIDE() {
       if (!session?.user) { navigate("/auth"); return; }
       setUser(session.user);
       await fetchProjects(session.user.id);
+      
+      // Auto-load shared project from URL
+      const sharedProjectId = searchParams.get("project");
+      if (sharedProjectId) {
+        const { data } = await supabase.from("projects").select("*").eq("id", sharedProjectId).single();
+        if (data) {
+          loadProject(data);
+        }
+      }
+      
       setLoading(false);
     };
     checkSession();
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   const fetchProjects = async (userId: string) => {
     const { data } = await supabase
