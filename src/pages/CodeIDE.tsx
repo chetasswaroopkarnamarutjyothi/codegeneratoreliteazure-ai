@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,8 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CodeMirrorEditor from "@/components/ide/CodeMirrorEditor";
+import IDECollaboration from "@/components/ide/IDECollaboration";
 import {
-  ArrowLeft, Save, Download, Play, Code2, FolderOpen, Plus, Cloud, Loader2, Monitor,
+  ArrowLeft, Save, Download, Play, Code2, FolderOpen, Plus, Cloud, Loader2, Monitor, Users,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
@@ -40,7 +41,9 @@ export default function CodeIDE() {
   const [output, setOutput] = useState("");
   const [showOutput, setShowOutput] = useState(false);
   const [running, setRunning] = useState(false);
+  const [showCollab, setShowCollab] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -49,10 +52,20 @@ export default function CodeIDE() {
       if (!session?.user) { navigate("/auth"); return; }
       setUser(session.user);
       await fetchProjects(session.user.id);
+      
+      // Auto-load shared project from URL
+      const sharedProjectId = searchParams.get("project");
+      if (sharedProjectId) {
+        const { data } = await supabase.from("projects").select("*").eq("id", sharedProjectId).single();
+        if (data) {
+          loadProject(data);
+        }
+      }
+      
       setLoading(false);
     };
     checkSession();
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   const fetchProjects = async (userId: string) => {
     const { data } = await supabase
@@ -270,6 +283,10 @@ export default function CodeIDE() {
             {saving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Cloud className="w-3 h-3 mr-1" />}
             Save
           </Button>
+          <Button size="sm" variant={showCollab ? "default" : "ghost"} className="h-7 text-xs" onClick={() => setShowCollab(!showCollab)}>
+            <Users className="w-3 h-3 mr-1" />
+            Live
+          </Button>
         </div>
       </div>
 
@@ -332,6 +349,19 @@ export default function CodeIDE() {
             </div>
           )}
         </div>
+
+        {/* Collaboration Panel */}
+        {showCollab && (
+          <div className="w-52 border-l border-border/50 bg-card/30 overflow-y-auto hidden md:flex flex-col shrink-0">
+            {user && (
+              <IDECollaboration
+                projectId={currentProjectId}
+                userId={user.id}
+                onCodeUpdate={(newCode) => setCode(newCode)}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

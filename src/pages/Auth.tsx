@@ -550,10 +550,6 @@ export default function Auth() {
                   <QrCode className="w-4 h-4 mr-2" />
                   QR Code
                 </Button>
-                <Button type="button" variant="outline" className="flex-1 border-primary/30 hover:bg-primary/10" onClick={() => setStep("ldap-login")}>
-                  <KeyRound className="w-4 h-4 mr-2 text-primary" />
-                  Employee
-                </Button>
               </div>
             </div>
           )}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal, Video, Clapperboard, Brain, Cpu } from "lucide-react";
+import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal, Wrench, Brain } from "lucide-react";
 import codenovaIcon from "@/assets/codenova-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import CodeGenerator from "@/components/CodeGenerator";
 import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
 import AIChat from "@/components/AIChat";
-import VideoGenerator from "@/components/VideoGenerator";
+import CodeRefactor from "@/components/CodeRefactor";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import ProfileCompletionGate from "@/components/ProfileCompletionGate";
@@ -94,6 +94,7 @@ export default function Index() {
       case "app-generator": return { text: "CodeNova", gradient: true };
       case "code-verifier": return { text: "CodeNova", gradient: true };
       case "ai-chat": return { text: "CodeNova", gradient: true };
+      case "code-refactor": return { text: "CodeNova", gradient: true };
     }
   };
 
@@ -103,7 +104,7 @@ export default function Index() {
       case "app-generator": return "App Builder";
       case "code-verifier": return "Verifier";
       case "ai-chat": return "AI Chat";
-      case "video-generator": return "Video AI";
+      case "code-refactor": return "Refactor";
     }
   };
 
@@ -113,7 +114,7 @@ export default function Index() {
       case "app-generator": return "Generate complete applications with CodeNova AI. Describe your app and watch it come to life.";
       case "code-verifier": return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
       case "ai-chat": return "Have multi-turn conversations with CodeNova AI. Ask questions, debug code, and get explanations.";
-      case "video-generator": return "Create stunning marketing videos, promo concepts, and storyboards with CodeNova Video AI.";
+      case "code-refactor": return "Analyze your code for bugs, anti-patterns, and get AI-powered refactoring suggestions.";
     }
   };
 
@@ -190,7 +191,7 @@ export default function Index() {
           {selectedTool === "app-generator" && <AppGenerator userId={user.id} />}
           {selectedTool === "code-verifier" && <CodeVerifier userId={user.id} />}
           {selectedTool === "ai-chat" && <AIChat userId={user.id} />}
-          {selectedTool === "video-generator" && <VideoGenerator userId={user.id} />}
+          {selectedTool === "code-refactor" && <CodeRefactor userId={user.id} />}
         </div>
 
         {/* Feature Cards - Enhanced */}
@@ -211,9 +212,9 @@ export default function Index() {
             description="AI auto-selects the best model for your task"
           />
           <FeatureCard
-            icon={<Video className="w-5 h-5" />}
-            title="Video AI"
-            description="Generate marketing videos and storyboards"
+            icon={<Wrench className="w-5 h-5" />}
+            title="Code Refactor"
+            description="AI-powered code analysis and improvement"
           />
         </div>
 

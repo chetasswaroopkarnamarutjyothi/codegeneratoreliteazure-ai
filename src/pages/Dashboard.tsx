@@ -31,7 +31,7 @@ import {
   ArrowDownToLine,
   ArrowUpFromLine,
   Video,
-  Clapperboard,
+  Wrench,
   Sparkles
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
@@ -88,6 +88,7 @@ export default function Dashboard() {
   }
 
   const getActionIcon = (actionType: string) => {
+    if (actionType.includes("refactor")) return <Wrench className="w-4 h-4" />;
     if (actionType.includes("video")) return <Video className="w-4 h-4" />;
     if (actionType.includes("code_generation")) return <Code2 className="w-4 h-4" />;
     if (actionType.includes("app_generation")) return <Layers className="w-4 h-4" />;
@@ -96,6 +97,7 @@ export default function Dashboard() {
   };
 
   const getActionLabel = (actionType: string) => {
+    if (actionType.includes("refactor")) return "Code Refactored";
     if (actionType.includes("video")) return "Video Generated";
     if (actionType.includes("code_generation")) return "Code Generated";
     if (actionType.includes("app_generation")) return "App Generated";
@@ -159,7 +161,7 @@ export default function Dashboard() {
                   Stack Chat
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => navigate("/marketing")} className="hover:scale-105 transition-transform">
-                  <Clapperboard className="w-4 h-4 mr-1" />
+                  <Video className="w-4 h-4 mr-1" />
                   Marketing
                 </Button>
               </>
