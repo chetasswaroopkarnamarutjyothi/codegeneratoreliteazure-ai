@@ -212,9 +212,9 @@ export default function Index() {
             description="AI auto-selects the best model for your task"
           />
           <FeatureCard
-            icon={<Video className="w-5 h-5" />}
-            title="Video AI"
-            description="Generate marketing videos and storyboards"
+            icon={<Wrench className="w-5 h-5" />}
+            title="Code Refactor"
+            description="AI-powered code analysis and improvement"
           />
         </div>
 

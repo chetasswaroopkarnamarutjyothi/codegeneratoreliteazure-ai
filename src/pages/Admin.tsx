@@ -25,7 +25,6 @@ import {
   BarChart3,
   UserX,
   UserPlus,
-  IdCard,
   Landmark
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";

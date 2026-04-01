@@ -1,6 +1,6 @@
-import { Code2, Layers, ShieldCheck, MessageSquare, Video } from "lucide-react";
+import { Code2, Layers, ShieldCheck, MessageSquare, Wrench } from "lucide-react";
 
-export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "video-generator";
+export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "code-refactor";
 
 interface ToolSelectorProps {
   value: ToolType;
@@ -45,11 +45,11 @@ const tools = [
     ring: "ring-purple-500",
   },
   {
-    id: "video-generator" as ToolType,
-    name: "CodeNova Video AI",
-    description: "AI-powered marketing videos",
-    icon: Video,
-    gradient: "from-orange-500 to-red-500",
+    id: "code-refactor" as ToolType,
+    name: "CodeNova Refactor",
+    description: "Analyze & improve your code",
+    icon: Wrench,
+    gradient: "from-orange-500 to-amber-500",
     bgGlow: "bg-orange-500/20 text-orange-500",
     ring: "ring-orange-500",
   },
@@ -72,7 +72,6 @@ export default function ToolSelector({ value, onChange }: ToolSelectorProps) {
                 : "hover:glow-border"
             }`}
           >
-            {/* Animated gradient background on hover */}
             <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
             
             <div className="relative z-10">
@@ -83,7 +82,6 @@ export default function ToolSelector({ value, onChange }: ToolSelectorProps) {
               <p className="text-xs text-muted-foreground leading-tight">{tool.description}</p>
             </div>
 
-            {/* Selection indicator */}
             {isSelected && (
               <div className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-r ${tool.gradient} animate-pulse`} />
             )}
