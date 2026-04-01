@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,8 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CodeMirrorEditor from "@/components/ide/CodeMirrorEditor";
+import IDECollaboration from "@/components/ide/IDECollaboration";
 import {
-  ArrowLeft, Save, Download, Play, Code2, FolderOpen, Plus, Cloud, Loader2, Monitor,
+  ArrowLeft, Save, Download, Play, Code2, FolderOpen, Plus, Cloud, Loader2, Monitor, Users,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
