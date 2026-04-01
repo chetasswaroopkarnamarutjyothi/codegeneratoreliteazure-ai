@@ -349,6 +349,19 @@ export default function CodeIDE() {
             </div>
           )}
         </div>
+
+        {/* Collaboration Panel */}
+        {showCollab && (
+          <div className="w-52 border-l border-border/50 bg-card/30 overflow-y-auto hidden md:flex flex-col shrink-0">
+            {user && (
+              <IDECollaboration
+                projectId={currentProjectId}
+                userId={user.id}
+                onCodeUpdate={(newCode) => setCode(newCode)}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
