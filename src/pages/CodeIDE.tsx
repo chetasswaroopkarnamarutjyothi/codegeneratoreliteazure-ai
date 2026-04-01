@@ -283,6 +283,10 @@ export default function CodeIDE() {
             {saving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Cloud className="w-3 h-3 mr-1" />}
             Save
           </Button>
+          <Button size="sm" variant={showCollab ? "default" : "ghost"} className="h-7 text-xs" onClick={() => setShowCollab(!showCollab)}>
+            <Users className="w-3 h-3 mr-1" />
+            Live
+          </Button>
         </div>
       </div>
 
