@@ -36,7 +36,7 @@ import { AdminManagement } from "@/components/admin/AdminManagement";
 import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
 import { EmployeeTermination } from "@/components/admin/EmployeeTermination";
 import type { User } from "@supabase/supabase-js";
-import { EmployeeIdGenerator } from "@/components/admin/EmployeeIdGenerator";
+// EmployeeIdGenerator removed
 import { SetUserCreditsPanel } from "@/components/admin/SetUserCreditsPanel";
 
 interface UserProfile {
