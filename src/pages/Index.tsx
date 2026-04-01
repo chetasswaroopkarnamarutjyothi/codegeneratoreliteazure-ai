@@ -94,6 +94,7 @@ export default function Index() {
       case "app-generator": return { text: "CodeNova", gradient: true };
       case "code-verifier": return { text: "CodeNova", gradient: true };
       case "ai-chat": return { text: "CodeNova", gradient: true };
+      case "code-refactor": return { text: "CodeNova", gradient: true };
     }
   };
 
@@ -103,7 +104,7 @@ export default function Index() {
       case "app-generator": return "App Builder";
       case "code-verifier": return "Verifier";
       case "ai-chat": return "AI Chat";
-      case "video-generator": return "Video AI";
+      case "code-refactor": return "Refactor";
     }
   };
 
@@ -113,7 +114,7 @@ export default function Index() {
       case "app-generator": return "Generate complete applications with CodeNova AI. Describe your app and watch it come to life.";
       case "code-verifier": return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
       case "ai-chat": return "Have multi-turn conversations with CodeNova AI. Ask questions, debug code, and get explanations.";
-      case "video-generator": return "Create stunning marketing videos, promo concepts, and storyboards with CodeNova Video AI.";
+      case "code-refactor": return "Analyze your code for bugs, anti-patterns, and get AI-powered refactoring suggestions.";
     }
   };
 
