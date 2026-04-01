@@ -161,7 +161,7 @@ export default function Dashboard() {
                   Stack Chat
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => navigate("/marketing")} className="hover:scale-105 transition-transform">
-                  <Clapperboard className="w-4 h-4 mr-1" />
+                  <Video className="w-4 h-4 mr-1" />
                   Marketing
                 </Button>
               </>
