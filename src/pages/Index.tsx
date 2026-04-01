@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal, Video, Clapperboard, Brain, Cpu } from "lucide-react";
+import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal, Wrench, Brain } from "lucide-react";
 import codenovaIcon from "@/assets/codenova-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import CodeGenerator from "@/components/CodeGenerator";
 import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
 import AIChat from "@/components/AIChat";
-import VideoGenerator from "@/components/VideoGenerator";
+import CodeRefactor from "@/components/CodeRefactor";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import ProfileCompletionGate from "@/components/ProfileCompletionGate";
