@@ -41,7 +41,9 @@ export default function CodeIDE() {
   const [output, setOutput] = useState("");
   const [showOutput, setShowOutput] = useState(false);
   const [running, setRunning] = useState(false);
+  const [showCollab, setShowCollab] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
