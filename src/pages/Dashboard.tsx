@@ -88,6 +88,7 @@ export default function Dashboard() {
   }
 
   const getActionIcon = (actionType: string) => {
+    if (actionType.includes("refactor")) return <Wrench className="w-4 h-4" />;
     if (actionType.includes("video")) return <Video className="w-4 h-4" />;
     if (actionType.includes("code_generation")) return <Code2 className="w-4 h-4" />;
     if (actionType.includes("app_generation")) return <Layers className="w-4 h-4" />;
@@ -96,6 +97,7 @@ export default function Dashboard() {
   };
 
   const getActionLabel = (actionType: string) => {
+    if (actionType.includes("refactor")) return "Code Refactored";
     if (actionType.includes("video")) return "Video Generated";
     if (actionType.includes("code_generation")) return "Code Generated";
     if (actionType.includes("app_generation")) return "App Generated";
