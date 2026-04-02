@@ -430,14 +430,26 @@ export default function Dashboard() {
                 <p className="font-semibold text-lg text-green-500">Client Team Chat Access</p>
                 <p className="text-3xl font-bold text-primary my-2">₹4,500</p>
                 <p className="text-sm text-muted-foreground mb-2">1 week access to StackMind Chat</p>
-                <p className="text-xs text-muted-foreground mb-4">Direct support from our team</p>
-                <Button
-                  className="w-full"
-                  variant="outline"
-                  onClick={() => navigate("/payment?plan=chat_access")}
-                >
-                  Get Chat Access
-                </Button>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/payment?plan=chat_access")}>Get Chat Access</Button>
+              </div>
+
+              {/* Enterprise Plans */}
+              <div className="mt-6 grid md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                  <p className="font-semibold text-lg text-amber-500">Enterprise Monthly</p>
+                  <p className="text-3xl font-bold text-primary my-2">₹20,000</p>
+                  <p className="text-sm text-muted-foreground mb-2">per month • 2,000 credits/employee/day</p>
+                  <p className="text-xs text-muted-foreground mb-4">All Models + Priority Support</p>
+                  <Button className="w-full bg-amber-500 hover:bg-amber-600" onClick={() => navigate("/payment?plan=enterprise_monthly")}>Subscribe Enterprise</Button>
+                </div>
+                <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 relative overflow-hidden">
+                  <div className="absolute top-2 right-2"><Badge className="bg-green-500 text-white text-xs">Save ₹12,100</Badge></div>
+                  <p className="font-semibold text-lg text-amber-500">Enterprise Yearly</p>
+                  <p className="text-3xl font-bold text-primary my-2">₹2,47,900</p>
+                  <p className="text-sm text-muted-foreground mb-2">per year • 2,000 credits/employee/day</p>
+                  <p className="text-xs text-muted-foreground mb-4">All Models + Priority Support</p>
+                  <Button className="w-full bg-amber-500 hover:bg-amber-600" onClick={() => navigate("/payment?plan=enterprise_yearly")}>Subscribe Enterprise</Button>
+                </div>
               </div>
             </CardContent>
           </Card>
