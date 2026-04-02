@@ -34,9 +34,11 @@ import { NotificationsPanel } from "@/components/admin/NotificationsPanel";
 import { AdminManagement } from "@/components/admin/AdminManagement";
 import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
 import { EmployeeTermination } from "@/components/admin/EmployeeTermination";
-import type { User } from "@supabase/supabase-js";
-// EmployeeIdGenerator removed
 import { SetUserCreditsPanel } from "@/components/admin/SetUserCreditsPanel";
+import { AnnouncementsPanel } from "@/components/admin/AnnouncementsPanel";
+import { WebsiteControlPanel } from "@/components/admin/WebsiteControlPanel";
+import { FeedbackPanel } from "@/components/admin/FeedbackPanel";
+import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
   id: string;
