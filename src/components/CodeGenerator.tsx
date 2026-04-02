@@ -28,8 +28,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
   const [professionalMode, setProfessionalMode] = useState(false);
   const [isEmployee, setIsEmployee] = useState(false);
   const [selectedModel, setSelectedModel] = useState("auto");
-  const [professionalMode, setProfessionalMode] = useState(false);
-  const [isEmployee, setIsEmployee] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
