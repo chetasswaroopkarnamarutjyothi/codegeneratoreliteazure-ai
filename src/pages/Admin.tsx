@@ -499,6 +499,18 @@ export default function Admin() {
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
+            <TabsTrigger value="announcements" className="flex items-center gap-1">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">Announce</span>
+            </TabsTrigger>
+            <TabsTrigger value="feedback" className="flex items-center gap-1">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">Feedback</span>
+            </TabsTrigger>
+            <TabsTrigger value="controls" className="flex items-center gap-1">
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Controls</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Credit Requests Tab */}
