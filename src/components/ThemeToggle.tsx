@@ -1,4 +1,4 @@
-import { Palette, Monitor } from "lucide-react";
+import { Palette, Monitor, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,15 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 
-const themes = [
-  { id: "dark", label: "🌙 Midnight Dark", class: "dark", group: "dark" },
-  { id: "light", label: "☀️ Clean Light", class: "light", group: "light" },
-  { id: "hybrid", label: "🌓 Hybrid Mix", class: "theme-hybrid", group: "mix" },
-] as const;
-
-type ThemeId = (typeof themes)[number]["id"] | "system";
-
-const ALL_THEME_CLASSES = themes.map(t => t.class);
+type ThemeId = "dark" | "light" | "system";
 
 export function ThemeToggle() {
   const [currentTheme, setCurrentTheme] = useState<ThemeId>("dark");
@@ -26,15 +18,14 @@ export function ThemeToggle() {
     const stored = localStorage.getItem("codenova-theme") as ThemeId | null;
     if (stored === "system") {
       applySystemTheme();
-      setCurrentTheme("system");
-    } else if (stored && themes.find((t) => t.id === stored)) {
+    } else if (stored === "light" || stored === "dark") {
       applyTheme(stored);
     }
   }, []);
 
   const applySystemTheme = () => {
     const root = document.documentElement;
-    ALL_THEME_CLASSES.forEach(c => root.classList.remove(c));
+    root.classList.remove("dark", "light", "theme-hybrid");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     root.classList.add(prefersDark ? "dark" : "light");
     setCurrentTheme("system");
@@ -44,9 +35,8 @@ export function ThemeToggle() {
   const applyTheme = (themeId: ThemeId) => {
     if (themeId === "system") { applySystemTheme(); return; }
     const root = document.documentElement;
-    ALL_THEME_CLASSES.forEach(c => root.classList.remove(c));
-    const theme = themes.find((t) => t.id === themeId);
-    if (theme) root.classList.add(theme.class);
+    root.classList.remove("dark", "light", "theme-hybrid");
+    root.classList.add(themeId);
     setCurrentTheme(themeId);
     localStorage.setItem("codenova-theme", themeId);
   };
@@ -67,15 +57,20 @@ export function ThemeToggle() {
           System Default
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        {themes.map((theme) => (
-          <DropdownMenuItem
-            key={theme.id}
-            onClick={() => applyTheme(theme.id)}
-            className={currentTheme === theme.id ? "bg-primary/20 font-semibold" : ""}
-          >
-            {theme.label}
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuItem
+          onClick={() => applyTheme("light")}
+          className={currentTheme === "light" ? "bg-primary/20 font-semibold" : ""}
+        >
+          <Sun className="w-3 h-3 mr-2" />
+          ☀️ Light
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => applyTheme("dark")}
+          className={currentTheme === "dark" ? "bg-primary/20 font-semibold" : ""}
+        >
+          <Moon className="w-3 h-3 mr-2" />
+          🌙 Dark
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

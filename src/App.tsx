@@ -16,6 +16,8 @@ import StackChat from "./pages/StackChat";
 import About from "./pages/About";
 import CodeIDE from "./pages/CodeIDE";
 import Marketing from "./pages/Marketing";
+import Feedback from "./pages/Feedback";
+import Announcements from "./pages/Announcements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,8 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/ide" element={<CodeIDE />} />
           <Route path="/marketing" element={<Marketing />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/announcements" element={<Announcements />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
