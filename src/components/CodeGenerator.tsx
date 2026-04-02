@@ -29,7 +29,6 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
   const [isEmployee, setIsEmployee] = useState(false);
   const [selectedModel, setSelectedModel] = useState("auto");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
   const { points, deductPoints, getTotalPoints, subscriptionType, isAdmin } = useUserPoints(userId);
