@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
+import ModelSelector from "./ModelSelector";
 import CodeOutput from "./CodeOutput";
 import { ProfessionalCodeToggle } from "./ProfessionalCodeToggle";
 import { useUserPoints } from "@/hooks/useUserPoints";
