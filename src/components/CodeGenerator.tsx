@@ -101,7 +101,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ prompt, language, subscriptionType, professionalMode }),
+        body: JSON.stringify({ prompt, language, subscriptionType, professionalMode, model: selectedModel }),
       });
 
       if (!resp.ok || !resp.body) {
