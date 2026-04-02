@@ -846,6 +846,21 @@ export default function Admin() {
           <TabsContent value="analytics">
             <AdminAnalytics />
           </TabsContent>
+
+          {/* Announcements Tab */}
+          <TabsContent value="announcements">
+            <AnnouncementsPanel />
+          </TabsContent>
+
+          {/* Feedback Tab */}
+          <TabsContent value="feedback">
+            <FeedbackPanel />
+          </TabsContent>
+
+          {/* Website Controls Tab */}
+          <TabsContent value="controls">
+            <WebsiteControlPanel />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
