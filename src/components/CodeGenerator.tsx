@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
+import ModelSelector from "./ModelSelector";
 import CodeOutput from "./CodeOutput";
 import { ProfessionalCodeToggle } from "./ProfessionalCodeToggle";
 import { useUserPoints } from "@/hooks/useUserPoints";
@@ -26,6 +27,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
   const [copied, setCopied] = useState(false);
   const [professionalMode, setProfessionalMode] = useState(false);
   const [isEmployee, setIsEmployee] = useState(false);
+  const [selectedModel, setSelectedModel] = useState("auto");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
@@ -97,7 +99,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ prompt, language, subscriptionType, professionalMode }),
+        body: JSON.stringify({ prompt, language, subscriptionType, professionalMode, model: selectedModel }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -271,6 +273,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
 
           <div className="space-y-3">
             <LanguageSelector value={language} onChange={setLanguage} />
+            <ModelSelector value={selectedModel} onChange={setSelectedModel} subscriptionType={subscriptionType} isAdmin={isAdmin} />
             <Button
               onClick={generateCode}
               disabled={isGenerating || !prompt.trim()}

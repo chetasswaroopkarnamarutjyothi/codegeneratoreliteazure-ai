@@ -61,6 +61,23 @@ const PLANS: Record<string, {
     models: "StackMind Chat access",
     color: "green",
   },
+  enterprise_monthly: {
+    name: "Enterprise Monthly",
+    amount: 20000,
+    credits: 2000,
+    period: "month",
+    models: "All Models + Priority Support",
+    color: "amber",
+  },
+  enterprise_yearly: {
+    name: "Enterprise Yearly",
+    amount: 247900,
+    credits: 2000,
+    period: "year",
+    models: "All Models + Priority Support",
+    savings: 12100,
+    color: "amber",
+  },
 };
 
 export default function Payment() {

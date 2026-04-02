@@ -34,9 +34,11 @@ import { NotificationsPanel } from "@/components/admin/NotificationsPanel";
 import { AdminManagement } from "@/components/admin/AdminManagement";
 import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
 import { EmployeeTermination } from "@/components/admin/EmployeeTermination";
-import type { User } from "@supabase/supabase-js";
-// EmployeeIdGenerator removed
 import { SetUserCreditsPanel } from "@/components/admin/SetUserCreditsPanel";
+import { AnnouncementsPanel } from "@/components/admin/AnnouncementsPanel";
+import { WebsiteControlPanel } from "@/components/admin/WebsiteControlPanel";
+import { FeedbackPanel } from "@/components/admin/FeedbackPanel";
+import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
   id: string;
@@ -456,7 +458,7 @@ export default function Admin() {
 
         {/* Tabs for different admin sections */}
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="grid grid-cols-10 w-full max-w-7xl">
+          <TabsList className="grid grid-cols-13 w-full max-w-7xl overflow-x-auto">
             <TabsTrigger value="requests" className="flex items-center gap-1">
               <ClipboardList className="w-4 h-4" />
               <span className="hidden sm:inline">Requests</span>
@@ -496,6 +498,18 @@ export default function Admin() {
             <TabsTrigger value="analytics" className="flex items-center gap-1">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="announcements" className="flex items-center gap-1">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">Announce</span>
+            </TabsTrigger>
+            <TabsTrigger value="feedback" className="flex items-center gap-1">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">Feedback</span>
+            </TabsTrigger>
+            <TabsTrigger value="controls" className="flex items-center gap-1">
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Controls</span>
             </TabsTrigger>
           </TabsList>
 
@@ -831,6 +845,21 @@ export default function Admin() {
           {/* Analytics Tab */}
           <TabsContent value="analytics">
             <AdminAnalytics />
+          </TabsContent>
+
+          {/* Announcements Tab */}
+          <TabsContent value="announcements">
+            <AnnouncementsPanel />
+          </TabsContent>
+
+          {/* Feedback Tab */}
+          <TabsContent value="feedback">
+            <FeedbackPanel />
+          </TabsContent>
+
+          {/* Website Controls Tab */}
+          <TabsContent value="controls">
+            <WebsiteControlPanel />
           </TabsContent>
         </Tabs>
       </div>

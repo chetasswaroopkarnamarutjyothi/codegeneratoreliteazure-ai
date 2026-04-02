@@ -98,6 +98,48 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          is_pinned: boolean | null
+          is_published: boolean | null
+          priority: string
+          published_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          is_published?: boolean | null
+          priority?: string
+          published_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          is_published?: boolean | null
+          priority?: string
+          published_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_channel_members: {
         Row: {
           channel_id: string
@@ -354,6 +396,48 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          admin_response: string | null
+          category: string
+          created_at: string
+          id: string
+          message: string
+          rating: number | null
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message: string
+          rating?: number | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          rating?: number | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           code: string
@@ -476,6 +560,7 @@ export type Database = {
           age: number
           avatar_updated_at: string | null
           avatar_url: string | null
+          birthday: string | null
           created_at: string
           designation: string | null
           email: string
@@ -496,6 +581,7 @@ export type Database = {
           age: number
           avatar_updated_at?: string | null
           avatar_url?: string | null
+          birthday?: string | null
           created_at?: string
           designation?: string | null
           email: string
@@ -516,6 +602,7 @@ export type Database = {
           age?: number
           avatar_updated_at?: string | null
           avatar_url?: string | null
+          birthday?: string | null
           created_at?: string
           designation?: string | null
           email?: string
@@ -814,10 +901,14 @@ export type Database = {
       user_points: {
         Row: {
           approval_bank_credits: number | null
+          birthday_credits_expire_at: string | null
+          birthday_credits_granted_at: string | null
           created_at: string
           credits_bank: number | null
           custom_daily_limit: number | null
           daily_points: number
+          half_year_penalty_applied_at: string | null
+          half_year_usage_count: number | null
           id: string
           is_premium: boolean | null
           last_daily_reset: string
@@ -829,10 +920,14 @@ export type Database = {
         }
         Insert: {
           approval_bank_credits?: number | null
+          birthday_credits_expire_at?: string | null
+          birthday_credits_granted_at?: string | null
           created_at?: string
           credits_bank?: number | null
           custom_daily_limit?: number | null
           daily_points?: number
+          half_year_penalty_applied_at?: string | null
+          half_year_usage_count?: number | null
           id?: string
           is_premium?: boolean | null
           last_daily_reset?: string
@@ -844,10 +939,14 @@ export type Database = {
         }
         Update: {
           approval_bank_credits?: number | null
+          birthday_credits_expire_at?: string | null
+          birthday_credits_granted_at?: string | null
           created_at?: string
           credits_bank?: number | null
           custom_daily_limit?: number | null
           daily_points?: number
+          half_year_penalty_applied_at?: string | null
+          half_year_usage_count?: number | null
           id?: string
           is_premium?: boolean | null
           last_daily_reset?: string
@@ -874,6 +973,54 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      website_controls: {
+        Row: {
+          banner_enabled: boolean | null
+          banner_message: string | null
+          banner_type: string | null
+          feature_ai_enabled: boolean | null
+          feature_chat_enabled: boolean | null
+          feature_ide_enabled: boolean | null
+          feature_projects_enabled: boolean | null
+          id: string
+          maintenance_message: string | null
+          maintenance_mode: boolean | null
+          registration_enabled: boolean | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          banner_enabled?: boolean | null
+          banner_message?: string | null
+          banner_type?: string | null
+          feature_ai_enabled?: boolean | null
+          feature_chat_enabled?: boolean | null
+          feature_ide_enabled?: boolean | null
+          feature_projects_enabled?: boolean | null
+          id?: string
+          maintenance_message?: string | null
+          maintenance_mode?: boolean | null
+          registration_enabled?: boolean | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          banner_enabled?: boolean | null
+          banner_message?: string | null
+          banner_type?: string | null
+          feature_ai_enabled?: boolean | null
+          feature_chat_enabled?: boolean | null
+          feature_ide_enabled?: boolean | null
+          feature_projects_enabled?: boolean | null
+          id?: string
+          maintenance_message?: string | null
+          maintenance_mode?: boolean | null
+          registration_enabled?: boolean | null
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
