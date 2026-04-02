@@ -150,6 +150,14 @@ export default function Index() {
             <Settings className="w-4 h-4 mr-1" />
             Profile
           </Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/feedback")}>
+            <MessageSquarePlus className="w-4 h-4 mr-1" />
+            Feedback
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/announcements")}>
+            <Megaphone className="w-4 h-4 mr-1" />
+            News
+          </Button>
           <Button variant="ghost" size="sm" onClick={() => navigate("/about")}>
             <Info className="w-4 h-4 mr-1" />
             About Us

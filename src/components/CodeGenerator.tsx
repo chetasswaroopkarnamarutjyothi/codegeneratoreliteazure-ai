@@ -273,6 +273,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
 
           <div className="space-y-3">
             <LanguageSelector value={language} onChange={setLanguage} />
+            <ModelSelector value={selectedModel} onChange={setSelectedModel} subscriptionType={subscriptionType} isAdmin={isAdmin} />
             <Button
               onClick={generateCode}
               disabled={isGenerating || !prompt.trim()}
