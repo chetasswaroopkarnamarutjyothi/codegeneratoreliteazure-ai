@@ -19,13 +19,24 @@ serve(async (req) => {
 
     // Call the reset function
     const { error } = await supabase.rpc("reset_daily_credits_with_penalties");
-
     if (error) {
       console.error("Reset error:", error);
       throw error;
     }
 
-    console.log("Daily credits reset completed at:", new Date().toISOString());
+    // Grant birthday credits
+    const { error: birthdayError } = await supabase.rpc("grant_birthday_credits");
+    if (birthdayError) console.error("Birthday credits error:", birthdayError);
+
+    // Expire old birthday credits
+    const { error: expireError } = await supabase.rpc("expire_birthday_credits");
+    if (expireError) console.error("Expire birthday credits error:", expireError);
+
+    // Check 6-month usage penalty
+    const { error: penaltyError } = await supabase.rpc("check_half_year_usage_penalty");
+    if (penaltyError) console.error("Half-year penalty error:", penaltyError);
+
+    console.log("Daily credits reset + birthday + penalty check completed at:", new Date().toISOString());
 
     return new Response(
       JSON.stringify({ 
