@@ -12,6 +12,7 @@ export interface UserProfile {
   avatar_url: string | null;
   avatar_updated_at: string | null;
   username: string | null;
+  birthday: string | null;
   subscription_type: string | null;
   created_at: string;
   updated_at: string;
