@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, Sparkles, Loader2 } from "lucide-react";
+import { User, Sparkles, Loader2, Cake } from "lucide-react";
 
 interface ProfileCompletionGateProps {
   userId: string;
@@ -15,6 +15,7 @@ interface ProfileCompletionGateProps {
 export default function ProfileCompletionGate({ userId, onComplete }: ProfileCompletionGateProps) {
   const [fullName, setFullName] = useState("");
   const [age, setAge] = useState("");
+  const [birthday, setBirthday] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,6 +32,11 @@ export default function ProfileCompletionGate({ userId, onComplete }: ProfileCom
       return;
     }
 
+    if (!birthday) {
+      toast.error("Please enter your birthday");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -39,6 +45,7 @@ export default function ProfileCompletionGate({ userId, onComplete }: ProfileCom
         .update({
           full_name: fullName.trim(),
           age: ageNum,
+          birthday: birthday,
         })
         .eq("user_id", userId);
 
@@ -67,7 +74,7 @@ export default function ProfileCompletionGate({ userId, onComplete }: ProfileCom
           </div>
           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
           <CardDescription>
-            Please provide your name and age to continue using the platform
+            Please provide your name, age, and birthday to continue using the platform
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -95,6 +102,24 @@ export default function ProfileCompletionGate({ userId, onComplete }: ProfileCom
                 max={120}
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthday" className="flex items-center gap-2">
+                <Cake className="w-4 h-4" />
+                Birthday *
+              </Label>
+              <Input
+                id="birthday"
+                type="date"
+                value={birthday}
+                onChange={(e) => setBirthday(e.target.value)}
+                max={new Date().toISOString().split("T")[0]}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                You'll receive 500 bonus credits on your birthday every year! 🎂
+              </p>
             </div>
 
             <Button

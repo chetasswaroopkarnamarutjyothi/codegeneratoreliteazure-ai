@@ -340,6 +340,30 @@ export default function Profile() {
               </p>
             </div>
 
+            {/* Birthday */}
+            <div className="space-y-2">
+              <Label htmlFor="birthday" className="flex items-center gap-2">
+                <Cake className="w-4 h-4" />
+                Birthday
+                {profile.birthday && <Lock className="w-3 h-3 text-muted-foreground" />}
+              </Label>
+              <div className="relative">
+                <Cake className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="birthday"
+                  type="date"
+                  value={profile.birthday || ""}
+                  className="pl-10 bg-muted/50"
+                  disabled
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {profile.birthday 
+                  ? "🎂 You receive 500 bonus credits on your birthday every year!"
+                  : "Birthday not set. Complete your profile to set it."}
+              </p>
+            </div>
+
             {profile.age < 18 && (
               <div className="space-y-2">
                 <Label htmlFor="parentEmail">Parent's Email</Label>
