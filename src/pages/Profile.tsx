@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, User, Mail, Users, Calendar, Save, Lock, Camera, AtSign, AlertCircle } from "lucide-react";
+import { ArrowLeft, User, Mail, Users, Calendar, Save, Lock, Camera, AtSign, AlertCircle, Cake } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export default function Profile() {
