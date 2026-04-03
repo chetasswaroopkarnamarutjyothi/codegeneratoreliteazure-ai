@@ -1034,10 +1034,12 @@ export type Database = {
         Returns: boolean
       }
       assign_random_admin_from_group: { Args: never; Returns: undefined }
+      check_half_year_usage_penalty: { Args: never; Returns: undefined }
       deny_credit_request: {
         Args: { admin_notes_text?: string; request_id: string }
         Returns: boolean
       }
+      expire_birthday_credits: { Args: never; Returns: undefined }
       generate_username: { Args: { base_name: string }; Returns: string }
       grant_admin_role: {
         Args: {
@@ -1048,6 +1050,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      grant_birthday_credits: { Args: never; Returns: undefined }
       grant_credits_from_bank: {
         Args: { amount: number; grant_reason?: string; target_user_id: string }
         Returns: boolean
