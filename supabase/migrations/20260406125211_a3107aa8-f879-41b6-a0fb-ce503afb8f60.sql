@@ -1,0 +1,22 @@
+
+ALTER TABLE public.website_controls
+  ADD COLUMN IF NOT EXISTS rate_limit_enabled boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS rate_limit_max_requests integer DEFAULT 100,
+  ADD COLUMN IF NOT EXISTS captcha_enabled boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS ip_blocking_enabled boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS max_login_attempts integer DEFAULT 5,
+  ADD COLUMN IF NOT EXISTS session_timeout_minutes integer DEFAULT 60,
+  ADD COLUMN IF NOT EXISTS default_theme text DEFAULT 'system',
+  ADD COLUMN IF NOT EXISTS custom_logo_url text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS primary_color_override text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS font_size_default text DEFAULT 'medium',
+  ADD COLUMN IF NOT EXISTS email_notifications_enabled boolean DEFAULT true,
+  ADD COLUMN IF NOT EXISTS push_notifications_enabled boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS auto_reply_enabled boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS auto_reply_message text DEFAULT 'Thank you for your message. We will get back to you soon.',
+  ADD COLUMN IF NOT EXISTS profanity_filter_enabled boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS max_upload_size_mb integer DEFAULT 10,
+  ADD COLUMN IF NOT EXISTS max_message_length integer DEFAULT 5000,
+  ADD COLUMN IF NOT EXISTS free_credits_enabled boolean DEFAULT true,
+  ADD COLUMN IF NOT EXISTS free_credits_end_date timestamp with time zone DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS free_credits_amount integer DEFAULT 50;

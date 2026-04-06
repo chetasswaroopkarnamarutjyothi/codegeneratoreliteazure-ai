@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const ALLOWED_EMAILS = [
   "kchetasswaroop@gmail.com",
-  // Add Vicky V Purohit's email here
+  "vickyvpurohit@gmail.com",
 ];
 
 export default function WebsiteControls() {
