@@ -134,10 +134,43 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
 
       const selectedProfile = users.find(u => u.user_id === selectedUserId);
       if (selectedProfile) {
+        const emailHtml = `
+          <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+            <div style="background: linear-gradient(135deg, hsl(173, 80%, 40%), hsl(280, 70%, 50%)); padding: 32px 24px; text-align: center;">
+              <h1 style="color: #ffffff; font-size: 24px; margin: 0; font-weight: 700;">🎉 Credits Activated!</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px;">Your CodeNova plan has been updated</p>
+            </div>
+            <div style="padding: 32px 24px;">
+              <p style="font-size: 16px; color: #1a202c; margin: 0 0 20px;">Hi <strong>${selectedProfile.full_name}</strong>,</p>
+              <p style="font-size: 14px; color: #4a5568; line-height: 1.6; margin: 0 0 24px;">Great news! An administrator has activated credits on your account. Here are the details:</p>
+              <div style="background: #f7fafc; border-radius: 8px; padding: 20px; margin: 0 0 24px; border: 1px solid #e2e8f0;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #718096; font-size: 14px;">📊 Daily Credits</td>
+                    <td style="padding: 8px 0; text-align: right; font-weight: 700; color: hsl(173, 80%, 40%); font-size: 18px;">${credits.toLocaleString()}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #718096; font-size: 14px; border-top: 1px solid #e2e8f0;">📅 Duration</td>
+                    <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1a202c; font-size: 14px; border-top: 1px solid #e2e8f0;">${days} days</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #718096; font-size: 14px; border-top: 1px solid #e2e8f0;">🏷️ Plan</td>
+                    <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #1a202c; font-size: 14px; border-top: 1px solid #e2e8f0;">${plans[planType]?.label || planType}</td>
+                  </tr>
+                </table>
+              </div>
+              <div style="text-align: center; margin: 24px 0;">
+                <a href="${window.location.origin}" style="display: inline-block; background: linear-gradient(135deg, hsl(173, 80%, 40%), hsl(280, 70%, 50%)); color: #ffffff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">Start Using CodeNova →</a>
+              </div>
+              <p style="font-size: 12px; color: #a0aec0; text-align: center; margin: 24px 0 0;">This is an automated notification from CodeNova by StackMind Technologies Limited.</p>
+            </div>
+          </div>`;
+
         await supabase.from("email_notifications").insert({
           recipient_user_id: selectedUserId, recipient_email: selectedProfile.email,
-          notification_type: "credits_set", subject: "Your Credits Have Been Activated!",
-          body: `Your plan has been activated!\n\nDaily Credits: ${credits}\nDuration: ${days} days\nPlan: ${plans[planType]?.label || planType}\n\nEnjoy CodeNova!`,
+          notification_type: "credits_set", subject: "🎉 Your CodeNova Credits Have Been Activated!",
+          body: emailHtml,
+          metadata: { credits, days, plan: planType, transaction_id: transactionId || null } as any,
         });
       }
 
