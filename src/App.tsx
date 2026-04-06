@@ -18,6 +18,7 @@ import CodeIDE from "./pages/CodeIDE";
 import Marketing from "./pages/Marketing";
 import Feedback from "./pages/Feedback";
 import Announcements from "./pages/Announcements";
+import WebsiteControls from "./pages/WebsiteControls";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
