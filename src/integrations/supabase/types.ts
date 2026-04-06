@@ -978,47 +978,107 @@ export type Database = {
       }
       website_controls: {
         Row: {
+          auto_reply_enabled: boolean | null
+          auto_reply_message: string | null
           banner_enabled: boolean | null
           banner_message: string | null
           banner_type: string | null
+          captcha_enabled: boolean | null
+          custom_logo_url: string | null
+          default_theme: string | null
+          email_notifications_enabled: boolean | null
           feature_ai_enabled: boolean | null
           feature_chat_enabled: boolean | null
           feature_ide_enabled: boolean | null
           feature_projects_enabled: boolean | null
+          font_size_default: string | null
+          free_credits_amount: number | null
+          free_credits_enabled: boolean | null
+          free_credits_end_date: string | null
           id: string
+          ip_blocking_enabled: boolean | null
           maintenance_message: string | null
           maintenance_mode: boolean | null
+          max_login_attempts: number | null
+          max_message_length: number | null
+          max_upload_size_mb: number | null
+          primary_color_override: string | null
+          profanity_filter_enabled: boolean | null
+          push_notifications_enabled: boolean | null
+          rate_limit_enabled: boolean | null
+          rate_limit_max_requests: number | null
           registration_enabled: boolean | null
+          session_timeout_minutes: number | null
           updated_at: string
           updated_by: string | null
         }
         Insert: {
+          auto_reply_enabled?: boolean | null
+          auto_reply_message?: string | null
           banner_enabled?: boolean | null
           banner_message?: string | null
           banner_type?: string | null
+          captcha_enabled?: boolean | null
+          custom_logo_url?: string | null
+          default_theme?: string | null
+          email_notifications_enabled?: boolean | null
           feature_ai_enabled?: boolean | null
           feature_chat_enabled?: boolean | null
           feature_ide_enabled?: boolean | null
           feature_projects_enabled?: boolean | null
+          font_size_default?: string | null
+          free_credits_amount?: number | null
+          free_credits_enabled?: boolean | null
+          free_credits_end_date?: string | null
           id?: string
+          ip_blocking_enabled?: boolean | null
           maintenance_message?: string | null
           maintenance_mode?: boolean | null
+          max_login_attempts?: number | null
+          max_message_length?: number | null
+          max_upload_size_mb?: number | null
+          primary_color_override?: string | null
+          profanity_filter_enabled?: boolean | null
+          push_notifications_enabled?: boolean | null
+          rate_limit_enabled?: boolean | null
+          rate_limit_max_requests?: number | null
           registration_enabled?: boolean | null
+          session_timeout_minutes?: number | null
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          auto_reply_enabled?: boolean | null
+          auto_reply_message?: string | null
           banner_enabled?: boolean | null
           banner_message?: string | null
           banner_type?: string | null
+          captcha_enabled?: boolean | null
+          custom_logo_url?: string | null
+          default_theme?: string | null
+          email_notifications_enabled?: boolean | null
           feature_ai_enabled?: boolean | null
           feature_chat_enabled?: boolean | null
           feature_ide_enabled?: boolean | null
           feature_projects_enabled?: boolean | null
+          font_size_default?: string | null
+          free_credits_amount?: number | null
+          free_credits_enabled?: boolean | null
+          free_credits_end_date?: string | null
           id?: string
+          ip_blocking_enabled?: boolean | null
           maintenance_message?: string | null
           maintenance_mode?: boolean | null
+          max_login_attempts?: number | null
+          max_message_length?: number | null
+          max_upload_size_mb?: number | null
+          primary_color_override?: string | null
+          profanity_filter_enabled?: boolean | null
+          push_notifications_enabled?: boolean | null
+          rate_limit_enabled?: boolean | null
+          rate_limit_max_requests?: number | null
           registration_enabled?: boolean | null
+          session_timeout_minutes?: number | null
           updated_at?: string
           updated_by?: string | null
         }
