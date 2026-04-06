@@ -1,61 +1,24 @@
-## Phase 1: Database Changes
-1. **Add `birthday` column** to `profiles` table
-2. **Create `feedback` table** for user feedback
-3. **Create `announcements` table** for admin announcements
-4. **Create `website_controls` table** for admin site settings (maintenance mode, feature flags, registration toggle, banner message)
-5. **Add `birthday_credits_granted_at` and `birthday_credits_expire_at`** to `user_points`
-6. **Add `last_activity_check` and `half_year_penalty_applied`** to `user_points` for 6-month usage tracking
+## Plan
 
-## Phase 2: Marketing Studio Fix
-- Remove `@stackmind.com` domain enforcement completely
-- Only check if user has admin role via `is_admin` RPC
-- Admins can use any email (including `@gmail.com`)
+### Phase 1: Quick Fixes
+1. **Add Vicky's email** (`vickyvpurohit@gmail.com`) to WebsiteControls allowed list
 
-## Phase 3: AI Model Selector
-- Add a model picker dropdown to the code generation UI
-- Let users choose from available models (Gemini 2.5 Pro, Flash, GPT-5, etc.)
-- Pass selected model to the edge function
+### Phase 2: Expand Website Controls (20 new controls)
+2. **Database migration** — Add 20 new columns to `website_controls` table:
+   - **Security**: `rate_limit_enabled`, `rate_limit_max_requests`, `captcha_enabled`, `ip_blocking_enabled`, `max_login_attempts`, `session_timeout_minutes`
+   - **UI/Appearance**: `default_theme`, `custom_logo_url`, `primary_color_override`, `font_size_default`
+   - **Notifications**: `email_notifications_enabled`, `push_notifications_enabled`, `auto_reply_enabled`, `auto_reply_message`
+   - **Content/Moderation**: `profanity_filter_enabled`, `max_upload_size_mb`, `max_message_length`
+   - **Credits/Access**: `free_credits_enabled`, `free_credits_end_date`, `free_credits_amount`
 
-## Phase 4: Birthday Credits System
-- Ask birthday during profile creation/completion
-- On birthday, auto-grant 500 credits with 2-month expiry
-- Check and expire birthday credits after 2 months
+3. **Update WebsiteControlPanel UI** — Add sections for all 20 new controls
 
-## Phase 5: 6-Month Usage Penalty
-- Every 6 months, check if user used at least 10 credits
-- If not, cut their daily credits in half for the next 6 months
+### Phase 3: Email Enhancement
+4. **Set up branded auth email templates** using Lovable's built-in email system
+5. **Send email notification when admin sets credits** — Add email trigger in SetUserCreditsPanel
 
-## Phase 6: Feedback Page
-- New `/feedback` page for users to submit feedback
-- Categories: Bug Report, Feature Request, General Feedback
-- Admins can view and respond in admin panel
-
-## Phase 7: Announcements Page
-- Admin can create/edit/delete announcements
-- Users see announcements on dashboard or dedicated page
-- Support pinning and priority
-
-## Phase 8: Admin Website Control Panel
-- Maintenance mode toggle (shows maintenance page to non-admins)
-- Feature flags (enable/disable chat, IDE, video, etc.)
-- User registration toggle (open/close signups)
-- Custom banner/announcement for all users
-
-## Phase 9: Enterprise Subscription Plan
-- ₹20,000/month or ₹2,47,900/year
-- 2,000 credits per employee per day
-- Add to payment page and subscription logic
-
-## Phase 10: Theme Simplification
-- Remove "Hybrid Mix" theme
-- Keep only: Light, Dark, System Default
-
-## Phase 11: Security Hardening
-- Review and tighten RLS policies
-- Input validation on all forms
-- Rate limiting considerations
-
-## Phase 12: UI/UX Enhancements
-- Improve post-auth connecting/loading page
-- Better email templates for notifications
-- Overall polish
+### Phase 4: App Generator Upgrade
+6. **More framework options** (React Native, Flutter, Next.js templates)
+7. **Better AI prompts** with improved code quality
+8. **Template gallery** with pre-built app templates
+9. **Live preview** of generated apps
