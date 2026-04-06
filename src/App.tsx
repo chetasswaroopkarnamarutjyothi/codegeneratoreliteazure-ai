@@ -18,6 +18,7 @@ import CodeIDE from "./pages/CodeIDE";
 import Marketing from "./pages/Marketing";
 import Feedback from "./pages/Feedback";
 import Announcements from "./pages/Announcements";
+import WebsiteControls from "./pages/WebsiteControls";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/marketing" element={<Marketing />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/announcements" element={<Announcements />} />
+          <Route path="/website-controls" element={<WebsiteControls />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
