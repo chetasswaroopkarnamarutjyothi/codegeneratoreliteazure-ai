@@ -278,24 +278,21 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Username (Auto-generated) */}
-            {profile.username && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <AtSign className="w-4 h-4" />
-                  Username
-                  <Lock className="w-3 h-3 text-muted-foreground" />
-                </Label>
-                <Input
-                  value={profile.username}
-                  className="bg-muted/50"
-                  disabled
-                />
-                <p className="text-xs text-muted-foreground">
-                  Auto-generated username for login
-                </p>
-              </div>
-            )}
+            {/* Username (Editable) */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <AtSign className="w-4 h-4" />
+                Username
+              </Label>
+              <Input
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                placeholder="your_username"
+              />
+              <p className="text-xs text-muted-foreground">
+                You can change your username. Your User ID (UID) remains constant.
+              </p>
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
