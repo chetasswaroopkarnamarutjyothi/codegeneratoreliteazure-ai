@@ -204,6 +204,7 @@ export default function Index() {
           {selectedTool === "code-verifier" && <CodeVerifier userId={user.id} />}
           {selectedTool === "ai-chat" && <AIChat userId={user.id} />}
           {selectedTool === "code-refactor" && <CodeRefactor userId={user.id} />}
+          {selectedTool === "website-verifier" && <WebsiteVerifier userId={user.id} />}
         </div>
 
         {/* Feature Cards - Enhanced */}
