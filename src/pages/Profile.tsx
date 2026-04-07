@@ -18,6 +18,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [parentEmail, setParentEmail] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -49,6 +50,7 @@ export default function Profile() {
       setFullName(profile.full_name);
       setEmail(profile.email);
       setParentEmail(profile.parent_email || "");
+      setUsername(profile.username || "");
     }
   }, [profile]);
 
@@ -128,6 +130,11 @@ export default function Profile() {
         full_name: fullName,
         email: email,
       };
+
+      // Allow username change
+      if (username.trim() && username !== profile.username) {
+        updates.username = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      }
 
       // Only allow updating parent email if user is under 18
       if (profile.age < 18) {
@@ -271,24 +278,21 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Username (Auto-generated) */}
-            {profile.username && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <AtSign className="w-4 h-4" />
-                  Username
-                  <Lock className="w-3 h-3 text-muted-foreground" />
-                </Label>
-                <Input
-                  value={profile.username}
-                  className="bg-muted/50"
-                  disabled
-                />
-                <p className="text-xs text-muted-foreground">
-                  Auto-generated username for login
-                </p>
-              </div>
-            )}
+            {/* Username (Editable) */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <AtSign className="w-4 h-4" />
+                Username
+              </Label>
+              <Input
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                placeholder="your_username"
+              />
+              <p className="text-xs text-muted-foreground">
+                You can change your username. Your User ID (UID) remains constant.
+              </p>
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>

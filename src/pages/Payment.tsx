@@ -86,6 +86,7 @@ export default function Payment() {
   const [requestSent, setRequestSent] = useState(false);
   const [transactionId, setTransactionId] = useState("");
   const [proofDescription, setProofDescription] = useState("");
+  const [enterpriseName, setEnterpriseName] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -141,6 +142,17 @@ export default function Payment() {
       return;
     }
 
+    // Enterprise plans require enterprise name
+    const isEnterprisePlan = planKey.startsWith("enterprise");
+    if (isEnterprisePlan && !enterpriseName.trim()) {
+      toast({
+        title: "Enterprise Name Required",
+        description: "Please enter your enterprise/company name",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase.from("payments").insert({
         user_id: user.id,
@@ -172,8 +184,8 @@ export default function Payment() {
               recipient_user_id: admin.user_id,
               recipient_email: adminProfile.email,
               notification_type: "payment_request",
-              subject: `Payment Proof - ${plan.name} - TXN: ${transactionId}`,
-              body: `Payment proof submitted:\n\nPlan: ${plan.name}\nAmount: ₹${plan.amount.toLocaleString()}\nTransaction ID: ${transactionId}\nProof/Notes: ${proofDescription || 'No additional notes'}\nUser Email: ${user.email}\n\nPlease verify the payment and activate the subscription.`,
+              subject: `Payment Proof - ${plan.name}${enterpriseName ? ` [${enterpriseName}]` : ''} - TXN: ${transactionId}`,
+              body: `Payment proof submitted:\n\nPlan: ${plan.name}\n${enterpriseName ? `Enterprise: ${enterpriseName}\n` : ''}Amount: ₹${plan.amount.toLocaleString()}\nTransaction ID: ${transactionId}\nProof/Notes: ${proofDescription || 'No additional notes'}\nUser Email: ${user.email}\n\nPlease verify the payment and activate the subscription.`,
               metadata: JSON.stringify({
                 plan: planKey,
                 amount: plan.amount,
@@ -181,6 +193,7 @@ export default function Payment() {
                 user_id: user.id,
                 transaction_id: transactionId,
                 proof_description: proofDescription,
+                enterprise_name: enterpriseName || null,
               }),
             });
           }
@@ -302,6 +315,22 @@ export default function Payment() {
                 onChange={(e) => setTransactionId(e.target.value)}
               />
             </div>
+
+            {/* Enterprise Name Field */}
+            {planKey.startsWith("enterprise") && (
+              <div className="space-y-2">
+                <Label>Enterprise / Company Name *</Label>
+                <Input
+                  placeholder="e.g., Acme Corp"
+                  value={enterpriseName}
+                  onChange={(e) => setEnterpriseName(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This name will be used for your enterprise chat and branding.
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label>Payment Proof / Notes (Optional)</Label>
               <Textarea

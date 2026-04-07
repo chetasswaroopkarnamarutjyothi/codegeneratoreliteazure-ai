@@ -1,6 +1,6 @@
-import { Code2, Layers, ShieldCheck, MessageSquare, Wrench } from "lucide-react";
+import { Code2, Layers, ShieldCheck, MessageSquare, Wrench, Globe } from "lucide-react";
 
-export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "code-refactor";
+export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "code-refactor" | "website-verifier";
 
 interface ToolSelectorProps {
   value: ToolType;
@@ -53,11 +53,20 @@ const tools = [
     bgGlow: "bg-orange-500/20 text-orange-500",
     ring: "ring-orange-500",
   },
+  {
+    id: "website-verifier" as ToolType,
+    name: "Website Verifier",
+    description: "Analyze & improve websites",
+    icon: Globe,
+    gradient: "from-emerald-500 to-teal-500",
+    bgGlow: "bg-emerald-500/20 text-emerald-500",
+    ring: "ring-emerald-500",
+  },
 ];
 
 export default function ToolSelector({ value, onChange }: ToolSelectorProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 w-full max-w-6xl mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 w-full max-w-6xl mx-auto">
       {tools.map((tool) => {
         const Icon = tool.icon;
         const isSelected = value === tool.id;

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Layers, Copy, Check, Loader2, Sparkles, Layout, Save, ImageIcon, Download, Rocket, Code2, Monitor, Smartphone, Globe, Zap } from "lucide-react";
+import { Layers, Copy, Check, Loader2, Sparkles, Layout, Save, ImageIcon, Download, Rocket, Code2, Monitor, Smartphone, Globe, Zap, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -55,6 +55,9 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
   const [activeTab, setActiveTab] = useState("generate");
   const [selectedFramework, setSelectedFramework] = useState("react");
   const [qualityMode, setQualityMode] = useState<"standard" | "enhanced">("standard");
+  const [autoSave, setAutoSave] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
+  const [customDomain, setCustomDomain] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
@@ -162,7 +165,25 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
 
       await addHistoryItem({ action_type: "app_generation", language: selectedFramework, prompt: finalPrompt, result: fullCode, points_used: 5 });
       await notifyParent("", "", "app_generation", finalPrompt);
-      toast.success("App code generated! (-5 credits)");
+      
+      // Auto-save to projects
+      if (autoSave && userId && fullCode) {
+        const autoName = finalPrompt.slice(0, 50).trim() || "Generated App";
+        try {
+          await supabase.from("projects").insert({
+            user_id: userId,
+            name: autoName,
+            description: finalPrompt,
+            language: selectedFramework,
+            code: fullCode,
+          });
+          toast.success(`App generated & saved to Projects! (-5 credits)`);
+        } catch {
+          toast.success("App generated! (-5 credits) (auto-save failed)");
+        }
+      } else {
+        toast.success("App code generated! (-5 credits)");
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Something went wrong. Try again.");
@@ -309,35 +330,62 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
               <h2 className="text-lg font-semibold">Describe your application</h2>
             </div>
 
-            <div className="flex gap-4 items-start">
-              <div className="flex-1 space-y-3">
-                <Textarea
-                  ref={textareaRef}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="e.g., Create a todo app with add, delete, and complete functionality..."
-                  className="min-h-[120px] resize-none bg-muted/50 border-border focus:border-accent focus:glow-border transition-all"
-                />
-                <p className="text-xs text-muted-foreground">
-                  <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate • 5 credits
-                </p>
-              </div>
+            <Textarea
+              ref={textareaRef}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="e.g., Create a todo app with add, delete, and complete functionality. AI will auto-generate the best code for you..."
+              className="min-h-[120px] resize-none bg-muted/50 border-border focus:border-accent focus:glow-border transition-all"
+            />
 
-              <div className="space-y-3">
-                <LanguageSelector value={language} onChange={setLanguage} />
-                <Button
-                  onClick={() => generateApp()}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="w-full bg-accent hover:bg-accent/90 hover:scale-[1.02] transition-transform"
-                  size="lg"
-                >
-                  {isGenerating ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
-                  ) : (
-                    <><Layers className="w-4 h-4 mr-2" /> Generate App</>
-                  )}
-                </Button>
+            {/* Options row */}
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autoSave}
+                  onChange={(e) => setAutoSave(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <Save className="w-3.5 h-3.5 text-muted-foreground" />
+                Auto-save to Projects
+              </label>
+
+              <div className="flex-1" />
+
+              <p className="text-xs text-muted-foreground">
+                <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate • 5 credits
+              </p>
+
+              <Button
+                onClick={() => generateApp()}
+                disabled={isGenerating || !prompt.trim()}
+                className="bg-accent hover:bg-accent/90 hover:scale-[1.02] transition-transform"
+                size="lg"
+              >
+                {isGenerating ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
+                ) : (
+                  <><Rocket className="w-4 h-4 mr-2" /> Generate App</>
+                )}
+              </Button>
+            </div>
+
+            {/* Custom Domain */}
+            <div className="pt-2 border-t border-border/50">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+                <Label className="text-xs text-muted-foreground">Custom Domain (optional)</Label>
+              </div>
+              <div className="flex items-center gap-1 mt-1">
+                <Input
+                  value={customDomain}
+                  onChange={(e) => setCustomDomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                  placeholder="my-app"
+                  className="flex-1 h-8 text-sm"
+                />
+                <span className="text-xs text-muted-foreground whitespace-nowrap">.stackmind.lovable.app</span>
               </div>
             </div>
           </div>
@@ -438,6 +486,13 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
             <div className="flex items-center gap-2">
               {code && (
                 <>
+                  <Button
+                    variant={showPreview ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowPreview(!showPreview)}
+                  >
+                    {showPreview ? <><EyeOff className="w-4 h-4 mr-1.5" /> Code</> : <><Eye className="w-4 h-4 mr-1.5" /> Preview</>}
+                  </Button>
                   <Input placeholder="Project name..." value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-40 h-8 text-sm" />
                   <Button variant="outline" size="sm" onClick={saveAsProject} disabled={isSaving || !projectName.trim()}>
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-1.5" /> Save</>}
@@ -449,6 +504,19 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
               )}
             </div>
           </div>
+
+          {/* Live Preview */}
+          {showPreview && code && (selectedFramework === "html" || selectedFramework === "react") ? (
+            <div className="border-b border-border/50">
+              <iframe
+                srcDoc={selectedFramework === "html" ? code : `<!DOCTYPE html><html><head><style>body{font-family:system-ui,sans-serif;margin:20px;background:#1a1a2e;color:#eee;}</style></head><body><pre style="white-space:pre-wrap;font-size:13px;">${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre></body></html>`}
+                className="w-full h-[400px] bg-white"
+                sandbox="allow-scripts"
+                title="Live Preview"
+              />
+            </div>
+          ) : null}
+
           <CodeOutput code={code} language={language} isGenerating={isGenerating} />
         </div>
       )}

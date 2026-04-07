@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import CodeGenerator from "@/components/CodeGenerator";
 import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
+import WebsiteVerifier from "@/components/WebsiteVerifier";
 import AIChat from "@/components/AIChat";
 import CodeRefactor from "@/components/CodeRefactor";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
@@ -95,6 +96,7 @@ export default function Index() {
       case "code-verifier": return { text: "CodeNova", gradient: true };
       case "ai-chat": return { text: "CodeNova", gradient: true };
       case "code-refactor": return { text: "CodeNova", gradient: true };
+      case "website-verifier": return { text: "CodeNova", gradient: true };
     }
   };
 
@@ -105,6 +107,7 @@ export default function Index() {
       case "code-verifier": return "Verifier";
       case "ai-chat": return "AI Chat";
       case "code-refactor": return "Refactor";
+      case "website-verifier": return "Website Verifier";
     }
   };
 
@@ -115,6 +118,7 @@ export default function Index() {
       case "code-verifier": return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
       case "ai-chat": return "Have multi-turn conversations with CodeNova AI. Ask questions, debug code, and get explanations.";
       case "code-refactor": return "Analyze your code for bugs, anti-patterns, and get AI-powered refactoring suggestions.";
+      case "website-verifier": return "Enter any URL and get AI-powered suggestions for design, performance, SEO, and accessibility improvements.";
     }
   };
 
@@ -200,6 +204,7 @@ export default function Index() {
           {selectedTool === "code-verifier" && <CodeVerifier userId={user.id} />}
           {selectedTool === "ai-chat" && <AIChat userId={user.id} />}
           {selectedTool === "code-refactor" && <CodeRefactor userId={user.id} />}
+          {selectedTool === "website-verifier" && <WebsiteVerifier userId={user.id} />}
         </div>
 
         {/* Feature Cards - Enhanced */}
