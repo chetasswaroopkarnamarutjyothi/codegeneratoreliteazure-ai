@@ -1,6 +1,6 @@
-import { Code2, Layers, ShieldCheck, MessageSquare, Wrench } from "lucide-react";
+import { Code2, Layers, ShieldCheck, MessageSquare, Wrench, Globe } from "lucide-react";
 
-export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "code-refactor";
+export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "code-refactor" | "website-verifier";
 
 interface ToolSelectorProps {
   value: ToolType;
