@@ -86,6 +86,7 @@ export default function Payment() {
   const [requestSent, setRequestSent] = useState(false);
   const [transactionId, setTransactionId] = useState("");
   const [proofDescription, setProofDescription] = useState("");
+  const [enterpriseName, setEnterpriseName] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
