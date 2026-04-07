@@ -486,6 +486,13 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
             <div className="flex items-center gap-2">
               {code && (
                 <>
+                  <Button
+                    variant={showPreview ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowPreview(!showPreview)}
+                  >
+                    {showPreview ? <><EyeOff className="w-4 h-4 mr-1.5" /> Code</> : <><Eye className="w-4 h-4 mr-1.5" /> Preview</>}
+                  </Button>
                   <Input placeholder="Project name..." value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-40 h-8 text-sm" />
                   <Button variant="outline" size="sm" onClick={saveAsProject} disabled={isSaving || !projectName.trim()}>
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-1.5" /> Save</>}
@@ -497,6 +504,19 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
               )}
             </div>
           </div>
+
+          {/* Live Preview */}
+          {showPreview && code && (selectedFramework === "html" || selectedFramework === "react") ? (
+            <div className="border-b border-border/50">
+              <iframe
+                srcDoc={selectedFramework === "html" ? code : `<!DOCTYPE html><html><head><style>body{font-family:system-ui,sans-serif;margin:20px;background:#1a1a2e;color:#eee;}</style></head><body><pre style="white-space:pre-wrap;font-size:13px;">${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre></body></html>`}
+                className="w-full h-[400px] bg-white"
+                sandbox="allow-scripts"
+                title="Live Preview"
+              />
+            </div>
+          ) : null}
+
           <CodeOutput code={code} language={language} isGenerating={isGenerating} />
         </div>
       )}
