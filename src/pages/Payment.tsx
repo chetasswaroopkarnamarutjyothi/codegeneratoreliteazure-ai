@@ -142,6 +142,17 @@ export default function Payment() {
       return;
     }
 
+    // Enterprise plans require enterprise name
+    const isEnterprisePlan = planKey.startsWith("enterprise");
+    if (isEnterprisePlan && !enterpriseName.trim()) {
+      toast({
+        title: "Enterprise Name Required",
+        description: "Please enter your enterprise/company name",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase.from("payments").insert({
         user_id: user.id,
