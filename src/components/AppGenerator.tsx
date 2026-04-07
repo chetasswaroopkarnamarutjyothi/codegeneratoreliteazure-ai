@@ -330,35 +330,62 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
               <h2 className="text-lg font-semibold">Describe your application</h2>
             </div>
 
-            <div className="flex gap-4 items-start">
-              <div className="flex-1 space-y-3">
-                <Textarea
-                  ref={textareaRef}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="e.g., Create a todo app with add, delete, and complete functionality..."
-                  className="min-h-[120px] resize-none bg-muted/50 border-border focus:border-accent focus:glow-border transition-all"
-                />
-                <p className="text-xs text-muted-foreground">
-                  <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate • 5 credits
-                </p>
-              </div>
+            <Textarea
+              ref={textareaRef}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="e.g., Create a todo app with add, delete, and complete functionality. AI will auto-generate the best code for you..."
+              className="min-h-[120px] resize-none bg-muted/50 border-border focus:border-accent focus:glow-border transition-all"
+            />
 
-              <div className="space-y-3">
-                <LanguageSelector value={language} onChange={setLanguage} />
-                <Button
-                  onClick={() => generateApp()}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="w-full bg-accent hover:bg-accent/90 hover:scale-[1.02] transition-transform"
-                  size="lg"
-                >
-                  {isGenerating ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
-                  ) : (
-                    <><Layers className="w-4 h-4 mr-2" /> Generate App</>
-                  )}
-                </Button>
+            {/* Options row */}
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autoSave}
+                  onChange={(e) => setAutoSave(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <Save className="w-3.5 h-3.5 text-muted-foreground" />
+                Auto-save to Projects
+              </label>
+
+              <div className="flex-1" />
+
+              <p className="text-xs text-muted-foreground">
+                <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">⌘</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-muted border text-xs">Enter</kbd> to generate • 5 credits
+              </p>
+
+              <Button
+                onClick={() => generateApp()}
+                disabled={isGenerating || !prompt.trim()}
+                className="bg-accent hover:bg-accent/90 hover:scale-[1.02] transition-transform"
+                size="lg"
+              >
+                {isGenerating ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
+                ) : (
+                  <><Rocket className="w-4 h-4 mr-2" /> Generate App</>
+                )}
+              </Button>
+            </div>
+
+            {/* Custom Domain */}
+            <div className="pt-2 border-t border-border/50">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+                <Label className="text-xs text-muted-foreground">Custom Domain (optional)</Label>
+              </div>
+              <div className="flex items-center gap-1 mt-1">
+                <Input
+                  value={customDomain}
+                  onChange={(e) => setCustomDomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                  placeholder="my-app"
+                  className="flex-1 h-8 text-sm"
+                />
+                <span className="text-xs text-muted-foreground whitespace-nowrap">.stackmind.lovable.app</span>
               </div>
             </div>
           </div>
