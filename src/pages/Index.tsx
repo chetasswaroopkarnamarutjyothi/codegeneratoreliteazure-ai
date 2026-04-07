@@ -96,6 +96,7 @@ export default function Index() {
       case "code-verifier": return { text: "CodeNova", gradient: true };
       case "ai-chat": return { text: "CodeNova", gradient: true };
       case "code-refactor": return { text: "CodeNova", gradient: true };
+      case "website-verifier": return { text: "CodeNova", gradient: true };
     }
   };
 
