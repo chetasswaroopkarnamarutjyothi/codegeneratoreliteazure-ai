@@ -55,6 +55,9 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
   const [activeTab, setActiveTab] = useState("generate");
   const [selectedFramework, setSelectedFramework] = useState("react");
   const [qualityMode, setQualityMode] = useState<"standard" | "enhanced">("standard");
+  const [autoSave, setAutoSave] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
+  const [customDomain, setCustomDomain] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
 
