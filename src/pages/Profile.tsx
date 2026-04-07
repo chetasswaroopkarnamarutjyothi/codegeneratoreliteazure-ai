@@ -50,6 +50,7 @@ export default function Profile() {
       setFullName(profile.full_name);
       setEmail(profile.email);
       setParentEmail(profile.parent_email || "");
+      setUsername(profile.username || "");
     }
   }, [profile]);
 
