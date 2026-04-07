@@ -165,7 +165,25 @@ export default function AppGenerator({ userId }: AppGeneratorProps) {
 
       await addHistoryItem({ action_type: "app_generation", language: selectedFramework, prompt: finalPrompt, result: fullCode, points_used: 5 });
       await notifyParent("", "", "app_generation", finalPrompt);
-      toast.success("App code generated! (-5 credits)");
+      
+      // Auto-save to projects
+      if (autoSave && userId && fullCode) {
+        const autoName = finalPrompt.slice(0, 50).trim() || "Generated App";
+        try {
+          await supabase.from("projects").insert({
+            user_id: userId,
+            name: autoName,
+            description: finalPrompt,
+            language: selectedFramework,
+            code: fullCode,
+          });
+          toast.success(`App generated & saved to Projects! (-5 credits)`);
+        } catch {
+          toast.success("App generated! (-5 credits) (auto-save failed)");
+        }
+      } else {
+        toast.success("App code generated! (-5 credits)");
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Something went wrong. Try again.");
