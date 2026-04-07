@@ -107,6 +107,7 @@ export default function Index() {
       case "code-verifier": return "Verifier";
       case "ai-chat": return "AI Chat";
       case "code-refactor": return "Refactor";
+      case "website-verifier": return "Website Verifier";
     }
   };
 
