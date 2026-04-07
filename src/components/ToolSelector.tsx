@@ -66,7 +66,7 @@ const tools = [
 
 export default function ToolSelector({ value, onChange }: ToolSelectorProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 w-full max-w-6xl mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 w-full max-w-6xl mx-auto">
       {tools.map((tool) => {
         const Icon = tool.icon;
         const isSelected = value === tool.id;
