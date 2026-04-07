@@ -118,6 +118,7 @@ export default function Index() {
       case "code-verifier": return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
       case "ai-chat": return "Have multi-turn conversations with CodeNova AI. Ask questions, debug code, and get explanations.";
       case "code-refactor": return "Analyze your code for bugs, anti-patterns, and get AI-powered refactoring suggestions.";
+      case "website-verifier": return "Enter any URL and get AI-powered suggestions for design, performance, SEO, and accessibility improvements.";
     }
   };
 
