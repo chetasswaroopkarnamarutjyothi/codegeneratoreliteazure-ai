@@ -1,24 +1,37 @@
-## Plan
+## CodeNova AI — Functional Requirements V3 Implementation Plan
 
-### Phase 1: Quick Fixes
-1. **Add Vicky's email** (`vickyvpurohit@gmail.com`) to WebsiteControls allowed list
+### Phase 1: Quick UI & Existing Feature Enhancements
+1. **#10 UI Customization** — Active section highlighted, inactive sections dark/black, dark theme adaptive contrast
+2. **#14 User Identity** — Allow username changes from Profile, UID remains constant (already supported, verify)
+3. **#1 Admin Set Credits Email** — ✅ Already done
 
-### Phase 2: Expand Website Controls (20 new controls)
-2. **Database migration** — Add 20 new columns to `website_controls` table:
-   - **Security**: `rate_limit_enabled`, `rate_limit_max_requests`, `captcha_enabled`, `ip_blocking_enabled`, `max_login_attempts`, `session_timeout_minutes`
-   - **UI/Appearance**: `default_theme`, `custom_logo_url`, `primary_color_override`, `font_size_default`
-   - **Notifications**: `email_notifications_enabled`, `push_notifications_enabled`, `auto_reply_enabled`, `auto_reply_message`
-   - **Content/Moderation**: `profanity_filter_enabled`, `max_upload_size_mb`, `max_message_length`
-   - **Credits/Access**: `free_credits_enabled`, `free_credits_end_date`, `free_credits_amount`
+### Phase 2: New Tools & Verifier
+4. **#12 CodeNova Website Verifier** — New tool: input URL → AI-generated improvement suggestions using Lovable AI model
+5. **#3 Marketing AI** — Ensure output is fully generated video, not just prompts/scripts
 
-3. **Update WebsiteControlPanel UI** — Add sections for all 20 new controls
+### Phase 3: App Generator Overhaul (#2)
+6. **Auto-generate without manual HTML/CSS selection** — AI decides the tech stack
+7. **Live preview environment** — Render generated app in iframe/sandbox
+8. **Auto-create and store app in Projects** — Save generated apps to user's Projects
+9. **Custom domain per project** — `<name>.stackmind.lovable.app` format (UI + validation for uniqueness)
 
-### Phase 3: Email Enhancement
-4. **Set up branded auth email templates** using Lovable's built-in email system
-5. **Send email notification when admin sets credits** — Add email trigger in SetUserCreditsPanel
+### Phase 4: Enterprise Features (#4)
+10. **Enterprise name capture in Payment** — Add enterprise name field to payment flow
+11. **Enterprise Chat** — Rename "Company Chat" dynamically to enterprise name
+12. **Enterprise Credits** — 2,000 credits/month per enterprise user, system-managed
 
-### Phase 4: App Generator Upgrade
-6. **More framework options** (React Native, Flutter, Next.js templates)
-7. **Better AI prompts** with improved code quality
-8. **Template gallery** with pre-built app templates
-9. **Live preview** of generated apps
+### Phase 5: Subscription & Publishing Access (#8, #9)
+13. **Banking/Payment details request flow** — User requests → Admin Request Box → Admin responds
+14. **Publishing access control** — Only Pro, Pro+, Enterprise can publish; others blocked
+15. **Domain format** — `<custom-name>.stackmind.lovable.app`
+
+### Phase 6: Project-Based Editing (#11)
+16. **Access apps via Projects** — Open and edit previously generated apps
+17. **Submit changes → AI applies updates** — Dynamic AI-powered editing flow
+
+### Phase 7: GitHub Integration (#13)
+18. **GitHub account linking** — OAuth flow (Note: GitHub OAuth not natively supported in Lovable Cloud, will build UI + guidance)
+19. **Push & Commit** — Push project code to linked GitHub repo
+
+### Phase 8: Account Restore (#15)
+20. **Account restore mechanism** — Admin-mediated recovery: user emails admin → admin restores → provides temp credentials → user changes password
