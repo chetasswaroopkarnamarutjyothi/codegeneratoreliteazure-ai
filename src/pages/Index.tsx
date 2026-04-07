@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import CodeGenerator from "@/components/CodeGenerator";
 import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
+import WebsiteVerifier from "@/components/WebsiteVerifier";
 import AIChat from "@/components/AIChat";
 import CodeRefactor from "@/components/CodeRefactor";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
