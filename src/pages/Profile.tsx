@@ -131,6 +131,11 @@ export default function Profile() {
         email: email,
       };
 
+      // Allow username change
+      if (username.trim() && username !== profile.username) {
+        updates.username = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      }
+
       // Only allow updating parent email if user is under 18
       if (profile.age < 18) {
         updates.parent_email = parentEmail || null;
