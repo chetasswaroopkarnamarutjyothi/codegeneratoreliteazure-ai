@@ -53,6 +53,15 @@ const tools = [
     bgGlow: "bg-orange-500/20 text-orange-500",
     ring: "ring-orange-500",
   },
+  {
+    id: "website-verifier" as ToolType,
+    name: "Website Verifier",
+    description: "Analyze & improve websites",
+    icon: Globe,
+    gradient: "from-emerald-500 to-teal-500",
+    bgGlow: "bg-emerald-500/20 text-emerald-500",
+    ring: "ring-emerald-500",
+  },
 ];
 
 export default function ToolSelector({ value, onChange }: ToolSelectorProps) {
