@@ -184,8 +184,8 @@ export default function Payment() {
               recipient_user_id: admin.user_id,
               recipient_email: adminProfile.email,
               notification_type: "payment_request",
-              subject: `Payment Proof - ${plan.name} - TXN: ${transactionId}`,
-              body: `Payment proof submitted:\n\nPlan: ${plan.name}\nAmount: ₹${plan.amount.toLocaleString()}\nTransaction ID: ${transactionId}\nProof/Notes: ${proofDescription || 'No additional notes'}\nUser Email: ${user.email}\n\nPlease verify the payment and activate the subscription.`,
+              subject: `Payment Proof - ${plan.name}${enterpriseName ? ` [${enterpriseName}]` : ''} - TXN: ${transactionId}`,
+              body: `Payment proof submitted:\n\nPlan: ${plan.name}\n${enterpriseName ? `Enterprise: ${enterpriseName}\n` : ''}Amount: ₹${plan.amount.toLocaleString()}\nTransaction ID: ${transactionId}\nProof/Notes: ${proofDescription || 'No additional notes'}\nUser Email: ${user.email}\n\nPlease verify the payment and activate the subscription.`,
               metadata: JSON.stringify({
                 plan: planKey,
                 amount: plan.amount,
@@ -193,6 +193,7 @@ export default function Payment() {
                 user_id: user.id,
                 transaction_id: transactionId,
                 proof_description: proofDescription,
+                enterprise_name: enterpriseName || null,
               }),
             });
           }
