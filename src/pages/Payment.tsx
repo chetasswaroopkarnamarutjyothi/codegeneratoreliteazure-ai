@@ -315,6 +315,22 @@ export default function Payment() {
                 onChange={(e) => setTransactionId(e.target.value)}
               />
             </div>
+
+            {/* Enterprise Name Field */}
+            {planKey.startsWith("enterprise") && (
+              <div className="space-y-2">
+                <Label>Enterprise / Company Name *</Label>
+                <Input
+                  placeholder="e.g., Acme Corp"
+                  value={enterpriseName}
+                  onChange={(e) => setEnterpriseName(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This name will be used for your enterprise chat and branding.
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label>Payment Proof / Notes (Optional)</Label>
               <Textarea
