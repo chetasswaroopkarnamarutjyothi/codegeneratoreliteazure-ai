@@ -1,6 +1,6 @@
-import { Code2, Layers, ShieldCheck, MessageSquare, Wrench, Globe } from "lucide-react";
+import { Code2, Layers, ShieldCheck, MessageSquare, Bug, Globe } from "lucide-react";
 
-export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "code-refactor" | "website-verifier";
+export type ToolType = "code-generator" | "app-generator" | "code-verifier" | "ai-chat" | "code-fix" | "website-verifier";
 
 interface ToolSelectorProps {
   value: ToolType;
@@ -45,13 +45,13 @@ const tools = [
     ring: "ring-purple-500",
   },
   {
-    id: "code-refactor" as ToolType,
-    name: "CodeNova Refactor",
-    description: "Analyze & improve your code",
-    icon: Wrench,
-    gradient: "from-orange-500 to-amber-500",
-    bgGlow: "bg-orange-500/20 text-orange-500",
-    ring: "ring-orange-500",
+    id: "code-fix" as ToolType,
+    name: "CodeNova Fix AI",
+    description: "Auto-fix code issues in a loop",
+    icon: Bug,
+    gradient: "from-red-500 to-orange-500",
+    bgGlow: "bg-red-500/20 text-red-500",
+    ring: "ring-red-500",
   },
   {
     id: "website-verifier" as ToolType,

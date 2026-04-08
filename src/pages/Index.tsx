@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal, Wrench, Brain, MessageSquarePlus, Megaphone } from "lucide-react";
+import { Sparkles, Zap, Code2, LogOut, Layers, ShieldCheck, User, LayoutDashboard, Settings, Shield, FolderOpen, Info, Terminal, Bug, Brain, MessageSquarePlus, Megaphone } from "lucide-react";
 import codenovaIcon from "@/assets/codenova-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import AppGenerator from "@/components/AppGenerator";
 import CodeVerifier from "@/components/CodeVerifier";
 import WebsiteVerifier from "@/components/WebsiteVerifier";
 import AIChat from "@/components/AIChat";
-import CodeRefactor from "@/components/CodeRefactor";
+import CodeFixAI from "@/components/CodeFixAI";
 import ToolSelector, { ToolType } from "@/components/ToolSelector";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import ProfileCompletionGate from "@/components/ProfileCompletionGate";
@@ -75,7 +75,6 @@ export default function Index() {
 
   if (!user) return null;
 
-  // Show profile completion gate if profile is incomplete
   if (!profileComplete) {
     return (
       <ProfileCompletionGate 
@@ -95,7 +94,7 @@ export default function Index() {
       case "app-generator": return { text: "CodeNova", gradient: true };
       case "code-verifier": return { text: "CodeNova", gradient: true };
       case "ai-chat": return { text: "CodeNova", gradient: true };
-      case "code-refactor": return { text: "CodeNova", gradient: true };
+      case "code-fix": return { text: "CodeNova", gradient: true };
       case "website-verifier": return { text: "CodeNova", gradient: true };
     }
   };
@@ -106,7 +105,7 @@ export default function Index() {
       case "app-generator": return "App Builder";
       case "code-verifier": return "Verifier";
       case "ai-chat": return "AI Chat";
-      case "code-refactor": return "Refactor";
+      case "code-fix": return "Fix AI";
       case "website-verifier": return "Website Verifier";
     }
   };
@@ -117,14 +116,13 @@ export default function Index() {
       case "app-generator": return "Generate complete applications with CodeNova AI. Describe your app and watch it come to life.";
       case "code-verifier": return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
       case "ai-chat": return "Have multi-turn conversations with CodeNova AI. Ask questions, debug code, and get explanations.";
-      case "code-refactor": return "Analyze your code for bugs, anti-patterns, and get AI-powered refactoring suggestions.";
+      case "code-fix": return "Auto-fix code issues: Verifier finds bugs → Fix AI repairs them → loops until clean.";
       case "website-verifier": return "Enter any URL and get AI-powered suggestions for design, performance, SEO, and accessibility improvements.";
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Enhanced background effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "2s" }} />
@@ -133,7 +131,6 @@ export default function Index() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-12 flex-1">
-        {/* User menu */}
         <div className="absolute top-4 right-4 flex items-center gap-3 flex-wrap justify-end">
           <PointsDisplay userId={user.id} />
           <ThemeToggle />
@@ -177,7 +174,6 @@ export default function Index() {
           </Button>
         </div>
 
-        {/* Header */}
         <header className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
             <img src={codenovaIcon} alt="CodeNova" className="w-5 h-5 rounded" />
@@ -193,21 +189,18 @@ export default function Index() {
             {getToolDescription()}
           </p>
 
-          {/* Tool Selector */}
           <ToolSelector value={selectedTool} onChange={setSelectedTool} />
         </header>
 
-        {/* Main Content */}
         <div className="mt-8">
           {selectedTool === "code-generator" && <CodeGenerator userId={user.id} />}
           {selectedTool === "app-generator" && <AppGenerator userId={user.id} />}
           {selectedTool === "code-verifier" && <CodeVerifier userId={user.id} />}
           {selectedTool === "ai-chat" && <AIChat userId={user.id} />}
-          {selectedTool === "code-refactor" && <CodeRefactor userId={user.id} />}
+          {selectedTool === "code-fix" && <CodeFixAI userId={user.id} />}
           {selectedTool === "website-verifier" && <WebsiteVerifier userId={user.id} />}
         </div>
 
-        {/* Feature Cards - Enhanced */}
         <div className="grid md:grid-cols-4 gap-4 mt-12 max-w-5xl mx-auto">
           <FeatureCard
             icon={<Zap className="w-5 h-5" />}
@@ -225,13 +218,12 @@ export default function Index() {
             description="AI auto-selects the best model for your task"
           />
           <FeatureCard
-            icon={<Wrench className="w-5 h-5" />}
-            title="Code Refactor"
-            description="AI-powered code analysis and improvement"
+            icon={<Bug className="w-5 h-5" />}
+            title="Fix AI Loop"
+            description="Auto-fix issues until code is clean"
           />
         </div>
 
-        {/* Author Credit */}
         <div className="text-center mt-12">
           <div className="glass rounded-xl p-4 inline-flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -244,7 +236,6 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="relative z-10 py-6 text-center border-t border-border/50">
         <p className="text-sm text-muted-foreground">
           © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved. | CodeNova AI
