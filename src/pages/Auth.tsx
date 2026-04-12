@@ -128,21 +128,29 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const sbps = isSBPSEmail(email) || isSBPSTeacher(email);
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
+        options: sbps ? undefined : {
           emailRedirectTo: `${window.location.origin}/auth`,
         },
       });
 
       if (error) throw error;
 
-      setStep("email-sent");
-      toast({
-        title: "Verification email sent!",
-        description: "Please check your email and click the link to verify your account.",
-      });
+      if (sbps && data.user) {
+        // SBPS users skip email verification, go directly to school setup
+        setStep("sbps-setup");
+        toast({ title: "SBPS Account Created!", description: "Please complete your school profile." });
+      } else {
+        setStep("email-sent");
+        toast({
+          title: "Verification email sent!",
+          description: "Please check your email and click the link to verify your account.",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error",
