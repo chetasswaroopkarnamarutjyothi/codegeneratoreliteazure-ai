@@ -433,7 +433,21 @@ export default function Admin() {
 
             <Card className="glass">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5" /> All Users ({filteredUsers.length})</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5" /> All Users ({filteredUsers.length})</CardTitle>
+                  <AdminExportButton 
+                    data={filteredUsers.map(u => ({ ...u, daily_points: userPoints.get(u.user_id)?.daily_points || 0 }))}
+                    columns={[
+                      { key: "full_name", label: "Name" },
+                      { key: "email", label: "Email" },
+                      { key: "daily_points", label: "Daily Credits" },
+                      { key: "is_blocked", label: "Blocked" },
+                      { key: "created_at", label: "Joined" },
+                    ]}
+                    fileName="users_export"
+                    tabName="Users"
+                  />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 p-4 rounded-lg bg-muted/30">
