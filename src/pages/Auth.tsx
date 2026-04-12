@@ -9,7 +9,7 @@ import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode, KeyRound
 import QRCodeLogin from "@/components/QRCodeLogin";
 import LDAPAuth from "@/components/LDAPAuth";
 
-type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login" | "forgot-password";
+type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login" | "forgot-password" | "sbps-setup";
 
 export default function Auth() {
   const [step, setStep] = useState<AuthStep>("login");
@@ -22,6 +22,14 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // SBPS fields
+  const [sbpsClass, setSbpsClass] = useState("");
+  const [sbpsSection, setSbpsSection] = useState("");
+  const [sbpsAdmissionNo, setSbpsAdmissionNo] = useState("");
+  
+  const isSBPSEmail = (email: string) => email.toLowerCase().endsWith("@shishyabemlschool.edu.in");
+  const isSBPSTeacher = (email: string) => email.toLowerCase().endsWith("@shishyabemlschool.edu.com");
 
   useEffect(() => {
     const checkSession = async () => {
