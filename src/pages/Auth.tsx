@@ -480,7 +480,7 @@ export default function Auth() {
     );
   }
 
-
+  if (step === "qr-login") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
