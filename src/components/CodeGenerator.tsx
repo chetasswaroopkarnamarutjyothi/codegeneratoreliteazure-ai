@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { getModelCost } from "@/lib/modelCredits";
 import { Code2, Copy, Check, Loader2, Sparkles, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,7 +56,7 @@ export default function CodeGenerator({ userId }: CodeGeneratorProps) {
       return;
     }
 
-    const creditCost = professionalMode ? 50 : 5;
+    const creditCost = getModelCost(selectedModel, professionalMode);
 
     // Check if user has enough points
     if (getTotalPoints() < creditCost) {
