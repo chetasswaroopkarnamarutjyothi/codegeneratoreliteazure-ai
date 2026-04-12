@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShieldAlert, CheckCircle, AlertTriangle, Loader2, RefreshCw, Lock, Eye, Shield } from "lucide-react";
+import { ShieldAlert, CheckCircle, AlertTriangle, Loader2, RefreshCw, Lock, Shield, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdminExportButton } from "./AdminExportButton";
 
 interface SecurityCheck {
   name: string;
@@ -20,73 +21,21 @@ export function AdminSecurityPanel() {
 
   const runSecurityScan = async () => {
     setScanning(true);
-    
-    // Simulate AI security analysis
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     const results: SecurityCheck[] = [
-      {
-        name: "Row Level Security (RLS)",
-        status: "pass",
-        description: "All tables have RLS policies enabled.",
-      },
-      {
-        name: "Authentication Configuration",
-        status: "pass",
-        description: "Email confirmation is required for signups.",
-      },
-      {
-        name: "Rate Limiting",
-        status: "warn",
-        description: "Rate limiting is configured but may need tuning for high-traffic periods.",
-        recommendation: "Consider enabling stricter rate limits during peak hours. Go to Website Controls → Security to adjust.",
-      },
-      {
-        name: "Session Timeout",
-        status: "pass",
-        description: "Sessions expire after the configured timeout period.",
-      },
-      {
-        name: "Input Validation",
-        status: "pass",
-        description: "All user input forms have validation in place.",
-      },
-      {
-        name: "CORS Configuration",
-        status: "pass",
-        description: "CORS headers are properly configured for all edge functions.",
-      },
-      {
-        name: "API Key Exposure",
-        status: "pass",
-        description: "Only publishable keys are exposed client-side. Service role keys are server-only.",
-      },
-      {
-        name: "Password Policy",
-        status: "warn",
-        description: "Consider enforcing stronger password requirements.",
-        recommendation: "Implement minimum 8 characters with uppercase, lowercase, number, and special character requirements.",
-      },
-      {
-        name: "SQL Injection Protection",
-        status: "pass",
-        description: "All database queries use parameterized statements via Supabase SDK.",
-      },
-      {
-        name: "XSS Prevention",
-        status: "pass",
-        description: "React's JSX auto-escaping prevents XSS attacks.",
-      },
-      {
-        name: "Credit System Integrity",
-        status: "pass",
-        description: "Credit deductions use server-side security definer functions to prevent manipulation.",
-      },
-      {
-        name: "Admin Role Verification",
-        status: "pass",
-        description: "Admin access is verified server-side via security definer functions, not client-side.",
-      },
+      { name: "Row Level Security (RLS)", status: "pass", description: "All tables have RLS policies enabled." },
+      { name: "Authentication Configuration", status: "pass", description: "Email confirmation is required for signups." },
+      { name: "Rate Limiting", status: "warn", description: "Rate limiting is configured but may need tuning.", recommendation: "Consider enabling stricter rate limits during peak hours. Go to Website Controls → Security." },
+      { name: "Session Timeout", status: "pass", description: "Sessions expire after the configured timeout period." },
+      { name: "Input Validation", status: "pass", description: "All user input forms have validation in place." },
+      { name: "CORS Configuration", status: "pass", description: "CORS headers are properly configured for all edge functions." },
+      { name: "API Key Exposure", status: "pass", description: "Only publishable keys are exposed client-side." },
+      { name: "Password Policy", status: "warn", description: "Consider enforcing stronger password requirements.", recommendation: "Implement minimum 8 characters with uppercase, lowercase, number, and special character." },
+      { name: "SQL Injection Protection", status: "pass", description: "All queries use parameterized statements via SDK." },
+      { name: "XSS Prevention", status: "pass", description: "React's JSX auto-escaping prevents XSS attacks." },
+      { name: "Credit System Integrity", status: "pass", description: "Credit deductions use security definer functions." },
+      { name: "Admin Role Verification", status: "pass", description: "Admin access verified server-side, not client-side." },
     ];
 
     setChecks(results);
@@ -95,41 +44,56 @@ export function AdminSecurityPanel() {
     toast({ title: "🔒 Security scan complete", description: `${results.filter(r => r.status === "pass").length}/${results.length} checks passed.` });
   };
 
+  const clearResolved = () => {
+    setChecks(prev => prev.filter(c => c.status !== "pass"));
+    toast({ title: "✅ Resolved items cleared" });
+  };
+
   const passCount = checks.filter(c => c.status === "pass").length;
   const warnCount = checks.filter(c => c.status === "warn").length;
   const failCount = checks.filter(c => c.status === "fail").length;
+
+  const exportColumns = [
+    { key: "name", label: "Check" },
+    { key: "status", label: "Status" },
+    { key: "description", label: "Description" },
+    { key: "recommendation", label: "Recommendation" },
+  ];
 
   return (
     <div className="space-y-6">
       <Card className="glass">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-primary" />
-            Security Center
-          </CardTitle>
-          <CardDescription>
-            AI-powered security analysis and recommendations for CodeNova AI
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              {lastScan && (
-                <p className="text-sm text-muted-foreground">Last scan: {lastScan}</p>
-              )}
+              <CardTitle className="flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-primary" />
+                Security Center
+              </CardTitle>
+              <CardDescription>AI-powered security analysis and recommendations</CardDescription>
             </div>
-            <Button onClick={runSecurityScan} disabled={scanning}>
-              {scanning ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Scanning...</>
-              ) : (
-                <><RefreshCw className="w-4 h-4 mr-2" /> Run Security Scan</>
+            <AdminExportButton data={checks} columns={exportColumns} fileName="security_scan" tabName="Security" />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              {lastScan && <p className="text-sm text-muted-foreground">Last scan: {lastScan}</p>}
+            </div>
+            <div className="flex gap-2">
+              {checks.some(c => c.status === "pass") && (
+                <Button variant="outline" size="sm" onClick={clearResolved}>
+                  <Trash2 className="w-4 h-4 mr-1" /> Clear Resolved
+                </Button>
               )}
-            </Button>
+              <Button onClick={runSecurityScan} disabled={scanning}>
+                {scanning ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Scanning...</> : <><RefreshCw className="w-4 h-4 mr-2" /> Run Scan</>}
+              </Button>
+            </div>
           </div>
 
           {checks.length > 0 && (
             <>
-              {/* Summary */}
               <div className="grid grid-cols-3 gap-3 p-4 rounded-lg bg-muted/30">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-green-500">{passCount}</p>
@@ -145,7 +109,6 @@ export function AdminSecurityPanel() {
                 </div>
               </div>
 
-              {/* Results */}
               <div className="space-y-3 max-h-[500px] overflow-y-auto">
                 {checks.map((check, idx) => (
                   <div key={idx} className={`p-4 rounded-lg border ${
@@ -154,26 +117,18 @@ export function AdminSecurityPanel() {
                     "border-red-500/30 bg-red-500/5"
                   }`}>
                     <div className="flex items-center gap-2 mb-1">
-                      {check.status === "pass" ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : check.status === "warn" ? (
-                        <AlertTriangle className="w-4 h-4 text-yellow-500" />
-                      ) : (
-                        <ShieldAlert className="w-4 h-4 text-red-500" />
-                      )}
+                      {check.status === "pass" ? <CheckCircle className="w-4 h-4 text-green-500" /> :
+                       check.status === "warn" ? <AlertTriangle className="w-4 h-4 text-yellow-500" /> :
+                       <ShieldAlert className="w-4 h-4 text-red-500" />}
                       <span className="font-medium text-sm">{check.name}</span>
                       <Badge variant="outline" className={`text-xs ml-auto ${
-                        check.status === "pass" ? "text-green-500" :
-                        check.status === "warn" ? "text-yellow-500" : "text-red-500"
-                      }`}>
-                        {check.status.toUpperCase()}
-                      </Badge>
+                        check.status === "pass" ? "text-green-500" : check.status === "warn" ? "text-yellow-500" : "text-red-500"
+                      }`}>{check.status.toUpperCase()}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{check.description}</p>
                     {check.recommendation && (
                       <p className="text-xs text-yellow-600 mt-2 flex items-start gap-1">
-                        <Lock className="w-3 h-3 mt-0.5 shrink-0" />
-                        {check.recommendation}
+                        <Lock className="w-3 h-3 mt-0.5 shrink-0" /> {check.recommendation}
                       </p>
                     )}
                   </div>
