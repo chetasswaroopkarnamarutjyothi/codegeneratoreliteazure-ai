@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, Shield, Users, Search, Gift, Ban, CheckCircle, Crown,
   Wallet, ArrowRightLeft, Loader2, Banknote, ClipboardList, BarChart3,
-  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive
+  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -364,6 +364,14 @@ export default function Admin() {
               <Shield className="w-4 h-4" />
               <span className="hidden sm:inline">Controls</span>
             </TabsTrigger>
+            <TabsTrigger value="restore" className="flex items-center gap-1">
+              <KeyRound className="w-4 h-4" />
+              <span className="hidden sm:inline">Restore</span>
+            </TabsTrigger>
+            <TabsTrigger value="sbps" className="flex items-center gap-1">
+              <GraduationCap className="w-4 h-4" />
+              <span className="hidden sm:inline">SBPS</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="requests">
@@ -521,6 +529,8 @@ export default function Admin() {
           <TabsContent value="doc-gen"><AdminDocGeneratorPanel /></TabsContent>
           <TabsContent value="drive"><AdminFileStorage /></TabsContent>
           <TabsContent value="controls"><WebsiteControlPanel /></TabsContent>
+          <TabsContent value="restore"><AccountRestorePanel /></TabsContent>
+          <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
         </Tabs>
       </div>
     </div>
