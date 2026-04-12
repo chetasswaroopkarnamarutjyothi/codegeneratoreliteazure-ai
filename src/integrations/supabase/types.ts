@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_restore_requests: {
+        Row: {
+          admin_response: string | null
+          created_at: string
+          email: string
+          id: string
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          temp_password: string | null
+        }
+        Insert: {
+          admin_response?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          temp_password?: string | null
+        }
+        Update: {
+          admin_response?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          temp_password?: string | null
+        }
+        Relationships: []
+      }
       admin_credit_allocations: {
         Row: {
           admin_user_id: string
@@ -438,6 +474,36 @@ export type Database = {
         }
         Relationships: []
       }
+      model_credit_costs: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          model_id: string
+          model_label: string
+          professional_multiplier: number
+          standard_cost: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          model_id: string
+          model_label: string
+          professional_multiplier?: number
+          standard_cost?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          model_id?: string
+          model_label?: string
+          professional_multiplier?: number
+          standard_cost?: number
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           code: string
@@ -716,6 +782,187 @@ export type Database = {
           status?: string
           token?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      school_class_monitors: {
+        Row: {
+          assigned_by: string
+          class_id: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          month_year: string
+          student_user_id: string
+        }
+        Insert: {
+          assigned_by: string
+          class_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          month_year: string
+          student_user_id: string
+        }
+        Update: {
+          assigned_by?: string
+          class_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          month_year?: string
+          student_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_class_monitors_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_classes: {
+        Row: {
+          class_name: string
+          created_at: string
+          credit_pool: number | null
+          credits_used: number | null
+          id: string
+          school_id: string
+          section: string
+          teacher_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          class_name: string
+          created_at?: string
+          credit_pool?: number | null
+          credits_used?: number | null
+          id?: string
+          school_id: string
+          section: string
+          teacher_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          class_name?: string
+          created_at?: string
+          credit_pool?: number | null
+          credits_used?: number | null
+          id?: string
+          school_id?: string
+          section?: string
+          teacher_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_classes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "school_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_members: {
+        Row: {
+          admission_no: string | null
+          approved_at: string | null
+          approved_by: string | null
+          class_id: string | null
+          class_name: string | null
+          created_at: string
+          full_name: string
+          id: string
+          is_approved: boolean | null
+          school_id: string
+          school_role: string
+          section: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admission_no?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          class_id?: string | null
+          class_name?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          is_approved?: boolean | null
+          school_id: string
+          school_role?: string
+          section?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admission_no?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          class_id?: string | null
+          class_name?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_approved?: boolean | null
+          school_id?: string
+          school_role?: string
+          section?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_members_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "school_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_members_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "school_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_organizations: {
+        Row: {
+          created_at: string
+          domain_pattern: string
+          id: string
+          is_pre_approved: boolean | null
+          name: string
+          teacher_domain_pattern: string | null
+          total_credits_per_class: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain_pattern: string
+          id?: string
+          is_pre_approved?: boolean | null
+          name: string
+          teacher_domain_pattern?: string | null
+          total_credits_per_class?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain_pattern?: string
+          id?: string
+          is_pre_approved?: boolean | null
+          name?: string
+          teacher_domain_pattern?: string | null
+          total_credits_per_class?: number | null
+          updated_at?: string
         }
         Relationships: []
       }

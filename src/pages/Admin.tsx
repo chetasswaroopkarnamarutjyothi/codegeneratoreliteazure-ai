@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, Shield, Users, Search, Gift, Ban, CheckCircle, Crown,
   Wallet, ArrowRightLeft, Loader2, Banknote, ClipboardList, BarChart3,
-  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive
+  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -28,6 +28,9 @@ import { AdminMailPanel } from "@/components/admin/AdminMailPanel";
 import { AdminSecurityPanel } from "@/components/admin/AdminSecurityPanel";
 import { AdminDocGeneratorPanel } from "@/components/admin/AdminDocGeneratorPanel";
 import { AdminFileStorage } from "@/components/admin/AdminFileStorage";
+import { AccountRestorePanel } from "@/components/admin/AccountRestorePanel";
+import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
+import { AdminExportButton } from "@/components/admin/AdminExportButton";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -361,6 +364,14 @@ export default function Admin() {
               <Shield className="w-4 h-4" />
               <span className="hidden sm:inline">Controls</span>
             </TabsTrigger>
+            <TabsTrigger value="restore" className="flex items-center gap-1">
+              <KeyRound className="w-4 h-4" />
+              <span className="hidden sm:inline">Restore</span>
+            </TabsTrigger>
+            <TabsTrigger value="sbps" className="flex items-center gap-1">
+              <GraduationCap className="w-4 h-4" />
+              <span className="hidden sm:inline">SBPS</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="requests">
@@ -422,7 +433,21 @@ export default function Admin() {
 
             <Card className="glass">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5" /> All Users ({filteredUsers.length})</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5" /> All Users ({filteredUsers.length})</CardTitle>
+                  <AdminExportButton 
+                    data={filteredUsers.map(u => ({ ...u, daily_points: userPoints.get(u.user_id)?.daily_points || 0 }))}
+                    columns={[
+                      { key: "full_name", label: "Name" },
+                      { key: "email", label: "Email" },
+                      { key: "daily_points", label: "Daily Credits" },
+                      { key: "is_blocked", label: "Blocked" },
+                      { key: "created_at", label: "Joined" },
+                    ]}
+                    fileName="users_export"
+                    tabName="Users"
+                  />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 p-4 rounded-lg bg-muted/30">
@@ -518,6 +543,8 @@ export default function Admin() {
           <TabsContent value="doc-gen"><AdminDocGeneratorPanel /></TabsContent>
           <TabsContent value="drive"><AdminFileStorage /></TabsContent>
           <TabsContent value="controls"><WebsiteControlPanel /></TabsContent>
+          <TabsContent value="restore"><AccountRestorePanel /></TabsContent>
+          <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
         </Tabs>
       </div>
     </div>

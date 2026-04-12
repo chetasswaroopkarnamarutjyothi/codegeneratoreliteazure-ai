@@ -9,7 +9,7 @@ import { Sparkles, Mail, Lock, ArrowRight, Shield, User, Users, QrCode, KeyRound
 import QRCodeLogin from "@/components/QRCodeLogin";
 import LDAPAuth from "@/components/LDAPAuth";
 
-type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login" | "forgot-password";
+type AuthStep = "login" | "signup" | "profile-setup" | "email-sent" | "blocked" | "qr-login" | "ldap-login" | "forgot-password" | "sbps-setup";
 
 export default function Auth() {
   const [step, setStep] = useState<AuthStep>("login");
@@ -22,6 +22,14 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // SBPS fields
+  const [sbpsClass, setSbpsClass] = useState("");
+  const [sbpsSection, setSbpsSection] = useState("");
+  const [sbpsAdmissionNo, setSbpsAdmissionNo] = useState("");
+  
+  const isSBPSEmail = (email: string) => email.toLowerCase().endsWith("@shishyabemlschool.edu.in");
+  const isSBPSTeacher = (email: string) => email.toLowerCase().endsWith("@shishyabemlschool.edu.com");
 
   useEffect(() => {
     const checkSession = async () => {
@@ -120,21 +128,29 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const sbps = isSBPSEmail(email) || isSBPSTeacher(email);
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
+        options: sbps ? undefined : {
           emailRedirectTo: `${window.location.origin}/auth`,
         },
       });
 
       if (error) throw error;
 
-      setStep("email-sent");
-      toast({
-        title: "Verification email sent!",
-        description: "Please check your email and click the link to verify your account.",
-      });
+      if (sbps && data.user) {
+        // SBPS users skip email verification, go directly to school setup
+        setStep("sbps-setup");
+        toast({ title: "SBPS Account Created!", description: "Please complete your school profile." });
+      } else {
+        setStep("email-sent");
+        toast({
+          title: "Verification email sent!",
+          description: "Please check your email and click the link to verify your account.",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -218,6 +234,67 @@ export default function Auth() {
         description: error.message || "Failed to create profile",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSBPSSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!fullName || !sbpsClass || !sbpsSection || !sbpsAdmissionNo) {
+      toast({ title: "All fields required", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("No session");
+
+      const schoolRole = isSBPSTeacher(email) ? "teacher" : "student";
+
+      // Create profile
+      await supabase.from("profiles").insert({
+        user_id: session.user.id,
+        email: session.user.email!,
+        full_name: fullName,
+        age: parseInt(age) || 15,
+      });
+
+      // Create school membership (pending approval for students)
+      const { data: school } = await supabase
+        .from("school_organizations")
+        .select("id")
+        .eq("domain_pattern", "@shishyabemlschool.edu.in")
+        .single();
+
+      if (school) {
+        await supabase.from("school_members").insert({
+          user_id: session.user.id,
+          school_id: school.id,
+          full_name: fullName,
+          admission_no: sbpsAdmissionNo,
+          class_name: sbpsClass,
+          section: sbpsSection,
+          school_role: schoolRole,
+          is_approved: schoolRole === "teacher", // Teachers auto-approved
+        });
+      }
+
+      // Create user points
+      await supabase.from("user_points").insert({
+        user_id: session.user.id,
+        daily_points: 50,
+        monthly_points: 0,
+      });
+
+      sessionStorage.setItem('2fa_completed', 'true');
+      toast({ title: "🎓 School profile created!", description: schoolRole === "student" ? "Awaiting class teacher approval" : "Welcome, Teacher!" });
+      navigate(schoolRole === "teacher" ? "/teacher-dashboard" : "/");
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -342,6 +419,62 @@ export default function Auth() {
           <p className="text-center text-xs text-muted-foreground mt-6">
             © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "sbps-setup") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        </div>
+        <div className="relative z-10 w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
+              <Shield className="w-4 h-4" />
+              <span>🎓 SBPS Student/Teacher Registration</span>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">School Profile</h1>
+            <p className="text-muted-foreground">Complete your Shishya BEML Public School registration</p>
+          </div>
+          <div className="glass rounded-2xl p-6 glow-border">
+            <form onSubmit={handleSBPSSetup} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="sbpsName">Full Name</Label>
+                <Input id="sbpsName" placeholder="Your full name" value={fullName} onChange={e => setFullName(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sbpsAge">Age</Label>
+                <Input id="sbpsAge" type="number" placeholder="Your age" value={age} onChange={e => setAge(e.target.value)} required min={5} max={80} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="sbpsClass">Class</Label>
+                  <Input id="sbpsClass" placeholder="e.g., 10" value={sbpsClass} onChange={e => setSbpsClass(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sbpsSection">Section</Label>
+                  <Input id="sbpsSection" placeholder="e.g., A" value={sbpsSection} onChange={e => setSbpsSection(e.target.value)} required />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sbpsAdmission">Admission Number</Label>
+                <Input id="sbpsAdmission" placeholder="Your admission/employee ID" value={sbpsAdmissionNo} onChange={e => setSbpsAdmissionNo(e.target.value)} required />
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30 text-sm text-muted-foreground">
+                {isSBPSTeacher(email) ? (
+                  <p>✅ Recognized as SBPS Teacher/Coordinator. Auto-approved.</p>
+                ) : (
+                  <p>⏳ Your account will require approval from your Class Teacher or Class Monitor.</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Setting up..." : "Complete Registration →"}
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
     );
