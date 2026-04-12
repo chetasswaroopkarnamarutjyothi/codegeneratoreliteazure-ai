@@ -424,7 +424,63 @@ export default function Auth() {
     );
   }
 
-  if (step === "qr-login") {
+  if (step === "sbps-setup") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        </div>
+        <div className="relative z-10 w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
+              <Shield className="w-4 h-4" />
+              <span>🎓 SBPS Student/Teacher Registration</span>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">School Profile</h1>
+            <p className="text-muted-foreground">Complete your Shishya BEML Public School registration</p>
+          </div>
+          <div className="glass rounded-2xl p-6 glow-border">
+            <form onSubmit={handleSBPSSetup} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="sbpsName">Full Name</Label>
+                <Input id="sbpsName" placeholder="Your full name" value={fullName} onChange={e => setFullName(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sbpsAge">Age</Label>
+                <Input id="sbpsAge" type="number" placeholder="Your age" value={age} onChange={e => setAge(e.target.value)} required min={5} max={80} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="sbpsClass">Class</Label>
+                  <Input id="sbpsClass" placeholder="e.g., 10" value={sbpsClass} onChange={e => setSbpsClass(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sbpsSection">Section</Label>
+                  <Input id="sbpsSection" placeholder="e.g., A" value={sbpsSection} onChange={e => setSbpsSection(e.target.value)} required />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sbpsAdmission">Admission Number</Label>
+                <Input id="sbpsAdmission" placeholder="Your admission/employee ID" value={sbpsAdmissionNo} onChange={e => setSbpsAdmissionNo(e.target.value)} required />
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30 text-sm text-muted-foreground">
+                {isSBPSTeacher(email) ? (
+                  <p>✅ Recognized as SBPS Teacher/Coordinator. Auto-approved.</p>
+                ) : (
+                  <p>⏳ Your account will require approval from your Class Teacher or Class Monitor.</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Setting up..." : "Complete Registration →"}
+              </Button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
