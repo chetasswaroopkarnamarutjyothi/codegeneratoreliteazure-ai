@@ -239,6 +239,67 @@ export default function Auth() {
     }
   };
 
+  const handleSBPSSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!fullName || !sbpsClass || !sbpsSection || !sbpsAdmissionNo) {
+      toast({ title: "All fields required", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("No session");
+
+      const schoolRole = isSBPSTeacher(email) ? "teacher" : "student";
+
+      // Create profile
+      await supabase.from("profiles").insert({
+        user_id: session.user.id,
+        email: session.user.email!,
+        full_name: fullName,
+        age: parseInt(age) || 15,
+      });
+
+      // Create school membership (pending approval for students)
+      const { data: school } = await supabase
+        .from("school_organizations")
+        .select("id")
+        .eq("domain_pattern", "@shishyabemlschool.edu.in")
+        .single();
+
+      if (school) {
+        await supabase.from("school_members").insert({
+          user_id: session.user.id,
+          school_id: school.id,
+          full_name: fullName,
+          admission_no: sbpsAdmissionNo,
+          class_name: sbpsClass,
+          section: sbpsSection,
+          school_role: schoolRole,
+          is_approved: schoolRole === "teacher", // Teachers auto-approved
+        });
+      }
+
+      // Create user points
+      await supabase.from("user_points").insert({
+        user_id: session.user.id,
+        daily_points: 50,
+        monthly_points: 0,
+      });
+
+      sessionStorage.setItem('2fa_completed', 'true');
+      toast({ title: "🎓 School profile created!", description: schoolRole === "student" ? "Awaiting class teacher approval" : "Welcome, Teacher!" });
+      navigate(schoolRole === "teacher" ? "/teacher-dashboard" : "/");
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (step === "blocked") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
