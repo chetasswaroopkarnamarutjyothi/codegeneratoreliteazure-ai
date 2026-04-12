@@ -28,6 +28,9 @@ import { AdminMailPanel } from "@/components/admin/AdminMailPanel";
 import { AdminSecurityPanel } from "@/components/admin/AdminSecurityPanel";
 import { AdminDocGeneratorPanel } from "@/components/admin/AdminDocGeneratorPanel";
 import { AdminFileStorage } from "@/components/admin/AdminFileStorage";
+import { AccountRestorePanel } from "@/components/admin/AccountRestorePanel";
+import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
+import { AdminExportButton } from "@/components/admin/AdminExportButton";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
