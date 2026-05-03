@@ -47,6 +47,11 @@ export default function TeacherDashboard() {
         navigate("/");
         return;
       }
+      setRole(member.school_role);
+      if (member.school_role === "coordinator" || member.school_role === "principal") {
+        const { data: allM } = await supabase.from("school_members").select("*").eq("school_id", member.school_id);
+        setAllMembers(allM || []);
+      }
 
       // Get classes assigned to this teacher
       const { data: classes } = await supabase
