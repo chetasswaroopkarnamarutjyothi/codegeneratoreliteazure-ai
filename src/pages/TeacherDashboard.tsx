@@ -11,9 +11,12 @@ import {
   ArrowLeft, GraduationCap, UserCheck, UserX, Users, Award, 
   Loader2, RefreshCw
 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function TeacherDashboard() {
   const [user, setUser] = useState<any>(null);
+  const [role, setRole] = useState<string>("teacher");
+  const [allMembers, setAllMembers] = useState<any[]>([]);
   const [myClasses, setMyClasses] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [pendingStudents, setPendingStudents] = useState<any[]>([]);
