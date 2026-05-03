@@ -11,9 +11,12 @@ import {
   ArrowLeft, GraduationCap, UserCheck, UserX, Users, Award, 
   Loader2, RefreshCw
 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function TeacherDashboard() {
   const [user, setUser] = useState<any>(null);
+  const [role, setRole] = useState<string>("teacher");
+  const [allMembers, setAllMembers] = useState<any[]>([]);
   const [myClasses, setMyClasses] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [pendingStudents, setPendingStudents] = useState<any[]>([]);
@@ -43,6 +46,11 @@ export default function TeacherDashboard() {
         toast({ title: "Access Denied", description: "Teacher access only", variant: "destructive" });
         navigate("/");
         return;
+      }
+      setRole(member.school_role);
+      if (member.school_role === "coordinator" || member.school_role === "principal") {
+        const { data: allM } = await supabase.from("school_members").select("*").eq("school_id", member.school_id);
+        setAllMembers(allM || []);
       }
 
       // Get classes assigned to this teacher
@@ -164,14 +172,59 @@ export default function TeacherDashboard() {
           <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <GraduationCap className="w-7 h-7 text-primary" />
-              Teacher Dashboard
+              {role === "principal" ? "Principal Dashboard" : role === "coordinator" ? "Coordinator Dashboard" : "Teacher Dashboard"}
             </h1>
-            <p className="text-sm text-muted-foreground">Manage your classes and students</p>
+            <p className="text-sm text-muted-foreground">
+              {role === "principal" && "Oversee coordinators, teachers and students"}
+              {role === "coordinator" && "Manage teachers in your school"}
+              {role === "teacher" && "Manage your classes and students"}
+            </p>
           </div>
+          <Badge variant="outline" className="capitalize">{role}</Badge>
         </div>
+
+        {(role === "principal" || role === "coordinator") && (
+          <Card className="glass mb-6">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                {role === "principal" ? "Coordinators" : "Teachers"} ({allMembers.filter(m => m.school_role === (role === "principal" ? "coordinator" : "teacher")).length})
+              </CardTitle>
+              <CardDescription>
+                {role === "principal" ? "Hierarchy: Principal → Coordinator → Teacher → Student" : "You manage teachers and their classes"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {allMembers
+                .filter(m => m.school_role === (role === "principal" ? "coordinator" : "teacher"))
+                .map(m => (
+                  <div key={m.id} className="flex items-center justify-between p-3 rounded bg-muted/20 border">
+                    <div>
+                      <p className="font-medium">{m.full_name}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{m.school_role}</p>
+                    </div>
+                    <Badge variant={m.is_approved ? "default" : "outline"}>{m.is_approved ? "Active" : "Pending"}</Badge>
+                  </div>
+                ))}
+              {role === "principal" && (
+                <div className="pt-3 border-t">
+                  <p className="text-sm font-medium mb-2">Teachers under coordinators ({allMembers.filter(m => m.school_role === "teacher").length})</p>
+                  <div className="space-y-1 max-h-48 overflow-y-auto">
+                    {allMembers.filter(m => m.school_role === "teacher").map(m => (
+                      <div key={m.id} className="flex items-center justify-between p-2 rounded bg-muted/10 text-sm">
+                        <span>{m.full_name}</span>
+                        <Badge variant="outline" className="text-xs">Teacher</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Pending Approvals */}
         {pendingStudents.length > 0 && (

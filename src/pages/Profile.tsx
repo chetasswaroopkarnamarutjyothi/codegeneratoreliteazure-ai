@@ -12,6 +12,9 @@ import { useUserPoints } from "@/hooks/useUserPoints";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, User, Mail, Users, Calendar, Save, Lock, Camera, AtSign, AlertCircle, Cake } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserBankDetails } from "@/components/UserBankDetails";
+import { UserLayoutSettings } from "@/components/UserLayoutSettings";
 
 export default function Profile() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -227,6 +230,15 @@ export default function Profile() {
           </Card>
         )}
 
+        <Tabs defaultValue="profile" className="space-y-4">
+          <TabsList className="grid grid-cols-3 w-full">
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="bank">Bank Details</TabsTrigger>
+            <TabsTrigger value="layout">Layout</TabsTrigger>
+          </TabsList>
+          <TabsContent value="bank">{user && <UserBankDetails userId={user.id} />}</TabsContent>
+          <TabsContent value="layout">{user && <UserLayoutSettings userId={user.id} />}</TabsContent>
+          <TabsContent value="profile" className="space-y-6">
         <Card className="glass glow-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -435,6 +447,8 @@ export default function Profile() {
             </p>
           </CardContent>
         </Card>
+        </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

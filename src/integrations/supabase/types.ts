@@ -288,6 +288,54 @@ export type Database = {
           },
         ]
       }
+      company_bank_details: {
+        Row: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          branch: string | null
+          created_at: string
+          id: string
+          ifsc_code: string | null
+          is_active: boolean | null
+          notes: string | null
+          swift_code: string | null
+          updated_at: string
+          updated_by: string | null
+          upi_id: string | null
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          branch?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_active?: boolean | null
+          notes?: string | null
+          swift_code?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          upi_id?: string | null
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          bank_name?: string
+          branch?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_active?: boolean | null
+          notes?: string | null
+          swift_code?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          upi_id?: string | null
+        }
+        Relationships: []
+      }
       credit_requests: {
         Row: {
           admin_notes: string | null
@@ -429,6 +477,74 @@ export type Database = {
           reason?: string
           terminated_at?: string
           terminated_by?: string
+        }
+        Relationships: []
+      }
+      enterprise_members: {
+        Row: {
+          created_at: string
+          enterprise_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enterprise_id: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enterprise_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enterprise_members_enterprise_id_fkey"
+            columns: ["enterprise_id"]
+            isOneToOne: false
+            referencedRelation: "enterprises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enterprises: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          credit_pool: number | null
+          credits_used: number | null
+          employee_count: number | null
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          credit_pool?: number | null
+          credits_used?: number | null
+          employee_count?: number | null
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          credit_pool?: number | null
+          credits_used?: number | null
+          employee_count?: number | null
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1091,6 +1207,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_bank_details: {
+        Row: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          created_at: string
+          id: string
+          ifsc_code: string | null
+          notes: string | null
+          updated_at: string
+          upi_id: string | null
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          notes?: string | null
+          updated_at?: string
+          upi_id?: string | null
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          bank_name?: string
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          notes?: string | null
+          updated_at?: string
+          upi_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_language_preference: {
         Row: {
           id: string
@@ -1109,6 +1264,48 @@ export type Database = {
           language_code?: string
           set_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_layout_preferences: {
+        Row: {
+          accent_color: string | null
+          created_at: string
+          density: string | null
+          font_family: string | null
+          font_size: string | null
+          id: string
+          sidebar_position: string | null
+          theme_variant: string | null
+          updated_at: string
+          user_id: string
+          widget_order: Json | null
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string
+          density?: string | null
+          font_family?: string | null
+          font_size?: string | null
+          id?: string
+          sidebar_position?: string | null
+          theme_variant?: string | null
+          updated_at?: string
+          user_id: string
+          widget_order?: Json | null
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string
+          density?: string | null
+          font_family?: string | null
+          font_size?: string | null
+          id?: string
+          sidebar_position?: string | null
+          theme_variant?: string | null
+          updated_at?: string
+          user_id?: string
+          widget_order?: Json | null
         }
         Relationships: []
       }
