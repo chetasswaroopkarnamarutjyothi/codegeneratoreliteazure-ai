@@ -447,6 +447,8 @@ export default function Profile() {
             </p>
           </CardContent>
         </Card>
+        </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
