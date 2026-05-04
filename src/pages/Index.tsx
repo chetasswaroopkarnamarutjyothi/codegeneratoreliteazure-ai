@@ -17,6 +17,7 @@ import ProfileCompletionGate from "@/components/ProfileCompletionGate";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppDownloadSection } from "@/components/AppDownloadSection";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
