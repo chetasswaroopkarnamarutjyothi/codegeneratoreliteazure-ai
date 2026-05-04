@@ -17,6 +17,7 @@ import ProfileCompletionGate from "@/components/ProfileCompletionGate";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppDownloadSection } from "@/components/AppDownloadSection";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -235,6 +236,8 @@ export default function Index() {
           </div>
         </div>
       </div>
+
+      <AppDownloadSection />
 
       <footer className="relative z-10 py-6 text-center border-t border-border/50">
         <p className="text-sm text-muted-foreground">
