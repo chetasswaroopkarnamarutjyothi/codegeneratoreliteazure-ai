@@ -138,10 +138,24 @@ export function UserLayoutSettings({ userId }: { userId: string }) {
           <Field label="Theme Variant" value={prefs.theme_variant} onChange={(v: string) => setPrefs({ ...prefs, theme_variant: v })}
             options={[{ value: "midnight", label: "Midnight Dark" }, { value: "clean", label: "Clean Light" }, { value: "sepia", label: "Sepia" }, { value: "system", label: "System Default" }]} />
         </div>
-        <Button onClick={save} disabled={saving} className="w-full">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-          Save Layout
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={save} disabled={saving} className="flex-1">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+            Save Layout
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={async () => {
+              setPrefs({ ...DEFAULT_PREFS });
+              applyLayout(DEFAULT_PREFS);
+              await supabase.from("user_layout_preferences").upsert({ user_id: userId, ...DEFAULT_PREFS }, { onConflict: "user_id" });
+              toast({ title: "↺ Reset to default" });
+            }}
+          >
+            <RotateCcw className="w-4 h-4 mr-2" /> Reset to default
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
