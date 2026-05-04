@@ -237,6 +237,8 @@ export default function Index() {
         </div>
       </div>
 
+      <AppDownloadSection />
+
       <footer className="relative z-10 py-6 text-center border-t border-border/50">
         <p className="text-sm text-muted-foreground">
           © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved. | CodeNova AI
