@@ -480,6 +480,69 @@ export type Database = {
         }
         Relationships: []
       }
+      enterprise_credit_allocations: {
+        Row: {
+          allocated_by: string
+          amount: number
+          created_at: string
+          enterprise_id: string | null
+          enterprise_name: string
+          id: string
+          mode: string
+          notes: string | null
+        }
+        Insert: {
+          allocated_by: string
+          amount: number
+          created_at?: string
+          enterprise_id?: string | null
+          enterprise_name: string
+          id?: string
+          mode?: string
+          notes?: string | null
+        }
+        Update: {
+          allocated_by?: string
+          amount?: number
+          created_at?: string
+          enterprise_id?: string | null
+          enterprise_name?: string
+          id?: string
+          mode?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
+      enterprise_credit_tiers: {
+        Row: {
+          created_at: string
+          credit_pool: number
+          enterprise_name: string
+          id: string
+          notes: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          credit_pool?: number
+          enterprise_name: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          credit_pool?: number
+          enterprise_name?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       enterprise_members: {
         Row: {
           created_at: string
@@ -1216,9 +1279,13 @@ export type Database = {
           id: string
           ifsc_code: string | null
           notes: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           updated_at: string
           upi_id: string | null
           user_id: string
+          verification_status: string
         }
         Insert: {
           account_name: string
@@ -1228,9 +1295,13 @@ export type Database = {
           id?: string
           ifsc_code?: string | null
           notes?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           updated_at?: string
           upi_id?: string | null
           user_id: string
+          verification_status?: string
         }
         Update: {
           account_name?: string
@@ -1240,9 +1311,13 @@ export type Database = {
           id?: string
           ifsc_code?: string | null
           notes?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           updated_at?: string
           upi_id?: string | null
           user_id?: string
+          verification_status?: string
         }
         Relationships: []
       }
