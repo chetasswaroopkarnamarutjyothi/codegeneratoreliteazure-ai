@@ -4,81 +4,81 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Users, Wallet, Plus, Loader2 } from "lucide-react";
+import { Building2, Plus, History, Loader2, Coins } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export function EnterpriseCreditsPanel() {
   const { toast } = useToast();
-  const [enterprises, setEnterprises] = useState<any[]>([]);
-  const [members, setMembers] = useState<Map<string, any[]>>(new Map());
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-
-  // Create enterprise
-  const [newName, setNewName] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-
-  // Action state
-  const [selectedId, setSelectedId] = useState("");
-  const [poolAmount, setPoolAmount] = useState("");
-  const [perEmployee, setPerEmployee] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [tiers, setTiers] = useState<any[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
+  const [historyNames, setHistoryNames] = useState<Record<string, string>>({});
+  const [form, setForm] = useState({ enterprise_name: "", credit_pool: "", notes: "" });
+  const [allocate, setAllocate] = useState<{ name: string; amount: string; mode: "pool" | "bulk"; notes: string }>({
+    name: "", amount: "", mode: "pool", notes: "",
+  });
 
   const load = async () => {
-    setLoading(true);
-    const { data: ents } = await supabase.from("enterprises").select("*").order("created_at", { ascending: false });
-    setEnterprises(ents || []);
-    if (ents) {
-      const map = new Map<string, any[]>();
-      for (const e of ents) {
-        const { data: m } = await supabase.from("enterprise_members").select("*").eq("enterprise_id", e.id);
-        map.set(e.id, m || []);
-      }
-      setMembers(map);
+    const [{ data: t }, { data: h }] = await Promise.all([
+      supabase.from("enterprise_credit_tiers").select("*").order("updated_at", { ascending: false }),
+      supabase.from("enterprise_credit_allocations").select("*").order("created_at", { ascending: false }).limit(100),
+    ]);
+    setTiers(t || []);
+    setHistory(h || []);
+    const ids = Array.from(new Set((h || []).map((x: any) => x.allocated_by).filter(Boolean)));
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("user_id, full_name, email").in("user_id", ids);
+      const map: Record<string, string> = {};
+      (profs || []).forEach((p: any) => { map[p.user_id] = p.full_name || p.email; });
+      setHistoryNames(map);
     }
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  const createEnterprise = async () => {
-    if (!newName.trim()) return;
-    const { error } = await supabase.from("enterprises").insert({ name: newName, contact_email: newEmail || null });
+  const createTier = async () => {
+    if (!form.enterprise_name) return toast({ title: "Enterprise name required", variant: "destructive" });
+    setSaving(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    const { error } = await supabase.from("enterprise_credit_tiers").upsert({
+      enterprise_name: form.enterprise_name.trim(),
+      credit_pool: parseInt(form.credit_pool) || 0,
+      notes: form.notes,
+      updated_by: session?.user.id,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "enterprise_name" });
+    setSaving(false);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "✅ Enterprise created" }); setNewName(""); setNewEmail(""); load(); }
+    else { toast({ title: "✅ Enterprise tier saved" }); setForm({ enterprise_name: "", credit_pool: "", notes: "" }); load(); }
   };
 
-  const addPool = async () => {
-    if (!selectedId || !poolAmount) return;
-    const amount = parseInt(poolAmount);
-    if (isNaN(amount) || amount <= 0) return;
-    const ent = enterprises.find(e => e.id === selectedId);
-    setBusy(true);
-    const { error } = await supabase.from("enterprises").update({ credit_pool: (ent.credit_pool || 0) + amount }).eq("id", selectedId);
-    setBusy(false);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: `✅ Added ${amount.toLocaleString()} to ${ent.name} pool` }); setPoolAmount(""); load(); }
-  };
-
-  const bulkAllocate = async () => {
-    if (!selectedId || !perEmployee) return;
-    const each = parseInt(perEmployee);
-    if (isNaN(each) || each <= 0) return;
-    const list = members.get(selectedId) || [];
-    if (list.length === 0) { toast({ title: "No members in this enterprise", variant: "destructive" }); return; }
-    setBusy(true);
-    let success = 0;
-    for (const m of list) {
-      const { data: pts } = await supabase.from("user_points").select("daily_points").eq("user_id", m.user_id).maybeSingle();
-      const newDaily = (pts?.daily_points || 0) + each;
-      const { error } = await supabase.from("user_points").update({ daily_points: newDaily, custom_daily_limit: newDaily, is_premium: true }).eq("user_id", m.user_id);
-      if (!error) success++;
+  const allocateCredits = async () => {
+    const amt = parseInt(allocate.amount);
+    if (!allocate.name || !amt || amt <= 0) return toast({ title: "Enterprise and positive amount required", variant: "destructive" });
+    setSaving(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    const tier = tiers.find(t => t.enterprise_name === allocate.name);
+    const { error: histErr } = await supabase.from("enterprise_credit_allocations").insert({
+      enterprise_id: tier?.id || null,
+      enterprise_name: allocate.name,
+      amount: amt,
+      mode: allocate.mode,
+      notes: allocate.notes,
+      allocated_by: session?.user.id,
+    });
+    if (!histErr && tier) {
+      await supabase.from("enterprise_credit_tiers").update({
+        credit_pool: (tier.credit_pool || 0) + amt,
+        updated_at: new Date().toISOString(),
+      }).eq("id", tier.id);
     }
-    setBusy(false);
-    toast({ title: `✅ Allocated ${each} credits to ${success}/${list.length} employees` });
-    setPerEmployee("");
+    setSaving(false);
+    if (histErr) toast({ title: "Error", description: histErr.message, variant: "destructive" });
+    else { toast({ title: `✅ Allocated ${amt} credits to ${allocate.name}` }); setAllocate({ name: "", amount: "", mode: "pool", notes: "" }); load(); }
   };
 
   if (loading) return <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" /></div>;
@@ -87,73 +87,83 @@ export function EnterpriseCreditsPanel() {
     <div className="space-y-6">
       <Card className="glass">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Enterprises</CardTitle>
-          <CardDescription>Manage enterprise credit pools and bulk distribute to employees.</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Enterprise Credit Tiers</CardTitle>
+          <CardDescription>Set credit pools per enterprise — like Pro / Pro+ tiers. Individual employees are not exposed here.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-3 gap-2">
-            <Input placeholder="Enterprise name" value={newName} onChange={e => setNewName(e.target.value)} />
-            <Input placeholder="Contact email (optional)" value={newEmail} onChange={e => setNewEmail(e.target.value)} />
-            <Button onClick={createEnterprise}><Plus className="w-4 h-4 mr-1" /> Create</Button>
+          <div className="grid md:grid-cols-3 gap-3">
+            <div className="space-y-2"><Label>Enterprise Name</Label><Input value={form.enterprise_name} onChange={e => setForm({ ...form, enterprise_name: e.target.value })} placeholder="e.g. Acme Corp" /></div>
+            <div className="space-y-2"><Label>Initial Credit Pool</Label><Input type="number" value={form.credit_pool} onChange={e => setForm({ ...form, credit_pool: e.target.value })} placeholder="0" /></div>
+            <div className="space-y-2"><Label>Notes</Label><Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} /></div>
           </div>
+          <Button onClick={createTier} disabled={saving} className="w-full"><Plus className="w-4 h-4 mr-2" /> Add / Update Enterprise Tier</Button>
 
-          <div className="grid gap-2">
-            {enterprises.map(e => {
-              const list = members.get(e.id) || [];
-              return (
-                <div key={e.id} className="p-3 rounded-lg border bg-muted/20 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{e.name}</p>
-                    <p className="text-xs text-muted-foreground">{e.contact_email || "no contact"} • {list.length} members</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">Pool: {(e.credit_pool || 0).toLocaleString()}</Badge>
-                    <Badge variant="outline">Used: {(e.credits_used || 0).toLocaleString()}</Badge>
-                  </div>
-                </div>
-              );
-            })}
-            {enterprises.length === 0 && <p className="text-center text-muted-foreground py-4">No enterprises yet</p>}
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader><TableRow><TableHead>Enterprise</TableHead><TableHead>Credit Pool</TableHead><TableHead>Notes</TableHead></TableRow></TableHeader>
+              <TableBody>
+                {tiers.map(t => (
+                  <TableRow key={t.id}><TableCell className="font-medium">{t.enterprise_name}</TableCell><TableCell>{t.credit_pool?.toLocaleString()}</TableCell><TableCell className="text-muted-foreground text-sm">{t.notes || "—"}</TableCell></TableRow>
+                ))}
+                {tiers.length === 0 && <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground py-6">No enterprises yet</TableCell></TableRow>}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>
 
       <Card className="glass">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Wallet className="w-5 h-5 text-primary" /> Allocate Credits</CardTitle>
-          <CardDescription>Choose enterprise then distribute via pool or bulk.</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Coins className="w-5 h-5 text-primary" /> Allocate Credits to Enterprise</CardTitle>
+          <CardDescription>Top up a pool or trigger a bulk distribution. All allocations are logged.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Enterprise</Label>
-            <Select value={selectedId} onValueChange={setSelectedId}>
-              <SelectTrigger><SelectValue placeholder="Select enterprise" /></SelectTrigger>
-              <SelectContent>
-                {enterprises.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+        <CardContent className="space-y-3">
+          <div className="grid md:grid-cols-4 gap-3">
+            <div className="space-y-2 md:col-span-2"><Label>Enterprise</Label>
+              <select className="w-full h-10 rounded-md border bg-background px-3 text-sm" value={allocate.name} onChange={e => setAllocate({ ...allocate, name: e.target.value })}>
+                <option value="">Select…</option>
+                {tiers.map(t => <option key={t.id} value={t.enterprise_name}>{t.enterprise_name}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2"><Label>Amount</Label><Input type="number" value={allocate.amount} onChange={e => setAllocate({ ...allocate, amount: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Mode</Label>
+              <select className="w-full h-10 rounded-md border bg-background px-3 text-sm" value={allocate.mode} onChange={e => setAllocate({ ...allocate, mode: e.target.value as any })}>
+                <option value="pool">Pool top-up</option>
+                <option value="bulk">Bulk distribution</option>
+              </select>
+            </div>
           </div>
+          <Textarea placeholder="Notes (optional)" value={allocate.notes} onChange={e => setAllocate({ ...allocate, notes: e.target.value })} />
+          <Button onClick={allocateCredits} disabled={saving} className="w-full">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Coins className="w-4 h-4 mr-2" />} Allocate Credits
+          </Button>
+        </CardContent>
+      </Card>
 
-          <Tabs defaultValue="pool">
-            <TabsList className="grid grid-cols-2">
-              <TabsTrigger value="pool"><Wallet className="w-4 h-4 mr-1" /> Add to Pool</TabsTrigger>
-              <TabsTrigger value="bulk"><Users className="w-4 h-4 mr-1" /> Bulk Distribute</TabsTrigger>
-            </TabsList>
-            <TabsContent value="pool" className="space-y-2 pt-3">
-              <Label>Credits to add to enterprise pool</Label>
-              <div className="flex gap-2">
-                <Input type="number" value={poolAmount} onChange={e => setPoolAmount(e.target.value)} placeholder="e.g. 100000" />
-                <Button onClick={addPool} disabled={busy || !selectedId}>Add to Pool</Button>
-              </div>
-            </TabsContent>
-            <TabsContent value="bulk" className="space-y-2 pt-3">
-              <Label>Credits per employee</Label>
-              <div className="flex gap-2">
-                <Input type="number" value={perEmployee} onChange={e => setPerEmployee(e.target.value)} placeholder="e.g. 200" />
-                <Button onClick={bulkAllocate} disabled={busy || !selectedId}>Distribute to All</Button>
-              </div>
-            </TabsContent>
-          </Tabs>
+      <Card className="glass">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Allocation History ({history.length})</CardTitle>
+          <CardDescription>Audit trail — who allocated, when, and how much.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader><TableRow><TableHead>When</TableHead><TableHead>Enterprise</TableHead><TableHead>Amount</TableHead><TableHead>Mode</TableHead><TableHead>By</TableHead><TableHead>Notes</TableHead></TableRow></TableHeader>
+              <TableBody>
+                {history.map(h => (
+                  <TableRow key={h.id}>
+                    <TableCell className="text-xs">{new Date(h.created_at).toLocaleString()}</TableCell>
+                    <TableCell className="font-medium">{h.enterprise_name}</TableCell>
+                    <TableCell>{h.amount.toLocaleString()}</TableCell>
+                    <TableCell><span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">{h.mode}</span></TableCell>
+                    <TableCell className="text-xs">{historyNames[h.allocated_by] || "—"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{h.notes || "—"}</TableCell>
+                  </TableRow>
+                ))}
+                {history.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-6">No allocations yet</TableCell></TableRow>}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
