@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Landmark, Save, Loader2, Eye } from "lucide-react";
+import { Landmark, Save, Loader2, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export function AdminBankDetailsPanel() {
   const { toast } = useToast();
@@ -96,16 +97,50 @@ export function AdminBankDetailsPanel() {
       <Card className="glass">
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Eye className="w-5 h-5" /> User-Submitted Bank Details ({userBank.length})</CardTitle>
-          <CardDescription>For refunds and payouts.</CardDescription>
+          <CardDescription>Verify or reject user refund/payout details.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {userBank.map(b => (
-              <div key={b.id} className="p-3 rounded border bg-muted/20 text-sm">
-                <p className="font-medium">{b.account_name} • {b.bank_name}</p>
-                <p className="text-muted-foreground text-xs">A/C: {b.account_number} • IFSC: {b.ifsc_code || "—"} • UPI: {b.upi_id || "—"}</p>
-              </div>
-            ))}
+          <div className="space-y-2 max-h-[500px] overflow-y-auto">
+            {userBank.map(b => {
+              const review = async (status: "verified" | "rejected") => {
+                const notes = status === "rejected" ? (window.prompt("Reason for rejection?") || "") : "";
+                const { data: { session } } = await supabase.auth.getSession();
+                const { error } = await supabase.from("user_bank_details").update({
+                  verification_status: status,
+                  reviewed_by: session?.user.id,
+                  reviewed_at: new Date().toISOString(),
+                  review_notes: notes,
+                }).eq("id", b.id);
+                if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+                else {
+                  toast({ title: status === "verified" ? "✅ Verified" : "❌ Rejected" });
+                  const { data: users } = await supabase.from("user_bank_details").select("*").order("updated_at", { ascending: false });
+                  setUserBank(users || []);
+                }
+              };
+              const status = b.verification_status || "pending";
+              return (
+                <div key={b.id} className="p-3 rounded border bg-muted/20 text-sm space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-medium">{b.account_name} • {b.bank_name}</p>
+                      <p className="text-muted-foreground text-xs">A/C: {b.account_number} • IFSC: {b.ifsc_code || "—"} • UPI: {b.upi_id || "—"}</p>
+                      {b.review_notes && <p className="text-xs text-destructive mt-1">Note: {b.review_notes}</p>}
+                    </div>
+                    <Badge variant={status === "verified" ? "default" : status === "rejected" ? "destructive" : "secondary"}>
+                      {status === "verified" ? <CheckCircle2 className="w-3 h-3 mr-1" /> : status === "rejected" ? <XCircle className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
+                      {status}
+                    </Badge>
+                  </div>
+                  {status !== "verified" && (
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => review("verified")}><CheckCircle2 className="w-3 h-3 mr-1" /> Verify</Button>
+                      {status !== "rejected" && <Button size="sm" variant="outline" onClick={() => review("rejected")}><XCircle className="w-3 h-3 mr-1" /> Reject</Button>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {userBank.length === 0 && <p className="text-center text-muted-foreground py-6">No user bank details yet</p>}
           </div>
         </CardContent>
