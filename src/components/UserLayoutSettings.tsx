@@ -5,7 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Layout, Save, Loader2 } from "lucide-react";
+import { Layout, Save, Loader2, RotateCcw } from "lucide-react";
+
+const DEFAULT_PREFS = {
+  sidebar_position: "left",
+  density: "comfortable",
+  font_size: "medium",
+  font_family: "inter",
+  accent_color: "teal",
+  theme_variant: "midnight",
+};
 
 const ACCENTS: Record<string, string> = {
   teal: "173 80% 40%",
@@ -63,14 +72,7 @@ export function UserLayoutSettings({ userId }: { userId: string }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [prefs, setPrefs] = useState({
-    sidebar_position: "left",
-    density: "comfortable",
-    font_size: "medium",
-    font_family: "inter",
-    accent_color: "teal",
-    theme_variant: "midnight",
-  });
+  const [prefs, setPrefs] = useState({ ...DEFAULT_PREFS });
 
   useEffect(() => {
     (async () => {
