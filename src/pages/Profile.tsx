@@ -231,13 +231,11 @@ export default function Profile() {
         )}
 
         <Tabs defaultValue="profile" className="space-y-4">
-          <TabsList className="grid grid-cols-3 w-full">
+          <TabsList className="grid grid-cols-2 w-full">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="bank">Bank Details</TabsTrigger>
-            <TabsTrigger value="layout">Layout</TabsTrigger>
           </TabsList>
           <TabsContent value="bank">{user && <UserBankDetails userId={user.id} />}</TabsContent>
-          <TabsContent value="layout">{user && <UserLayoutSettings userId={user.id} />}</TabsContent>
           <TabsContent value="profile" className="space-y-6">
         <Card className="glass glow-border">
           <CardHeader>
