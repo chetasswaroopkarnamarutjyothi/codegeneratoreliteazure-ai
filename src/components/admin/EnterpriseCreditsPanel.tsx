@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Plus, History, Loader2, Coins } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AdminExportButton } from "./AdminExportButton";
 
 export function EnterpriseCreditsPanel() {
   const { toast } = useToast();
