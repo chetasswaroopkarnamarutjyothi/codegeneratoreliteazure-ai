@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Smartphone, Monitor, Apple, Download } from "lucide-react";
+import { Smartphone, Monitor, Apple, Download, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const PLATFORMS = [
@@ -12,29 +13,80 @@ const PLATFORMS = [
 
 export function AppDownloadSection() {
   const { toast } = useToast();
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [installed, setInstalled] = useState(false);
 
-  const handleDownload = (platform: typeof PLATFORMS[number]) => {
-    // Placeholder: replace href with real release URLs when builds are published.
-    toast({
-      title: `${platform.label} build coming soon`,
-      description: "Native builds are being prepared. You can install the web app to your home screen now.",
-    });
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    const installedHandler = () => {
+      setInstalled(true);
+      setDeferredPrompt(null);
+      toast({ title: "✅ StackCodeNova AI installed", description: "Launch it from your home screen or app drawer." });
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
+    if (window.matchMedia("(display-mode: standalone)").matches) setInstalled(true);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
+  }, [toast]);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        toast({ title: "Installing StackCodeNova AI…" });
+      }
+      setDeferredPrompt(null);
+    } else {
+      toast({
+        title: "Install via your browser menu",
+        description: "iPhone: Share → Add to Home Screen. Android/Desktop: browser menu → Install app.",
+      });
+    }
   };
 
-  const installPWA = () => {
-    if ("serviceWorker" in navigator) {
-      toast({ title: "Install via your browser menu", description: "On phone: Share → Add to Home Screen. On desktop: address bar → Install." });
-    }
+  const handleDownload = (platform: typeof PLATFORMS[number]) => {
+    toast({
+      title: `${platform.label} build coming soon`,
+      description: "Use the Real-Time Install button to add StackCodeNova AI to any device right now.",
+    });
   };
 
   return (
     <section className="relative z-10 max-w-6xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          Get CodeNova AI Everywhere
+          Get StackCodeNova AI Everywhere
         </h2>
-        <p className="text-muted-foreground">Download for any device — mobile, desktop, or install as a web app.</p>
+        <p className="text-muted-foreground">Real-time install on any device — mobile, desktop, or tablet. No app store needed.</p>
       </div>
+
+      <Card className="glass mb-6 border-primary/40">
+        <CardContent className="p-6 text-center space-y-3">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/15 text-primary flex items-center justify-center">
+            {installed ? <CheckCircle2 className="w-7 h-7" /> : <Download className="w-7 h-7" />}
+          </div>
+          <h3 className="text-xl font-semibold">{installed ? "StackCodeNova AI is installed" : "Install StackCodeNova AI now"}</h3>
+          <p className="text-sm text-muted-foreground">
+            {installed
+              ? "Launch from your home screen — works offline and feels native."
+              : "One-tap real-time install on any device. iOS, Android, Windows, macOS, Linux & ChromeOS."}
+          </p>
+          {!installed && (
+            <Button size="lg" onClick={handleInstall} className="bg-gradient-to-r from-primary to-accent">
+              <Download className="w-4 h-4 mr-2" />
+              {deferredPrompt ? "Install StackCodeNova AI" : "Show install instructions"}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {PLATFORMS.map(p => {
           const Icon = p.icon;
@@ -55,11 +107,6 @@ export function AppDownloadSection() {
             </Card>
           );
         })}
-      </div>
-      <div className="text-center mt-6">
-        <Button variant="ghost" size="sm" onClick={installPWA}>
-          Or install as a Web App (PWA) — works on any device
-        </Button>
       </div>
     </section>
   );
