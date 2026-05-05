@@ -107,7 +107,7 @@ export function AdminBankDetailsPanel() {
                 ...b,
                 verification_status: b.verification_status || "pending",
                 reviewed_at: b.reviewed_at ? new Date(b.reviewed_at).toLocaleString() : "—",
-                created_at: new Date(b.created_at).toLocaleString(),
+                submitted_at: new Date(b.created_at).toLocaleString(),
               }))}
               columns={[
                 { key: "account_name", label: "Account Name" },
