@@ -24,13 +24,13 @@ export function AdminExportButton({ data, columns, fileName, tabName, adminName,
   const generateHeader = () => {
     const reportId = `RPT-${Date.now().toString(36).toUpperCase()}`;
     return {
-      logo: "CodeNova AI",
+      logo: "StackCodeNova AI",
       reportName: `${tabName} Report`,
       reportId,
       adminName: adminName || "Admin",
       adminEmail: adminEmail || "admin@stackmind.com",
       generatedAt: new Date().toLocaleString(),
-      footer: "© CodeNova AI - All Rights Reserved | StackMind Technologies Limited",
+      footer: "© StackCodeNova AI - All Rights Reserved | StackMind Technologies Limited",
     };
   };
 

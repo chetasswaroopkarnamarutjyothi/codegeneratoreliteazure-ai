@@ -24,7 +24,7 @@ export function AppDownloadSection() {
     const installedHandler = () => {
       setInstalled(true);
       setDeferredPrompt(null);
-      toast({ title: "✅ StackCodeNova AI installed", description: "Launch it from your home screen or app drawer." });
+      toast({ title: "✅ StackStackCodeNova AI installed", description: "Launch it from your home screen or app drawer." });
     };
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", installedHandler);
@@ -40,7 +40,7 @@ export function AppDownloadSection() {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === "accepted") {
-        toast({ title: "Installing StackCodeNova AI…" });
+        toast({ title: "Installing StackStackCodeNova AI…" });
       }
       setDeferredPrompt(null);
     } else {
@@ -54,7 +54,7 @@ export function AppDownloadSection() {
   const handleDownload = (platform: typeof PLATFORMS[number]) => {
     toast({
       title: `${platform.label} build coming soon`,
-      description: "Use the Real-Time Install button to add StackCodeNova AI to any device right now.",
+      description: "Use the Real-Time Install button to add StackStackCodeNova AI to any device right now.",
     });
   };
 
@@ -62,7 +62,7 @@ export function AppDownloadSection() {
     <section className="relative z-10 max-w-6xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          Get StackCodeNova AI Everywhere
+          Get StackStackCodeNova AI Everywhere
         </h2>
         <p className="text-muted-foreground">Real-time install on any device — mobile, desktop, or tablet. No app store needed.</p>
       </div>
@@ -72,7 +72,7 @@ export function AppDownloadSection() {
           <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/15 text-primary flex items-center justify-center">
             {installed ? <CheckCircle2 className="w-7 h-7" /> : <Download className="w-7 h-7" />}
           </div>
-          <h3 className="text-xl font-semibold">{installed ? "StackCodeNova AI is installed" : "Install StackCodeNova AI now"}</h3>
+          <h3 className="text-xl font-semibold">{installed ? "StackStackCodeNova AI is installed" : "Install StackStackCodeNova AI now"}</h3>
           <p className="text-sm text-muted-foreground">
             {installed
               ? "Launch from your home screen — works offline and feels native."
@@ -81,7 +81,7 @@ export function AppDownloadSection() {
           {!installed && (
             <Button size="lg" onClick={handleInstall} className="bg-gradient-to-r from-primary to-accent">
               <Download className="w-4 h-4 mr-2" />
-              {deferredPrompt ? "Install StackCodeNova AI" : "Show install instructions"}
+              {deferredPrompt ? "Install StackStackCodeNova AI" : "Show install instructions"}
             </Button>
           )}
         </CardContent>

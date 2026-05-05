@@ -24,7 +24,7 @@ export default function About() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">About Us</h1>
-            <p className="text-muted-foreground">CodeNova AI by StackMind Technologies</p>
+            <p className="text-muted-foreground">StackCodeNova AI by StackMind Technologies</p>
           </div>
         </div>
 
@@ -32,9 +32,9 @@ export default function About() {
         <Card className="glass glow-border mb-8">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4 mb-6">
-              <img src={codenovaLogo} alt="CodeNova AI" className="w-20 h-20 rounded-xl object-contain" />
+              <img src={codenovaLogo} alt="StackCodeNova AI" className="w-20 h-20 rounded-xl object-contain" />
               <div>
-                <h2 className="text-2xl font-bold gradient-text animate-gradient">CodeNova AI</h2>
+                <h2 className="text-2xl font-bold gradient-text animate-gradient">StackCodeNova AI</h2>
                 <p className="text-muted-foreground">by StackMind Technologies Limited</p>
               </div>
             </div>

@@ -21,7 +21,7 @@ export function AdminMailPanel() {
   const [selectedUserId, setSelectedUserId] = useState("");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
-  const [closure, setClosure] = useState("Best Regards,\nCodeNova AI Admin Team\nStackMind Technologies Limited");
+  const [closure, setClosure] = useState("Best Regards,\nStackCodeNova AI Admin Team\nStackMind Technologies Limited");
   const [sending, setSending] = useState(false);
   const [sentMails, setSentMails] = useState<any[]>([]);
   const { toast } = useToast();

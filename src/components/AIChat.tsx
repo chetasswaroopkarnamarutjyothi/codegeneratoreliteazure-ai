@@ -186,7 +186,7 @@ export default function AIChat({ userId }: AIchatProps) {
       }
 
       const conversationContext = [...messages, userMessage]
-        .map((m) => `${m.role === "user" ? "User" : "CodeNova AI"}: ${m.content}`)
+        .map((m) => `${m.role === "user" ? "User" : "StackCodeNova AI"}: ${m.content}`)
         .join("\n\n");
 
       const prompt = `This is a multi-turn conversation. Here is the full conversation history:\n\n${conversationContext}\n\nRespond to the latest user message. If the user asks for code, provide it in markdown code blocks with the language specified. If they ask questions about their code, analyze and explain. Be helpful, precise, and conversational.`;
@@ -312,7 +312,7 @@ export default function AIChat({ userId }: AIchatProps) {
             </div>
             <div>
               <h2 className="font-semibold text-sm">
-                CodeNova AI Chat
+                StackCodeNova AI Chat
                 {currentConvoId && <span className="text-muted-foreground font-normal ml-1">• {saveTitle || "Saved"}</span>}
               </h2>
               <p className="text-xs text-muted-foreground">Multi-turn conversation • Ask anything about code</p>
@@ -410,7 +410,7 @@ export default function AIChat({ userId }: AIchatProps) {
               </div>
               <h3 className="text-lg font-semibold mb-2">Start a Conversation</h3>
               <p className="text-muted-foreground text-sm max-w-md mb-6">
-                Ask CodeNova AI to write code, debug issues, explain concepts, or refactor your code. The AI remembers your entire conversation.
+                Ask StackCodeNova AI to write code, debug issues, explain concepts, or refactor your code. The AI remembers your entire conversation.
               </p>
               <div className="grid grid-cols-2 gap-2 max-w-md">
                 {["Write a React hook for dark mode", "Explain async/await in JavaScript", "Create a REST API with Express", "Debug this code for me"].map((suggestion) => (
@@ -492,7 +492,7 @@ export default function AIChat({ userId }: AIchatProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask CodeNova AI anything about code..."
+              placeholder="Ask StackCodeNova AI anything about code..."
               className="min-h-[48px] max-h-[120px] resize-none bg-muted/30 border-border/50 focus:border-primary"
               rows={1}
             />
