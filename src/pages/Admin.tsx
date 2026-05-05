@@ -382,6 +382,10 @@ export default function Admin() {
               <Building2 className="w-4 h-4" />
               <span className="hidden sm:inline">Enterprise</span>
             </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-1">
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Audit</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="requests">
