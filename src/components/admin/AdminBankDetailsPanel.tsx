@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Landmark, Save, Loader2, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { AdminExportButton } from "./AdminExportButton";
 
 export function AdminBankDetailsPanel() {
   const { toast } = useToast();
@@ -96,8 +97,34 @@ export function AdminBankDetailsPanel() {
 
       <Card className="glass">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Eye className="w-5 h-5" /> User-Submitted Bank Details ({userBank.length})</CardTitle>
-          <CardDescription>Verify or reject user refund/payout details.</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2"><Eye className="w-5 h-5" /> User-Submitted Bank Details ({userBank.length})</CardTitle>
+              <CardDescription>Verify or reject user refund/payout details. All actions are audit-logged.</CardDescription>
+            </div>
+            <AdminExportButton
+              data={userBank.map(b => ({
+                ...b,
+                verification_status: b.verification_status || "pending",
+                reviewed_at: b.reviewed_at ? new Date(b.reviewed_at).toLocaleString() : "—",
+                created_at: new Date(b.created_at).toLocaleString(),
+              }))}
+              columns={[
+                { key: "account_name", label: "Account Name" },
+                { key: "bank_name", label: "Bank" },
+                { key: "account_number", label: "Account #" },
+                { key: "ifsc_code", label: "IFSC" },
+                { key: "upi_id", label: "UPI" },
+                { key: "verification_status", label: "Status" },
+                { key: "review_notes", label: "Review Notes" },
+                { key: "reviewed_by", label: "Reviewed By" },
+                { key: "reviewed_at", label: "Reviewed At" },
+                { key: "created_at", label: "Submitted At" },
+              ]}
+              fileName="bank-verification-audit"
+              tabName="Bank Verification Audit"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 max-h-[500px] overflow-y-auto">

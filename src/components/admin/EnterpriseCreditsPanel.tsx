@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Plus, History, Loader2, Coins } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AdminExportButton } from "./AdminExportButton";
 
 export function EnterpriseCreditsPanel() {
   const { toast } = useToast();
@@ -142,8 +143,25 @@ export function EnterpriseCreditsPanel() {
 
       <Card className="glass">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Allocation History ({history.length})</CardTitle>
-          <CardDescription>Audit trail — who allocated, when, and how much.</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Allocation History ({history.length})</CardTitle>
+              <CardDescription>Audit trail — who allocated, when, and how much.</CardDescription>
+            </div>
+            <AdminExportButton
+              data={history.map(h => ({ ...h, allocated_by_name: historyNames[h.allocated_by] || "—", created_at: new Date(h.created_at).toLocaleString() }))}
+              columns={[
+                { key: "created_at", label: "Timestamp" },
+                { key: "enterprise_name", label: "Enterprise" },
+                { key: "amount", label: "Amount" },
+                { key: "mode", label: "Mode" },
+                { key: "allocated_by_name", label: "Allocated By" },
+                { key: "notes", label: "Notes" },
+              ]}
+              fileName="enterprise-allocation-history"
+              tabName="Enterprise Allocation History"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
