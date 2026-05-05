@@ -562,6 +562,7 @@ export default function Admin() {
           <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
           <TabsContent value="bank"><AdminBankDetailsPanel /></TabsContent>
           <TabsContent value="enterprise"><EnterpriseCreditsPanel /></TabsContent>
+          <TabsContent value="audit"><AdminAuditTrailPanel /></TabsContent>
         </Tabs>
       </div>
     </div>
