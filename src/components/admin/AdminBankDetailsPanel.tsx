@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Landmark, Save, Loader2, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { AdminExportButton } from "./AdminExportButton";
 
 export function AdminBankDetailsPanel() {
   const { toast } = useToast();
