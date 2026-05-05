@@ -91,12 +91,12 @@ export default function Index() {
 
   const getToolTitle = () => {
     switch (selectedTool) {
-      case "code-generator": return { text: "CodeNova", gradient: true };
-      case "app-generator": return { text: "CodeNova", gradient: true };
-      case "code-verifier": return { text: "CodeNova", gradient: true };
-      case "ai-chat": return { text: "CodeNova", gradient: true };
-      case "code-fix": return { text: "CodeNova", gradient: true };
-      case "website-verifier": return { text: "CodeNova", gradient: true };
+      case "code-generator": return { text: "StackCodeNova", gradient: true };
+      case "app-generator": return { text: "StackCodeNova", gradient: true };
+      case "code-verifier": return { text: "StackCodeNova", gradient: true };
+      case "ai-chat": return { text: "StackCodeNova", gradient: true };
+      case "code-fix": return { text: "StackCodeNova", gradient: true };
+      case "website-verifier": return { text: "StackCodeNova", gradient: true };
     }
   };
 
@@ -113,10 +113,10 @@ export default function Index() {
 
   const getToolDescription = () => {
     switch (selectedTool) {
-      case "code-generator": return "Transform your ideas into production-ready code with CodeNova AI by StackMind Technologies.";
-      case "app-generator": return "Generate complete applications with CodeNova AI. Describe your app and watch it come to life.";
-      case "code-verifier": return "Verify your code with CodeNova AI. Check for errors, bugs, and get improvement suggestions.";
-      case "ai-chat": return "Have multi-turn conversations with CodeNova AI. Ask questions, debug code, and get explanations.";
+      case "code-generator": return "Transform your ideas into production-ready code with StackCodeNova AI by StackMind Technologies.";
+      case "app-generator": return "Generate complete applications with StackCodeNova AI. Describe your app and watch it come to life.";
+      case "code-verifier": return "Verify your code with StackCodeNova AI. Check for errors, bugs, and get improvement suggestions.";
+      case "ai-chat": return "Have multi-turn conversations with StackCodeNova AI. Ask questions, debug code, and get explanations.";
       case "code-fix": return "Auto-fix code issues: Verifier finds bugs → Fix AI repairs them → loops until clean.";
       case "website-verifier": return "Enter any URL and get AI-powered suggestions for design, performance, SEO, and accessibility improvements.";
     }
@@ -177,8 +177,8 @@ export default function Index() {
 
         <header className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
-            <img src={codenovaIcon} alt="CodeNova" className="w-5 h-5 rounded" />
-            <span>CodeNova AI by StackMind Technologies</span>
+            <img src={codenovaIcon} alt="StackCodeNova" className="w-5 h-5 rounded" />
+            <span>StackCodeNova AI by StackMind Technologies</span>
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">
@@ -231,7 +231,7 @@ export default function Index() {
               <User className="w-4 h-4" />
             </div>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">CodeNova AI</span> by StackMind Technologies — Author: Karnam Chetas Swaroop
+              <span className="font-medium text-foreground">StackCodeNova AI</span> by StackMind Technologies — Author: Karnam Chetas Swaroop
             </p>
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function Index() {
 
       <footer className="relative z-10 py-6 text-center border-t border-border/50">
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved. | CodeNova AI
+          © {new Date().getFullYear()} StackMind Technologies Limited. All rights reserved. | StackCodeNova AI
         </p>
       </footer>
     </div>

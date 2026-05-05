@@ -159,7 +159,7 @@ export function AdminFileStorage() {
                 CodeNova Drive
               </CardTitle>
               <CardDescription>
-                Store and manage files related to CodeNova AI and StackMind Technologies
+                Store and manage files related to StackCodeNova AI and StackMind Technologies
               </CardDescription>
             </div>
             <AdminExportButton data={filteredFiles} columns={exportColumns} fileName="drive_files" tabName="CodeNova Drive" />

@@ -11,7 +11,7 @@ const tools = [
   {
     id: "code-generator" as ToolType,
     name: "CodeNova Generator",
-    description: "Generate code with CodeNova AI",
+    description: "Generate code with StackCodeNova AI",
     icon: Code2,
     gradient: "from-primary to-primary/60",
     bgGlow: "bg-primary/20 text-primary",

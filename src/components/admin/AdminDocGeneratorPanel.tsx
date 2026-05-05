@@ -31,12 +31,12 @@ export function AdminDocGeneratorPanel() {
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({
-            prompt: `You are a professional document generator for CodeNova AI by StackMind Technologies Limited. Generate a well-structured, formatted document based on the following prompt. Include proper sections, headings, and content. The document should be professional and ready for business use.
+            prompt: `You are a professional document generator for StackCodeNova AI by StackMind Technologies Limited. Generate a well-structured, formatted document based on the following prompt. Include proper sections, headings, and content. The document should be professional and ready for business use.
 
 Document Header:
-- Logo: CodeNova AI
+- Logo: StackCodeNova AI
 - Company: StackMind Technologies Limited
-- © CodeNova AI - All Rights Reserved
+- © StackCodeNova AI - All Rights Reserved
 
 Prompt: ${prompt}
 
@@ -142,14 +142,14 @@ Generate the document content in a clean, professional format.`,
             <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
               {/* Document Header */}
               <div className="text-center mb-6 pb-4 border-b border-border/50">
-                <h2 className="text-lg font-bold text-primary">CodeNova AI</h2>
+                <h2 className="text-lg font-bold text-primary">StackCodeNova AI</h2>
                 <p className="text-xs text-muted-foreground">StackMind Technologies Limited</p>
               </div>
               <pre className="whitespace-pre-wrap text-sm leading-relaxed max-h-[500px] overflow-y-auto">
                 {generatedDoc}
               </pre>
               <div className="text-center mt-6 pt-4 border-t border-border/50">
-                <p className="text-xs text-muted-foreground">© CodeNova AI - All Rights Reserved</p>
+                <p className="text-xs text-muted-foreground">© StackCodeNova AI - All Rights Reserved</p>
               </div>
             </div>
           </CardContent>

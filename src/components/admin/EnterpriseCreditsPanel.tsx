@@ -21,6 +21,7 @@ export function EnterpriseCreditsPanel() {
   const [allocate, setAllocate] = useState<{ name: string; amount: string; mode: "pool" | "bulk"; notes: string }>({
     name: "", amount: "", mode: "pool", notes: "",
   });
+  const [filters, setFilters] = useState({ from: "", to: "", enterprise: "", mode: "" });
 
   const load = async () => {
     const [{ data: t }, { data: h }] = await Promise.all([
@@ -143,13 +144,19 @@ export function EnterpriseCreditsPanel() {
 
       <Card className="glass">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Allocation History ({history.length})</CardTitle>
+              <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Allocation History</CardTitle>
               <CardDescription>Audit trail — who allocated, when, and how much.</CardDescription>
             </div>
             <AdminExportButton
-              data={history.map(h => ({ ...h, allocated_by_name: historyNames[h.allocated_by] || "—", created_at: new Date(h.created_at).toLocaleString() }))}
+              data={history.filter(h => {
+                if (filters.enterprise && h.enterprise_name !== filters.enterprise) return false;
+                if (filters.mode && h.mode !== filters.mode) return false;
+                if (filters.from && new Date(h.created_at) < new Date(filters.from)) return false;
+                if (filters.to && new Date(h.created_at) > new Date(filters.to + "T23:59:59")) return false;
+                return true;
+              }).map(h => ({ ...h, allocated_by_name: historyNames[h.allocated_by] || "—", created_at: new Date(h.created_at).toLocaleString() }))}
               columns={[
                 { key: "created_at", label: "Timestamp" },
                 { key: "enterprise_name", label: "Enterprise" },
@@ -163,12 +170,35 @@ export function EnterpriseCreditsPanel() {
             />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-4 gap-3">
+            <div className="space-y-1"><Label className="text-xs">From</Label><Input type="date" value={filters.from} onChange={e => setFilters({ ...filters, from: e.target.value })} /></div>
+            <div className="space-y-1"><Label className="text-xs">To</Label><Input type="date" value={filters.to} onChange={e => setFilters({ ...filters, to: e.target.value })} /></div>
+            <div className="space-y-1"><Label className="text-xs">Enterprise</Label>
+              <select className="w-full h-10 rounded-md border bg-background px-3 text-sm" value={filters.enterprise} onChange={e => setFilters({ ...filters, enterprise: e.target.value })}>
+                <option value="">All</option>
+                {Array.from(new Set(history.map(h => h.enterprise_name))).map(n => <option key={n as string} value={n as string}>{n as string}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1"><Label className="text-xs">Mode</Label>
+              <select className="w-full h-10 rounded-md border bg-background px-3 text-sm" value={filters.mode} onChange={e => setFilters({ ...filters, mode: e.target.value })}>
+                <option value="">All</option>
+                <option value="pool">Pool</option>
+                <option value="bulk">Bulk</option>
+              </select>
+            </div>
+          </div>
           <div className="border rounded-lg overflow-hidden">
             <Table>
               <TableHeader><TableRow><TableHead>When</TableHead><TableHead>Enterprise</TableHead><TableHead>Amount</TableHead><TableHead>Mode</TableHead><TableHead>By</TableHead><TableHead>Notes</TableHead></TableRow></TableHeader>
               <TableBody>
-                {history.map(h => (
+                {history.filter(h => {
+                  if (filters.enterprise && h.enterprise_name !== filters.enterprise) return false;
+                  if (filters.mode && h.mode !== filters.mode) return false;
+                  if (filters.from && new Date(h.created_at) < new Date(filters.from)) return false;
+                  if (filters.to && new Date(h.created_at) > new Date(filters.to + "T23:59:59")) return false;
+                  return true;
+                }).map(h => (
                   <TableRow key={h.id}>
                     <TableCell className="text-xs">{new Date(h.created_at).toLocaleString()}</TableCell>
                     <TableCell className="font-medium">{h.enterprise_name}</TableCell>

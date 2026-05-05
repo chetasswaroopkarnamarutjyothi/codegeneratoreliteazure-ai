@@ -33,6 +33,7 @@ import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
 import { AdminExportButton } from "@/components/admin/AdminExportButton";
 import { AdminBankDetailsPanel } from "@/components/admin/AdminBankDetailsPanel";
 import { EnterpriseCreditsPanel } from "@/components/admin/EnterpriseCreditsPanel";
+import { AdminAuditTrailPanel } from "@/components/admin/AdminAuditTrailPanel";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -382,6 +383,10 @@ export default function Admin() {
               <Building2 className="w-4 h-4" />
               <span className="hidden sm:inline">Enterprise</span>
             </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-1">
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Audit</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="requests">
@@ -557,6 +562,7 @@ export default function Admin() {
           <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
           <TabsContent value="bank"><AdminBankDetailsPanel /></TabsContent>
           <TabsContent value="enterprise"><EnterpriseCreditsPanel /></TabsContent>
+          <TabsContent value="audit"><AdminAuditTrailPanel /></TabsContent>
         </Tabs>
       </div>
     </div>
