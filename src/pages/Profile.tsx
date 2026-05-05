@@ -14,7 +14,7 @@ import { ArrowLeft, User, Mail, Users, Calendar, Save, Lock, Camera, AtSign, Ale
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserBankDetails } from "@/components/UserBankDetails";
-import { UserLayoutSettings } from "@/components/UserLayoutSettings";
+// Layout settings removed
 
 export default function Profile() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
