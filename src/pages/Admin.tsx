@@ -33,6 +33,7 @@ import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
 import { AdminExportButton } from "@/components/admin/AdminExportButton";
 import { AdminBankDetailsPanel } from "@/components/admin/AdminBankDetailsPanel";
 import { EnterpriseCreditsPanel } from "@/components/admin/EnterpriseCreditsPanel";
+import { AdminAuditTrailPanel } from "@/components/admin/AdminAuditTrailPanel";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
