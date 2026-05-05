@@ -150,7 +150,13 @@ export function EnterpriseCreditsPanel() {
               <CardDescription>Audit trail — who allocated, when, and how much.</CardDescription>
             </div>
             <AdminExportButton
-              data={history.map(h => ({ ...h, allocated_by_name: historyNames[h.allocated_by] || "—", created_at: new Date(h.created_at).toLocaleString() }))}
+              data={history.filter(h => {
+                if (filters.enterprise && h.enterprise_name !== filters.enterprise) return false;
+                if (filters.mode && h.mode !== filters.mode) return false;
+                if (filters.from && new Date(h.created_at) < new Date(filters.from)) return false;
+                if (filters.to && new Date(h.created_at) > new Date(filters.to + "T23:59:59")) return false;
+                return true;
+              }).map(h => ({ ...h, allocated_by_name: historyNames[h.allocated_by] || "—", created_at: new Date(h.created_at).toLocaleString() }))}
               columns={[
                 { key: "created_at", label: "Timestamp" },
                 { key: "enterprise_name", label: "Enterprise" },
