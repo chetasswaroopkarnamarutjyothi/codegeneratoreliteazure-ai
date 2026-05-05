@@ -21,6 +21,7 @@ export function EnterpriseCreditsPanel() {
   const [allocate, setAllocate] = useState<{ name: string; amount: string; mode: "pool" | "bulk"; notes: string }>({
     name: "", amount: "", mode: "pool", notes: "",
   });
+  const [filters, setFilters] = useState({ from: "", to: "", enterprise: "", mode: "" });
 
   const load = async () => {
     const [{ data: t }, { data: h }] = await Promise.all([
