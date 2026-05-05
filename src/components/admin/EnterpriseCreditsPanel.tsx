@@ -144,9 +144,9 @@ export function EnterpriseCreditsPanel() {
 
       <Card className="glass">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Allocation History ({history.length})</CardTitle>
+              <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Allocation History</CardTitle>
               <CardDescription>Audit trail — who allocated, when, and how much.</CardDescription>
             </div>
             <AdminExportButton
