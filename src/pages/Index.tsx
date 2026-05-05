@@ -91,12 +91,12 @@ export default function Index() {
 
   const getToolTitle = () => {
     switch (selectedTool) {
-      case "code-generator": return { text: "CodeNova", gradient: true };
-      case "app-generator": return { text: "CodeNova", gradient: true };
-      case "code-verifier": return { text: "CodeNova", gradient: true };
-      case "ai-chat": return { text: "CodeNova", gradient: true };
-      case "code-fix": return { text: "CodeNova", gradient: true };
-      case "website-verifier": return { text: "CodeNova", gradient: true };
+      case "code-generator": return { text: "StackCodeNova", gradient: true };
+      case "app-generator": return { text: "StackCodeNova", gradient: true };
+      case "code-verifier": return { text: "StackCodeNova", gradient: true };
+      case "ai-chat": return { text: "StackCodeNova", gradient: true };
+      case "code-fix": return { text: "StackCodeNova", gradient: true };
+      case "website-verifier": return { text: "StackCodeNova", gradient: true };
     }
   };
 
@@ -177,7 +177,7 @@ export default function Index() {
 
         <header className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
-            <img src={codenovaIcon} alt="CodeNova" className="w-5 h-5 rounded" />
+            <img src={codenovaIcon} alt="StackCodeNova" className="w-5 h-5 rounded" />
             <span>StackCodeNova AI by StackMind Technologies</span>
           </div>
 
