@@ -50,6 +50,45 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_trail: {
+        Row: {
+          action_category: string
+          action_type: string
+          amount: number | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          performed_by: string | null
+          target_id: string | null
+          target_name: string | null
+        }
+        Insert: {
+          action_category: string
+          action_type: string
+          amount?: number | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          performed_by?: string | null
+          target_id?: string | null
+          target_name?: string | null
+        }
+        Update: {
+          action_category?: string
+          action_type?: string
+          amount?: number | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          performed_by?: string | null
+          target_id?: string | null
+          target_name?: string | null
+        }
+        Relationships: []
+      }
       admin_credit_allocations: {
         Row: {
           admin_user_id: string
