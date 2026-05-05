@@ -115,11 +115,11 @@ export function AdminBankDetailsPanel() {
                 { key: "account_number", label: "Account #" },
                 { key: "ifsc_code", label: "IFSC" },
                 { key: "upi_id", label: "UPI" },
-                { key: "verification_status", label: "Status" },
+                { key: "verification_status", label: "Verification Status" },
                 { key: "review_notes", label: "Review Notes" },
                 { key: "reviewed_by", label: "Reviewed By" },
                 { key: "reviewed_at", label: "Reviewed At" },
-                { key: "created_at", label: "Submitted At" },
+                { key: "submitted_at", label: "Submitted At" },
               ]}
               fileName="bank-verification-audit"
               tabName="Bank Verification Audit"
