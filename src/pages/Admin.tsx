@@ -296,6 +296,12 @@ export default function Admin() {
           </div>
         )}
 
+        <div className="flex justify-end mb-4">
+          <Button onClick={() => navigate("/admin/projects")} className="bg-gradient-to-r from-primary to-accent">
+            <ClipboardList className="w-4 h-4 mr-2" /> Project Management
+          </Button>
+        </div>
+
         {/* Tabs */}
         <Tabs defaultValue="requests" className="space-y-6">
           <TabsList className="flex flex-wrap gap-1 h-auto w-full max-w-7xl p-2">
