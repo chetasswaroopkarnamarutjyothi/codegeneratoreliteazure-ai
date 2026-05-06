@@ -3,7 +3,7 @@ import { Bot, Send, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+
 
 interface Msg { role: "user" | "assistant"; content: string }
 
