@@ -259,12 +259,14 @@ export default function Auth() {
 
       const schoolRole = isSBPSTeacher(email) ? "teacher" : "student";
 
-      // Create profile
+      // Create profile with auto-generated identicon avatar
+      const { generateIdenticon: genIcon } = await import("@/lib/identicon");
       await supabase.from("profiles").insert({
         user_id: session.user.id,
         email: session.user.email!,
         full_name: fullName,
         age: parseInt(age) || 15,
+        avatar_url: genIcon(session.user.email || fullName || session.user.id),
       });
 
       // Create school membership (pending approval for students)
