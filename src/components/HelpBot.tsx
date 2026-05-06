@@ -29,21 +29,14 @@ export function HelpBot() {
     setMsgs(next);
     setBusy(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-code", {
-        body: {
-          prompt: q,
-          systemOverride:
-            "You are StackNova Bot, the friendly in-app assistant for StackCodeNova AI by StackMind Technologies. Help users navigate features (Code Generator, App Generator, Verifier, Fix AI, Chat, IDE, Projects, Credits, Pro plans). Be brief, friendly, and use bullet points. Never invent unrelated info.",
-          conversation: next.slice(-8),
-          model: "gemini-2.5-flash",
-          skipCredits: true,
-        },
+      const { data, error } = await supabase.functions.invoke("help-bot", {
+        body: { messages: next.map(m => ({ role: m.role, content: m.content })) },
       });
       if (error) throw error;
-      const text = (data as any)?.code || (data as any)?.text || "I'm here to help — could you rephrase that?";
+      const text = (data as any)?.reply || "I'm here to help — could you rephrase that?";
       setMsgs(m => [...m, { role: "assistant", content: text }]);
     } catch (e: any) {
-      setMsgs(m => [...m, { role: "assistant", content: "I had trouble reaching the AI. Try the docs in About → Help, or rephrase your question." }]);
+      setMsgs(m => [...m, { role: "assistant", content: "I had trouble reaching the AI. Please try again in a moment." }]);
     } finally {
       setBusy(false);
     }
