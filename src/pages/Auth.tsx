@@ -191,6 +191,9 @@ export default function Auth() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) throw new Error("No session");
 
+      const { generateIdenticon } = await import("@/lib/identicon");
+      const avatarUrl = generateIdenticon(session.user.email || fullName || session.user.id);
+
       const { error: profileError } = await supabase
         .from("profiles")
         .insert({
@@ -199,6 +202,7 @@ export default function Auth() {
           full_name: fullName,
           age: ageNum,
           parent_email: ageNum < 18 ? parentEmail : null,
+          avatar_url: avatarUrl,
         });
 
       if (profileError) throw profileError;
