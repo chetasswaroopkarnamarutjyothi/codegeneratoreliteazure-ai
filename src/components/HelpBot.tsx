@@ -15,7 +15,7 @@ export function HelpBot() {
     { role: "assistant", content: "Hi! I'm StackNova Bot 🤖 — your StackCodeNova AI guide. Ask me anything about credits, tools, or how to use the platform." },
   ]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 9e9, behavior: "smooth" });
