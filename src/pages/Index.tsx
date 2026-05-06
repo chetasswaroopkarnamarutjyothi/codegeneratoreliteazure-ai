@@ -18,6 +18,7 @@ import { useUserPoints } from "@/hooks/useUserPoints";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppDownloadSection } from "@/components/AppDownloadSection";
+import { HelpBot } from "@/components/HelpBot";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -238,6 +239,7 @@ export default function Index() {
       </div>
 
       <AppDownloadSection />
+      <HelpBot />
 
       <footer className="relative z-10 py-6 text-center border-t border-border/50">
         <p className="text-sm text-muted-foreground">
