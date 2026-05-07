@@ -89,7 +89,40 @@ export function SBPSManagementPanel() {
     fetchSchoolData();
   };
 
-  const exportColumns = [
+  const handleBulkGenerateSections = async () => {
+    if (!schoolId || !bulkClass || !bulkLastSection) {
+      toast({ title: "Enter class and last section letter (e.g., K)", variant: "destructive" });
+      return;
+    }
+    const lastChar = bulkLastSection.trim().toUpperCase().charAt(0);
+    if (!/^[A-Z]$/.test(lastChar)) {
+      toast({ title: "Last section must be a single letter A-Z", variant: "destructive" });
+      return;
+    }
+    setBulkLoading(true);
+    const endCode = lastChar.charCodeAt(0);
+    const existing = new Set(
+      classes.filter(c => c.class_name === bulkClass).map(c => (c.section || "").toUpperCase())
+    );
+    const rows: any[] = [];
+    for (let code = 65; code <= endCode; code++) {
+      const sec = String.fromCharCode(code);
+      if (!existing.has(sec)) rows.push({ school_id: schoolId, class_name: bulkClass, section: sec });
+    }
+    if (rows.length === 0) {
+      toast({ title: `All sections A–${lastChar} already exist for class ${bulkClass}` });
+      setBulkLoading(false);
+      return;
+    }
+    const { error } = await supabase.from("school_classes").insert(rows);
+    setBulkLoading(false);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: `✅ Generated ${rows.length} sections (A–${lastChar}) for class ${bulkClass}` });
+      setBulkClass(""); setBulkLastSection("");
+      fetchSchoolData();
+    }
+  };
     { key: "full_name", label: "Name" },
     { key: "admission_no", label: "Admission No" },
     { key: "class_name", label: "Class" },
