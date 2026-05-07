@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Banknote, Search, CheckCircle, Calendar, AlertTriangle } from "lucide-react";
+import { Banknote, Search, CheckCircle, Calendar, AlertTriangle, Building2, Plus } from "lucide-react";
 
 interface UserProfile {
   id: string;
