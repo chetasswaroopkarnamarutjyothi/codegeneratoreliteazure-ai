@@ -295,6 +295,7 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
               <SelectItem value="pro_yearly">Pro Yearly (100/day × 365)</SelectItem>
               <SelectItem value="pro_plus_monthly">Pro+ Monthly (200/day)</SelectItem>
               <SelectItem value="pro_plus_yearly">Pro+ Yearly (200/day × 365)</SelectItem>
+              <SelectItem value="enterprise">Enterprise (allocate to org pool)</SelectItem>
               <SelectItem value="custom">Custom Amount</SelectItem>
             </SelectContent>
           </Select>
@@ -333,5 +334,53 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
         </Button>
       </CardContent>
     </Card>
+
+    {planType === "enterprise" && (
+      <Card className="glass border-primary/30">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Allocate Credits to Enterprise</CardTitle>
+          <CardDescription>Top up an enterprise credit pool. Individual employees are not exposed.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label>Enterprise</Label>
+              <Select value={entForm.name} onValueChange={(v) => setEntForm({ ...entForm, name: v })}>
+                <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
+                <SelectContent>
+                  {tiers.map(t => <SelectItem key={t.id} value={t.enterprise_name}>{t.enterprise_name} ({(t.credit_pool || 0).toLocaleString()})</SelectItem>)}
+                  <SelectItem value="__new__">+ Add new enterprise…</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {entForm.name === "__new__" && (
+              <div className="space-y-2">
+                <Label>New Enterprise Name</Label>
+                <Input value={entForm.newName} onChange={e => setEntForm({ ...entForm, newName: e.target.value })} placeholder="Acme Corp" />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label>Amount</Label>
+              <Input type="number" value={entForm.amount} onChange={e => setEntForm({ ...entForm, amount: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Mode</Label>
+              <Select value={entForm.mode} onValueChange={v => setEntForm({ ...entForm, mode: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pool">Pool top-up</SelectItem>
+                  <SelectItem value="bulk">Bulk distribution</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <Input placeholder="Notes (optional)" value={entForm.notes} onChange={e => setEntForm({ ...entForm, notes: e.target.value })} />
+          <Button onClick={handleEnterpriseAllocate} disabled={entSaving} className="w-full">
+            {entSaving ? <span className="flex items-center"><Plus className="w-4 h-4 mr-2 animate-spin" />Allocating…</span> : <span className="flex items-center"><Building2 className="w-4 h-4 mr-2" />Allocate to Enterprise</span>}
+          </Button>
+        </CardContent>
+      </Card>
+    )}
+    </div>
   );
 }
