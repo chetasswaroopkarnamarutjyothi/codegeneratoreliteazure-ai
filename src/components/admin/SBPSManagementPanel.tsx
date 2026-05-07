@@ -15,6 +15,9 @@ export function SBPSManagementPanel() {
   const [loading, setLoading] = useState(true);
   const [newClassName, setNewClassName] = useState("");
   const [newSection, setNewSection] = useState("");
+  const [bulkLastSection, setBulkLastSection] = useState("");
+  const [bulkClass, setBulkClass] = useState("");
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [schoolId, setSchoolId] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -86,6 +89,41 @@ export function SBPSManagementPanel() {
     fetchSchoolData();
   };
 
+  const handleBulkGenerateSections = async () => {
+    if (!schoolId || !bulkClass || !bulkLastSection) {
+      toast({ title: "Enter class and last section letter (e.g., K)", variant: "destructive" });
+      return;
+    }
+    const lastChar = bulkLastSection.trim().toUpperCase().charAt(0);
+    if (!/^[A-Z]$/.test(lastChar)) {
+      toast({ title: "Last section must be a single letter A-Z", variant: "destructive" });
+      return;
+    }
+    setBulkLoading(true);
+    const endCode = lastChar.charCodeAt(0);
+    const existing = new Set(
+      classes.filter(c => c.class_name === bulkClass).map(c => (c.section || "").toUpperCase())
+    );
+    const rows: any[] = [];
+    for (let code = 65; code <= endCode; code++) {
+      const sec = String.fromCharCode(code);
+      if (!existing.has(sec)) rows.push({ school_id: schoolId, class_name: bulkClass, section: sec });
+    }
+    if (rows.length === 0) {
+      toast({ title: `All sections A–${lastChar} already exist for class ${bulkClass}` });
+      setBulkLoading(false);
+      return;
+    }
+    const { error } = await supabase.from("school_classes").insert(rows);
+    setBulkLoading(false);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: `✅ Generated ${rows.length} sections (A–${lastChar}) for class ${bulkClass}` });
+      setBulkClass(""); setBulkLastSection("");
+      fetchSchoolData();
+    }
+  };
+
   const exportColumns = [
     { key: "full_name", label: "Name" },
     { key: "admission_no", label: "Admission No" },
@@ -143,6 +181,17 @@ export function SBPSManagementPanel() {
                   <Input placeholder="Class (e.g., 10)" value={newClassName} onChange={e => setNewClassName(e.target.value)} />
                   <Input placeholder="Section (e.g., A)" value={newSection} onChange={e => setNewSection(e.target.value)} />
                   <Button onClick={handleCreateClass}>Create</Button>
+                </div>
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-sm font-medium mb-2">⚡ Auto-Generate Sections (A → letter)</p>
+                  <p className="text-xs text-muted-foreground mb-2">Enter the last section letter (e.g. <code>K</code>) and we'll create A, B, C … K for the chosen class.</p>
+                  <div className="flex gap-2">
+                    <Input placeholder="Class (e.g., 10)" value={bulkClass} onChange={e => setBulkClass(e.target.value)} />
+                    <Input placeholder="Last section (e.g., K)" maxLength={1} value={bulkLastSection} onChange={e => setBulkLastSection(e.target.value)} />
+                    <Button onClick={handleBulkGenerateSections} disabled={bulkLoading} variant="secondary">
+                      {bulkLoading ? "Generating…" : "Generate A→Letter"}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
