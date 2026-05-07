@@ -15,6 +15,9 @@ export function SBPSManagementPanel() {
   const [loading, setLoading] = useState(true);
   const [newClassName, setNewClassName] = useState("");
   const [newSection, setNewSection] = useState("");
+  const [bulkLastSection, setBulkLastSection] = useState("");
+  const [bulkClass, setBulkClass] = useState("");
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [schoolId, setSchoolId] = useState<string | null>(null);
   const { toast } = useToast();
 
