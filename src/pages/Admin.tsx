@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, Shield, Users, Search, Gift, Ban, CheckCircle, Crown,
   Wallet, ArrowRightLeft, Loader2, Banknote, ClipboardList, BarChart3,
-  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap, Building2
+  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -32,7 +32,6 @@ import { AccountRestorePanel } from "@/components/admin/AccountRestorePanel";
 import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
 import { AdminExportButton } from "@/components/admin/AdminExportButton";
 import { AdminBankDetailsPanel } from "@/components/admin/AdminBankDetailsPanel";
-import { EnterpriseCreditsPanel } from "@/components/admin/EnterpriseCreditsPanel";
 import { AdminAuditTrailPanel } from "@/components/admin/AdminAuditTrailPanel";
 import type { User } from "@supabase/supabase-js";
 
@@ -385,10 +384,6 @@ export default function Admin() {
               <Landmark className="w-4 h-4" />
               <span className="hidden sm:inline">Bank</span>
             </TabsTrigger>
-            <TabsTrigger value="enterprise" className="flex items-center gap-1">
-              <Building2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Enterprise</span>
-            </TabsTrigger>
             <TabsTrigger value="audit" className="flex items-center gap-1">
               <Shield className="w-4 h-4" />
               <span className="hidden sm:inline">Audit</span>
@@ -567,7 +562,6 @@ export default function Admin() {
           <TabsContent value="restore"><AccountRestorePanel /></TabsContent>
           <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
           <TabsContent value="bank"><AdminBankDetailsPanel /></TabsContent>
-          <TabsContent value="enterprise"><EnterpriseCreditsPanel /></TabsContent>
           <TabsContent value="audit"><AdminAuditTrailPanel /></TabsContent>
         </Tabs>
       </div>
