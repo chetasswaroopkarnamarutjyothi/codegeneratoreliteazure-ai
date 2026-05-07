@@ -224,6 +224,7 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
   };
 
   return (
+    <div className="space-y-6">
     <Card className="glass">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
