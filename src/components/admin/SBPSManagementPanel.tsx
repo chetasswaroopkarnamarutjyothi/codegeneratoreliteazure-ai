@@ -123,6 +123,8 @@ export function SBPSManagementPanel() {
       fetchSchoolData();
     }
   };
+
+  const exportColumns = [
     { key: "full_name", label: "Name" },
     { key: "admission_no", label: "Admission No" },
     { key: "class_name", label: "Class" },
