@@ -182,6 +182,17 @@ export function SBPSManagementPanel() {
                   <Input placeholder="Section (e.g., A)" value={newSection} onChange={e => setNewSection(e.target.value)} />
                   <Button onClick={handleCreateClass}>Create</Button>
                 </div>
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-sm font-medium mb-2">⚡ Auto-Generate Sections (A → letter)</p>
+                  <p className="text-xs text-muted-foreground mb-2">Enter the last section letter (e.g. <code>K</code>) and we'll create A, B, C … K for the chosen class.</p>
+                  <div className="flex gap-2">
+                    <Input placeholder="Class (e.g., 10)" value={bulkClass} onChange={e => setBulkClass(e.target.value)} />
+                    <Input placeholder="Last section (e.g., K)" maxLength={1} value={bulkLastSection} onChange={e => setBulkLastSection(e.target.value)} />
+                    <Button onClick={handleBulkGenerateSections} disabled={bulkLoading} variant="secondary">
+                      {bulkLoading ? "Generating…" : "Generate A→Letter"}
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               {/* Pending Approvals */}
