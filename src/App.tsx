@@ -22,6 +22,7 @@ import WebsiteControls from "./pages/WebsiteControls";
 import NotFound from "./pages/NotFound";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminProjectManagement from "./pages/AdminProjectManagement";
+import SwipeIn from "./pages/SwipeIn";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
           <Route path="/website-controls" element={<WebsiteControls />} />
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/admin/projects" element={<AdminProjectManagement />} />
+          <Route path="/swipe-in" element={<SwipeIn />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

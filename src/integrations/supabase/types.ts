@@ -402,6 +402,129 @@ export type Database = {
         }
         Relationships: []
       }
+      company_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          event_date: string
+          event_type: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          event_date: string
+          event_type?: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      company_policies: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          created_by: string | null
+          effective_from: string
+          id: string
+          is_published: boolean
+          requires_acknowledgement: boolean
+          title: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          id?: string
+          is_published?: boolean
+          requires_acknowledgement?: boolean
+          title: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          id?: string
+          is_published?: boolean
+          requires_acknowledgement?: boolean
+          title?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      credit_payment_submissions: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          payment_method: string
+          plan_type: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          screenshot_url: string | null
+          status: string
+          transaction_id: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          plan_type?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          transaction_id: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          plan_type?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          transaction_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       credit_requests: {
         Row: {
           admin_notes: string | null
@@ -468,6 +591,63 @@ export type Database = {
           recipient_user_id?: string | null
           sent_at?: string
           subject?: string
+        }
+        Relationships: []
+      }
+      employee_id_cards: {
+        Row: {
+          blood_group: string | null
+          created_by: string | null
+          designation: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relation: string | null
+          employee_id: string
+          employee_user_id: string
+          full_name: string | null
+          id: string
+          is_ceo: boolean
+          issued_at: string
+          photo_url: string | null
+          qr_token: string
+          revoked_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          blood_group?: string | null
+          created_by?: string | null
+          designation?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
+          employee_id: string
+          employee_user_id: string
+          full_name?: string | null
+          id?: string
+          is_ceo?: boolean
+          issued_at?: string
+          photo_url?: string | null
+          qr_token?: string
+          revoked_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          blood_group?: string | null
+          created_by?: string | null
+          designation?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
+          employee_id?: string
+          employee_user_id?: string
+          full_name?: string | null
+          id?: string
+          is_ceo?: boolean
+          issued_at?: string
+          photo_url?: string | null
+          qr_token?: string
+          revoked_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -719,6 +899,72 @@ export type Database = {
         }
         Relationships: []
       }
+      id_card_assets: {
+        Row: {
+          id: string
+          logo_url: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          logo_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          logo_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      leave_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          from_date: string
+          id: string
+          leave_type: string
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          to_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          from_date: string
+          id?: string
+          leave_type?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          from_date?: string
+          id?: string
+          leave_type?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       model_credit_costs: {
         Row: {
           created_at: string
@@ -746,6 +992,45 @@ export type Database = {
           model_label?: string
           professional_multiplier?: number
           standard_cost?: number
+        }
+        Relationships: []
+      }
+      office_swipes: {
+        Row: {
+          created_at: string
+          device_info: string | null
+          id: string
+          location_hint: string | null
+          method: string
+          qr_token: string | null
+          swipe_date: string
+          swipe_in_at: string
+          swipe_out_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: string | null
+          id?: string
+          location_hint?: string | null
+          method?: string
+          qr_token?: string | null
+          swipe_date?: string
+          swipe_in_at?: string
+          swipe_out_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: string | null
+          id?: string
+          location_hint?: string | null
+          method?: string
+          qr_token?: string | null
+          swipe_date?: string
+          swipe_in_at?: string
+          swipe_out_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1014,6 +1299,27 @@ export type Database = {
           points_granted?: number
           reason?: string | null
           target_user_id?: string
+        }
+        Relationships: []
+      }
+      policy_acknowledgements: {
+        Row: {
+          acknowledged_at: string
+          id: string
+          policy_id: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string
+          id?: string
+          policy_id: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string
+          id?: string
+          policy_id?: string
+          user_id?: string
         }
         Relationships: []
       }
