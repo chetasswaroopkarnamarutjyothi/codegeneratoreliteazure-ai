@@ -19,6 +19,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppDownloadSection } from "@/components/AppDownloadSection";
 import { HelpBot } from "@/components/HelpBot";
+import { SwipeGate } from "@/components/SwipeGate";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
