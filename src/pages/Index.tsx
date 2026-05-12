@@ -88,7 +88,7 @@ export default function Index() {
   }
 
   if (showWelcome) {
-    return <WelcomeScreen onContinue={() => setShowWelcome(false)} />;
+    return <SwipeGate><WelcomeScreen onContinue={() => setShowWelcome(false)} /></SwipeGate>;
   }
 
   const getToolTitle = () => {
