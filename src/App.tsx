@@ -22,6 +22,7 @@ import WebsiteControls from "./pages/WebsiteControls";
 import NotFound from "./pages/NotFound";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminProjectManagement from "./pages/AdminProjectManagement";
+import SwipeIn from "./pages/SwipeIn";
 
 const queryClient = new QueryClient();
 
