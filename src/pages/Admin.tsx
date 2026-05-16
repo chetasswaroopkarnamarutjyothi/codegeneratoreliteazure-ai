@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, Shield, Users, Search, Gift, Ban, CheckCircle, Crown,
   Wallet, ArrowRightLeft, Loader2, Banknote, ClipboardList, BarChart3,
-  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap
+  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap,
+  IdCard, ScanLine, CreditCard, Briefcase
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -33,6 +34,10 @@ import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
 import { AdminExportButton } from "@/components/admin/AdminExportButton";
 import { AdminBankDetailsPanel } from "@/components/admin/AdminBankDetailsPanel";
 import { AdminAuditTrailPanel } from "@/components/admin/AdminAuditTrailPanel";
+import { IdCardGeneratorPanel } from "@/components/admin/IdCardGeneratorPanel";
+import { OfficeVisitsPanel } from "@/components/admin/OfficeVisitsPanel";
+import { PoliciesPanel } from "@/components/admin/PoliciesPanel";
+import { PaymentSubmissionsPanel } from "@/components/admin/PaymentSubmissionsPanel";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
@@ -295,7 +300,10 @@ export default function Admin() {
           </div>
         )}
 
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 gap-2">
+          <Button onClick={() => navigate("/internal")} variant="outline">
+            <Briefcase className="w-4 h-4 mr-2" /> Internal Panel
+          </Button>
           <Button onClick={() => navigate("/admin/projects")} className="bg-gradient-to-r from-primary to-accent">
             <ClipboardList className="w-4 h-4 mr-2" /> Project Management
           </Button>
@@ -387,6 +395,22 @@ export default function Admin() {
             <TabsTrigger value="audit" className="flex items-center gap-1">
               <Shield className="w-4 h-4" />
               <span className="hidden sm:inline">Audit</span>
+            </TabsTrigger>
+            <TabsTrigger value="id-cards" className="flex items-center gap-1">
+              <IdCard className="w-4 h-4" />
+              <span className="hidden sm:inline">ID Cards</span>
+            </TabsTrigger>
+            <TabsTrigger value="visits" className="flex items-center gap-1">
+              <ScanLine className="w-4 h-4" />
+              <span className="hidden sm:inline">Visits</span>
+            </TabsTrigger>
+            <TabsTrigger value="policies" className="flex items-center gap-1">
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Policies</span>
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-1">
+              <CreditCard className="w-4 h-4" />
+              <span className="hidden sm:inline">Payments</span>
             </TabsTrigger>
           </TabsList>
 
@@ -563,6 +587,10 @@ export default function Admin() {
           <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
           <TabsContent value="bank"><AdminBankDetailsPanel /></TabsContent>
           <TabsContent value="audit"><AdminAuditTrailPanel /></TabsContent>
+          <TabsContent value="id-cards"><IdCardGeneratorPanel /></TabsContent>
+          <TabsContent value="visits"><OfficeVisitsPanel /></TabsContent>
+          <TabsContent value="policies"><PoliciesPanel /></TabsContent>
+          <TabsContent value="payments"><PaymentSubmissionsPanel /></TabsContent>
         </Tabs>
       </div>
     </div>

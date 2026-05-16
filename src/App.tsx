@@ -23,6 +23,8 @@ import NotFound from "./pages/NotFound";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminProjectManagement from "./pages/AdminProjectManagement";
 import SwipeIn from "./pages/SwipeIn";
+import Internal from "./pages/Internal";
+import { SwipeGate } from "./components/SwipeGate";
 
 const queryClient = new QueryClient();
 
@@ -40,17 +42,18 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/payment" element={<Payment />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<SwipeGate><Admin /></SwipeGate>} />
           <Route path="/projects" element={<Projects />} />
-          <Route path="/stack-chat" element={<StackChat />} />
+          <Route path="/stack-chat" element={<SwipeGate><StackChat /></SwipeGate>} />
           <Route path="/about" element={<About />} />
-          <Route path="/ide" element={<CodeIDE />} />
+          <Route path="/ide" element={<SwipeGate><CodeIDE /></SwipeGate>} />
           <Route path="/marketing" element={<Marketing />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/website-controls" element={<WebsiteControls />} />
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-          <Route path="/admin/projects" element={<AdminProjectManagement />} />
+          <Route path="/admin/projects" element={<SwipeGate><AdminProjectManagement /></SwipeGate>} />
+          <Route path="/internal" element={<Internal />} />
           <Route path="/swipe-in" element={<SwipeIn />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

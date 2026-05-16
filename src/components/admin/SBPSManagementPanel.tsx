@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, UserCheck, UserX, Loader2, School, Users } from "lucide-react";
+import { GraduationCap, UserCheck, UserX, Loader2, School, Users, AlertTriangle } from "lucide-react";
 import { AdminExportButton } from "./AdminExportButton";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export function SBPSManagementPanel() {
   const [members, setMembers] = useState<any[]>([]);
@@ -19,6 +20,8 @@ export function SBPSManagementPanel() {
   const [bulkClass, setBulkClass] = useState("");
   const [bulkLoading, setBulkLoading] = useState(false);
   const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmPreview, setConfirmPreview] = useState<{ toCreate: string[]; duplicates: string[]; lastChar: string }>({ toCreate: [], duplicates: [], lastChar: "" });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -89,7 +92,7 @@ export function SBPSManagementPanel() {
     fetchSchoolData();
   };
 
-  const handleBulkGenerateSections = async () => {
+  const handleBulkGenerateSections = () => {
     if (!schoolId || !bulkClass || !bulkLastSection) {
       toast({ title: "Enter class and last section letter (e.g., K)", variant: "destructive" });
       return;
@@ -99,26 +102,33 @@ export function SBPSManagementPanel() {
       toast({ title: "Last section must be a single letter A-Z", variant: "destructive" });
       return;
     }
-    setBulkLoading(true);
     const endCode = lastChar.charCodeAt(0);
     const existing = new Set(
       classes.filter(c => c.class_name === bulkClass).map(c => (c.section || "").toUpperCase())
     );
-    const rows: any[] = [];
+    const toCreate: string[] = [];
+    const duplicates: string[] = [];
     for (let code = 65; code <= endCode; code++) {
       const sec = String.fromCharCode(code);
-      if (!existing.has(sec)) rows.push({ school_id: schoolId, class_name: bulkClass, section: sec });
+      if (existing.has(sec)) duplicates.push(sec); else toCreate.push(sec);
     }
-    if (rows.length === 0) {
-      toast({ title: `All sections A–${lastChar} already exist for class ${bulkClass}` });
-      setBulkLoading(false);
+    setConfirmPreview({ toCreate, duplicates, lastChar });
+    setConfirmOpen(true);
+  };
+
+  const performBulkGenerate = async () => {
+    setConfirmOpen(false);
+    if (confirmPreview.toCreate.length === 0) {
+      toast({ title: `All sections A–${confirmPreview.lastChar} already exist for class ${bulkClass}` });
       return;
     }
+    setBulkLoading(true);
+    const rows = confirmPreview.toCreate.map(sec => ({ school_id: schoolId, class_name: bulkClass, section: sec }));
     const { error } = await supabase.from("school_classes").insert(rows);
     setBulkLoading(false);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else {
-      toast({ title: `✅ Generated ${rows.length} sections (A–${lastChar}) for class ${bulkClass}` });
+      toast({ title: `✅ Generated ${rows.length} sections for class ${bulkClass}` });
       setBulkClass(""); setBulkLastSection("");
       fetchSchoolData();
     }
@@ -258,6 +268,30 @@ export function SBPSManagementPanel() {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-yellow-500" /> Confirm Section Generation</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <p>For class <b>{bulkClass}</b>, sections A → {confirmPreview.lastChar}:</p>
+                <p className="text-green-500">✅ Will create ({confirmPreview.toCreate.length}): {confirmPreview.toCreate.join(", ") || "none"}</p>
+                {confirmPreview.duplicates.length > 0 && (
+                  <p className="text-yellow-500">⚠️ Already exist, will be skipped ({confirmPreview.duplicates.length}): {confirmPreview.duplicates.join(", ")}</p>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={performBulkGenerate} disabled={confirmPreview.toCreate.length === 0}>
+              {bulkLoading ? "Generating…" : `Create ${confirmPreview.toCreate.length} sections`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
