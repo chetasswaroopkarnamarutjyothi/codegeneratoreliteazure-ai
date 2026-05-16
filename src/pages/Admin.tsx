@@ -587,6 +587,10 @@ export default function Admin() {
           <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
           <TabsContent value="bank"><AdminBankDetailsPanel /></TabsContent>
           <TabsContent value="audit"><AdminAuditTrailPanel /></TabsContent>
+          <TabsContent value="id-cards"><IdCardGeneratorPanel /></TabsContent>
+          <TabsContent value="visits"><OfficeVisitsPanel /></TabsContent>
+          <TabsContent value="policies"><PoliciesPanel /></TabsContent>
+          <TabsContent value="payments"><PaymentSubmissionsPanel /></TabsContent>
         </Tabs>
       </div>
     </div>
