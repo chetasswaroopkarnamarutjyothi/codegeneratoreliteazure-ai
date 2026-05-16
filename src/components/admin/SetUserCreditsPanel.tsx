@@ -340,8 +340,13 @@ export function SetUserCreditsPanel({ users, searchQuery, onCreditsSet }: SetUse
     {planType === "enterprise" && (
       <Card className="glass border-primary/30">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Allocate Credits to Enterprise</CardTitle>
-          <CardDescription>Top up an enterprise credit pool. Individual employees are not exposed.</CardDescription>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <CardTitle className="flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Allocate Credits to Enterprise</CardTitle>
+              <CardDescription>Top up an enterprise credit pool. Individual employees are not exposed.</CardDescription>
+            </div>
+            <EnterpriseAllocationsExport />
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid md:grid-cols-2 gap-3">
