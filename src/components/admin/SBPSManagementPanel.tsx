@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, UserCheck, UserX, Loader2, School, Users } from "lucide-react";
+import { GraduationCap, UserCheck, UserX, Loader2, School, Users, AlertTriangle } from "lucide-react";
 import { AdminExportButton } from "./AdminExportButton";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export function SBPSManagementPanel() {
   const [members, setMembers] = useState<any[]>([]);
