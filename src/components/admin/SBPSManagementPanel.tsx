@@ -20,6 +20,8 @@ export function SBPSManagementPanel() {
   const [bulkClass, setBulkClass] = useState("");
   const [bulkLoading, setBulkLoading] = useState(false);
   const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmPreview, setConfirmPreview] = useState<{ toCreate: string[]; duplicates: string[]; lastChar: string }>({ toCreate: [], duplicates: [], lastChar: "" });
   const { toast } = useToast();
 
   useEffect(() => {
