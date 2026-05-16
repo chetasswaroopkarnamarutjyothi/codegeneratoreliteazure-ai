@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowLeft, Shield, Users, Search, Gift, Ban, CheckCircle, Crown,
   Wallet, ArrowRightLeft, Loader2, Banknote, ClipboardList, BarChart3,
-  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap
+  UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap,
+  IdCard, ScanLine, CreditCard, Briefcase
 } from "lucide-react";
 import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -33,6 +34,10 @@ import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
 import { AdminExportButton } from "@/components/admin/AdminExportButton";
 import { AdminBankDetailsPanel } from "@/components/admin/AdminBankDetailsPanel";
 import { AdminAuditTrailPanel } from "@/components/admin/AdminAuditTrailPanel";
+import { IdCardGeneratorPanel } from "@/components/admin/IdCardGeneratorPanel";
+import { OfficeVisitsPanel } from "@/components/admin/OfficeVisitsPanel";
+import { PoliciesPanel } from "@/components/admin/PoliciesPanel";
+import { PaymentSubmissionsPanel } from "@/components/admin/PaymentSubmissionsPanel";
 import type { User } from "@supabase/supabase-js";
 
 interface UserProfile {
