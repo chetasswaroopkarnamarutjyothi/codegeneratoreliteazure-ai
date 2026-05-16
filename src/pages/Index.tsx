@@ -125,6 +125,7 @@ export default function Index() {
   };
 
   return (
+    <SwipeGate>
     <div className="min-h-screen bg-background flex flex-col">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse" />
