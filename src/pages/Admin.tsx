@@ -396,6 +396,22 @@ export default function Admin() {
               <Shield className="w-4 h-4" />
               <span className="hidden sm:inline">Audit</span>
             </TabsTrigger>
+            <TabsTrigger value="id-cards" className="flex items-center gap-1">
+              <IdCard className="w-4 h-4" />
+              <span className="hidden sm:inline">ID Cards</span>
+            </TabsTrigger>
+            <TabsTrigger value="visits" className="flex items-center gap-1">
+              <ScanLine className="w-4 h-4" />
+              <span className="hidden sm:inline">Visits</span>
+            </TabsTrigger>
+            <TabsTrigger value="policies" className="flex items-center gap-1">
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Policies</span>
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-1">
+              <CreditCard className="w-4 h-4" />
+              <span className="hidden sm:inline">Payments</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="requests">
