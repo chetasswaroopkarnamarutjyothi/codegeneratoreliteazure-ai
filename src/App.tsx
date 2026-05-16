@@ -23,6 +23,8 @@ import NotFound from "./pages/NotFound";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminProjectManagement from "./pages/AdminProjectManagement";
 import SwipeIn from "./pages/SwipeIn";
+import Internal from "./pages/Internal";
+import { SwipeGate } from "./components/SwipeGate";
 
 const queryClient = new QueryClient();
 
