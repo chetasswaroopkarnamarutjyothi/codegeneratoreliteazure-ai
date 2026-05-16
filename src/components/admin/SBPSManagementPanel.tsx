@@ -268,6 +268,30 @@ export function SBPSManagementPanel() {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-yellow-500" /> Confirm Section Generation</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <p>For class <b>{bulkClass}</b>, sections A → {confirmPreview.lastChar}:</p>
+                <p className="text-green-500">✅ Will create ({confirmPreview.toCreate.length}): {confirmPreview.toCreate.join(", ") || "none"}</p>
+                {confirmPreview.duplicates.length > 0 && (
+                  <p className="text-yellow-500">⚠️ Already exist, will be skipped ({confirmPreview.duplicates.length}): {confirmPreview.duplicates.join(", ")}</p>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={performBulkGenerate} disabled={confirmPreview.toCreate.length === 0}>
+              {bulkLoading ? "Generating…" : `Create ${confirmPreview.toCreate.length} sections`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
