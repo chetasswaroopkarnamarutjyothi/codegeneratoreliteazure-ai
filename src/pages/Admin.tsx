@@ -300,7 +300,10 @@ export default function Admin() {
           </div>
         )}
 
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 gap-2">
+          <Button onClick={() => navigate("/internal")} variant="outline">
+            <Briefcase className="w-4 h-4 mr-2" /> Internal Panel
+          </Button>
           <Button onClick={() => navigate("/admin/projects")} className="bg-gradient-to-r from-primary to-accent">
             <ClipboardList className="w-4 h-4 mr-2" /> Project Management
           </Button>
