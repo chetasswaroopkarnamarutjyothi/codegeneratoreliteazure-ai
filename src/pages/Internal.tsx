@@ -83,7 +83,13 @@ function AttendanceTab() {
     }
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const ch = supabase.channel("office-swipes-rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "office_swipes" }, load)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, []);
 
   const today = new Date().toISOString().slice(0, 10);
   const todayRows = rows.filter(r => r.swipe_date === today);
