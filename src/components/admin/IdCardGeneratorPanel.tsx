@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { IdCard, Loader2, Download, Image as ImageIcon, RefreshCw } from "lucide-react";
+import { IdCard, Loader2, Download, Image as ImageIcon, RefreshCw, UserPlus } from "lucide-react";
 import { IdCardPreview } from "@/components/IdCardPreview";
 import { generateIdCardPdf } from "@/lib/idCardPdf";
 
@@ -20,6 +20,10 @@ export function IdCardGeneratorPanel() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [eligibleUsers, setEligibleUsers] = useState<any[]>([]);
+  const [newCardUser, setNewCardUser] = useState("");
+  const [newCardDesignation, setNewCardDesignation] = useState("");
+  const [creating, setCreating] = useState(false);
   const { toast } = useToast();
 
   const load = async () => {
@@ -30,9 +34,26 @@ export function IdCardGeneratorPanel() {
     ]);
     setCards(c || []);
     setLogoUrl(a?.logo_url || null);
+    // Build list of users without an ID card yet
+    const { data: profs } = await supabase.from("profiles").select("user_id, full_name, email");
+    const haveIds = new Set((c || []).map((x: any) => x.employee_user_id));
+    setEligibleUsers((profs || []).filter(p => !haveIds.has(p.user_id)));
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+
+  const createCardForUser = async () => {
+    if (!newCardUser) { toast({ title: "Pick a user", variant: "destructive" }); return; }
+    setCreating(true);
+    const { error } = await supabase.rpc("admin_create_id_card", {
+      p_user_id: newCardUser, p_designation: newCardDesignation || null,
+    });
+    setCreating(false);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "✅ ID card issued" });
+    setNewCardUser(""); setNewCardDesignation("");
+    load();
+  };
 
   const select = (card: any) => {
     setSelected(card);
