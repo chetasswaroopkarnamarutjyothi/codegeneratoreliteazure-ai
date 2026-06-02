@@ -133,8 +133,31 @@ export function IdCardGeneratorPanel() {
 
       <Card className="glass">
         <CardHeader>
+          <CardTitle className="flex items-center gap-2"><UserPlus className="w-5 h-5 text-primary" /> Issue New ID Card</CardTitle>
+          <CardDescription>Generate a permanent Employee ID (format: SM + 6 digits) for any user.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-3 gap-2">
+          <Select value={newCardUser} onValueChange={setNewCardUser}>
+            <SelectTrigger><SelectValue placeholder="Select user…" /></SelectTrigger>
+            <SelectContent className="max-h-72">
+              {eligibleUsers.map(u => (
+                <SelectItem key={u.user_id} value={u.user_id}>{u.full_name || u.email} · {u.email}</SelectItem>
+              ))}
+              {eligibleUsers.length === 0 && <div className="p-2 text-xs text-muted-foreground">All users have cards.</div>}
+            </SelectContent>
+          </Select>
+          <Input placeholder="Designation (optional)" value={newCardDesignation} onChange={e => setNewCardDesignation(e.target.value)} />
+          <Button onClick={createCardForUser} disabled={creating || !newCardUser}>
+            {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus className="w-4 h-4 mr-2" />}
+            Issue ID Card
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="glass">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2"><IdCard className="w-5 h-5 text-primary" /> Employee ID Cards ({cards.length})</CardTitle>
-          <CardDescription>Generated automatically when an employee role is granted. Edit details and download PDF.</CardDescription>
+          <CardDescription>Edit details, rotate QR, and download the printable PDF for any employee.</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (

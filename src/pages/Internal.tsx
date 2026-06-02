@@ -98,8 +98,11 @@ function AttendanceTab() {
   return (
     <Card className="glass">
       <CardHeader>
-        <CardTitle>Attendance — Last 30 days</CardTitle>
-        <CardDescription>{todayRows.length} swiped in today / {rows.length} total swipes in 30 days.</CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          Attendance — Last 30 days
+          <Badge className="bg-green-500/20 text-green-500 text-[10px]">● LIVE</Badge>
+        </CardTitle>
+        <CardDescription>{todayRows.length} swiped in today / {rows.length} total swipes in 30 days. Updates in real time as employees swipe in.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 max-h-[600px] overflow-y-auto">
         {rows.map(r => (
