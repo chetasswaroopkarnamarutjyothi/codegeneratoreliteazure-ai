@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { IdCard, Loader2, Download, Image as ImageIcon, RefreshCw } from "lucide-react";
+import { IdCard, Loader2, Download, Image as ImageIcon, RefreshCw, UserPlus } from "lucide-react";
 import { IdCardPreview } from "@/components/IdCardPreview";
 import { generateIdCardPdf } from "@/lib/idCardPdf";
 
@@ -20,6 +20,10 @@ export function IdCardGeneratorPanel() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [eligibleUsers, setEligibleUsers] = useState<any[]>([]);
+  const [newCardUser, setNewCardUser] = useState("");
+  const [newCardDesignation, setNewCardDesignation] = useState("");
+  const [creating, setCreating] = useState(false);
   const { toast } = useToast();
 
   const load = async () => {
@@ -30,9 +34,26 @@ export function IdCardGeneratorPanel() {
     ]);
     setCards(c || []);
     setLogoUrl(a?.logo_url || null);
+    // Build list of users without an ID card yet
+    const { data: profs } = await supabase.from("profiles").select("user_id, full_name, email");
+    const haveIds = new Set((c || []).map((x: any) => x.employee_user_id));
+    setEligibleUsers((profs || []).filter(p => !haveIds.has(p.user_id)));
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+
+  const createCardForUser = async () => {
+    if (!newCardUser) { toast({ title: "Pick a user", variant: "destructive" }); return; }
+    setCreating(true);
+    const { error } = await supabase.rpc("admin_create_id_card", {
+      p_user_id: newCardUser, p_designation: newCardDesignation || null,
+    });
+    setCreating(false);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "✅ ID card issued" });
+    setNewCardUser(""); setNewCardDesignation("");
+    load();
+  };
 
   const select = (card: any) => {
     setSelected(card);
@@ -112,8 +133,31 @@ export function IdCardGeneratorPanel() {
 
       <Card className="glass">
         <CardHeader>
+          <CardTitle className="flex items-center gap-2"><UserPlus className="w-5 h-5 text-primary" /> Issue New ID Card</CardTitle>
+          <CardDescription>Generate a permanent Employee ID (format: SM + 6 digits) for any user.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-3 gap-2">
+          <Select value={newCardUser} onValueChange={setNewCardUser}>
+            <SelectTrigger><SelectValue placeholder="Select user…" /></SelectTrigger>
+            <SelectContent className="max-h-72">
+              {eligibleUsers.map(u => (
+                <SelectItem key={u.user_id} value={u.user_id}>{u.full_name || u.email} · {u.email}</SelectItem>
+              ))}
+              {eligibleUsers.length === 0 && <div className="p-2 text-xs text-muted-foreground">All users have cards.</div>}
+            </SelectContent>
+          </Select>
+          <Input placeholder="Designation (optional)" value={newCardDesignation} onChange={e => setNewCardDesignation(e.target.value)} />
+          <Button onClick={createCardForUser} disabled={creating || !newCardUser}>
+            {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus className="w-4 h-4 mr-2" />}
+            Issue ID Card
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="glass">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2"><IdCard className="w-5 h-5 text-primary" /> Employee ID Cards ({cards.length})</CardTitle>
-          <CardDescription>Generated automatically when an employee role is granted. Edit details and download PDF.</CardDescription>
+          <CardDescription>Edit details, rotate QR, and download the printable PDF for any employee.</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (

@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-const SUPER_ADMINS = ["kchetasswaroop@gmail.com", "vickyvpurohit@gmail.com"];
+// CEO is the ONLY user exempt from mandatory office swipe
+const CEO_EMAIL = "kchetasswaroop@gmail.com";
 
-/** Forces admin/employee/CEO to perform a daily office swipe before accessing the app. */
+/** Forces admin/employee to perform a daily office swipe before accessing the app. CEO is exempt. */
 export function SwipeGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const navigate = useNavigate();
@@ -19,9 +20,10 @@ export function SwipeGate({ children }: { children: React.ReactNode }) {
         supabase.from("profiles").select("email").eq("user_id", session.user.id).single(),
       ]);
 
-      const needsSwipe = roles?.some(r => r.role === "admin" || r.role === "employee")
-        || (profile && SUPER_ADMINS.includes(profile.email));
+      // CEO bypasses the swipe gate entirely
+      if (profile?.email === CEO_EMAIL) { setReady(true); return; }
 
+      const needsSwipe = roles?.some(r => r.role === "admin" || r.role === "employee");
       if (!needsSwipe) { setReady(true); return; }
 
       const today = new Date().toISOString().slice(0, 10);

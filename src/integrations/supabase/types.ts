@@ -2158,6 +2158,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_create_id_card: {
+        Args: { p_designation?: string; p_user_id: string }
+        Returns: string
+      }
       approve_credit_request: {
         Args: { admin_notes_text?: string; request_id: string }
         Returns: boolean
@@ -2169,6 +2173,7 @@ export type Database = {
         Returns: boolean
       }
       expire_birthday_credits: { Args: never; Returns: undefined }
+      generate_employee_id: { Args: never; Returns: string }
       generate_username: { Args: { base_name: string }; Returns: string }
       grant_admin_role: {
         Args: {
