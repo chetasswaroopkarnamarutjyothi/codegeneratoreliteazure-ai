@@ -67,6 +67,14 @@ interface AdminCredits {
   credits_bank: number;
 }
 
+function PanelLoader() {
+  return (
+    <div className="flex justify-center py-10">
+      <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+    </div>
+  );
+}
+
 export default function Admin() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -416,21 +424,25 @@ export default function Admin() {
           </TabsList>
 
           <TabsContent value="requests">
-            <CreditRequestsPanel
-              approvalBankCredits={adminCredits?.approval_bank_credits || 0}
-              onRequestProcessed={() => { if (user) fetchAdminCredits(user.id); fetchUsers(); }}
-            />
+            <Suspense fallback={<PanelLoader />}>
+              <CreditRequestsPanel
+                approvalBankCredits={adminCredits?.approval_bank_credits || 0}
+                onRequestProcessed={() => { if (user) fetchAdminCredits(user.id); fetchUsers(); }}
+              />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="set-credits">
-            <SetUserCreditsPanel 
-              users={users} searchQuery={searchQuery}
-              onCreditsSet={() => { fetchUsers(); if (user) fetchAdminCredits(user.id); }}
-            />
+            <Suspense fallback={<PanelLoader />}>
+              <SetUserCreditsPanel 
+                users={users} searchQuery={searchQuery}
+                onCreditsSet={() => { fetchUsers(); if (user) fetchAdminCredits(user.id); }}
+              />
+            </Suspense>
           </TabsContent>
 
-          <TabsContent value="tickets"><TicketsPanel /></TabsContent>
-          <TabsContent value="notifications"><NotificationsPanel /></TabsContent>
+          <TabsContent value="tickets"><Suspense fallback={<PanelLoader />}><TicketsPanel /></Suspense></TabsContent>
+          <TabsContent value="notifications"><Suspense fallback={<PanelLoader />}><NotificationsPanel /></Suspense></TabsContent>
 
           <TabsContent value="users" className="space-y-6">
             <Card className="glass">
@@ -548,7 +560,7 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="usage"><UserUsagePanel /></TabsContent>
+          <TabsContent value="usage"><Suspense fallback={<PanelLoader />}><UserUsagePanel /></Suspense></TabsContent>
 
           <TabsContent value="transfer">
             <Card className="glass">
@@ -572,26 +584,28 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="manage-admins">
-            <AdminManagement isSuperAdmin={isSuperAdmin} onAdminChanged={() => { fetchUsers(); if (user) fetchAdminCredits(user.id); }} />
+            <Suspense fallback={<PanelLoader />}>
+              <AdminManagement isSuperAdmin={isSuperAdmin} onAdminChanged={() => { fetchUsers(); if (user) fetchAdminCredits(user.id); }} />
+            </Suspense>
           </TabsContent>
 
-          <TabsContent value="termination"><EmployeeTermination isSuperAdmin={isSuperAdmin} /></TabsContent>
-          <TabsContent value="mail"><AdminMailPanel /></TabsContent>
-          <TabsContent value="analytics"><AdminAnalytics /></TabsContent>
-          <TabsContent value="announcements"><AnnouncementsPanel /></TabsContent>
-          <TabsContent value="feedback"><FeedbackPanel /></TabsContent>
-          <TabsContent value="security"><AdminSecurityPanel /></TabsContent>
-          <TabsContent value="doc-gen"><AdminDocGeneratorPanel /></TabsContent>
-          <TabsContent value="drive"><AdminFileStorage /></TabsContent>
-          <TabsContent value="controls"><WebsiteControlPanel /></TabsContent>
-          <TabsContent value="restore"><AccountRestorePanel /></TabsContent>
-          <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
-          <TabsContent value="bank"><AdminBankDetailsPanel /></TabsContent>
-          <TabsContent value="audit"><AdminAuditTrailPanel /></TabsContent>
-          <TabsContent value="id-cards"><IdCardGeneratorPanel /></TabsContent>
-          <TabsContent value="visits"><OfficeVisitsPanel /></TabsContent>
-          <TabsContent value="policies"><PoliciesPanel /></TabsContent>
-          <TabsContent value="payments"><PaymentSubmissionsPanel /></TabsContent>
+          <TabsContent value="termination"><Suspense fallback={<PanelLoader />}><EmployeeTermination isSuperAdmin={isSuperAdmin} /></Suspense></TabsContent>
+          <TabsContent value="mail"><Suspense fallback={<PanelLoader />}><AdminMailPanel /></Suspense></TabsContent>
+          <TabsContent value="analytics"><Suspense fallback={<PanelLoader />}><AdminAnalytics /></Suspense></TabsContent>
+          <TabsContent value="announcements"><Suspense fallback={<PanelLoader />}><AnnouncementsPanel /></Suspense></TabsContent>
+          <TabsContent value="feedback"><Suspense fallback={<PanelLoader />}><FeedbackPanel /></Suspense></TabsContent>
+          <TabsContent value="security"><Suspense fallback={<PanelLoader />}><AdminSecurityPanel /></Suspense></TabsContent>
+          <TabsContent value="doc-gen"><Suspense fallback={<PanelLoader />}><AdminDocGeneratorPanel /></Suspense></TabsContent>
+          <TabsContent value="drive"><Suspense fallback={<PanelLoader />}><AdminFileStorage /></Suspense></TabsContent>
+          <TabsContent value="controls"><Suspense fallback={<PanelLoader />}><WebsiteControlPanel /></Suspense></TabsContent>
+          <TabsContent value="restore"><Suspense fallback={<PanelLoader />}><AccountRestorePanel /></Suspense></TabsContent>
+          <TabsContent value="sbps"><Suspense fallback={<PanelLoader />}><SBPSManagementPanel /></Suspense></TabsContent>
+          <TabsContent value="bank"><Suspense fallback={<PanelLoader />}><AdminBankDetailsPanel /></Suspense></TabsContent>
+          <TabsContent value="audit"><Suspense fallback={<PanelLoader />}><AdminAuditTrailPanel /></Suspense></TabsContent>
+          <TabsContent value="id-cards"><Suspense fallback={<PanelLoader />}><IdCardGeneratorPanel /></Suspense></TabsContent>
+          <TabsContent value="visits"><Suspense fallback={<PanelLoader />}><OfficeVisitsPanel /></Suspense></TabsContent>
+          <TabsContent value="policies"><Suspense fallback={<PanelLoader />}><PoliciesPanel /></Suspense></TabsContent>
+          <TabsContent value="payments"><Suspense fallback={<PanelLoader />}><PaymentSubmissionsPanel /></Suspense></TabsContent>
         </Tabs>
       </div>
     </div>
