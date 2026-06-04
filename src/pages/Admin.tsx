@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -14,31 +14,32 @@ import {
   UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap,
   IdCard, ScanLine, CreditCard, Briefcase
 } from "lucide-react";
-import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
-import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
-import { TicketsPanel } from "@/components/admin/TicketsPanel";
-import { NotificationsPanel } from "@/components/admin/NotificationsPanel";
-import { AdminManagement } from "@/components/admin/AdminManagement";
-import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
-import { EmployeeTermination } from "@/components/admin/EmployeeTermination";
-import { SetUserCreditsPanel } from "@/components/admin/SetUserCreditsPanel";
-import { AnnouncementsPanel } from "@/components/admin/AnnouncementsPanel";
-import { WebsiteControlPanel } from "@/components/admin/WebsiteControlPanel";
-import { FeedbackPanel } from "@/components/admin/FeedbackPanel";
-import { AdminMailPanel } from "@/components/admin/AdminMailPanel";
-import { AdminSecurityPanel } from "@/components/admin/AdminSecurityPanel";
-import { AdminDocGeneratorPanel } from "@/components/admin/AdminDocGeneratorPanel";
-import { AdminFileStorage } from "@/components/admin/AdminFileStorage";
-import { AccountRestorePanel } from "@/components/admin/AccountRestorePanel";
-import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
 import { AdminExportButton } from "@/components/admin/AdminExportButton";
-import { AdminBankDetailsPanel } from "@/components/admin/AdminBankDetailsPanel";
-import { AdminAuditTrailPanel } from "@/components/admin/AdminAuditTrailPanel";
-import { IdCardGeneratorPanel } from "@/components/admin/IdCardGeneratorPanel";
-import { OfficeVisitsPanel } from "@/components/admin/OfficeVisitsPanel";
-import { PoliciesPanel } from "@/components/admin/PoliciesPanel";
-import { PaymentSubmissionsPanel } from "@/components/admin/PaymentSubmissionsPanel";
 import type { User } from "@supabase/supabase-js";
+
+const CreditRequestsPanel = lazy(() => import("@/components/admin/CreditRequestsPanel").then((m) => ({ default: m.CreditRequestsPanel })));
+const AdminAnalytics = lazy(() => import("@/components/admin/AdminAnalytics").then((m) => ({ default: m.AdminAnalytics })));
+const TicketsPanel = lazy(() => import("@/components/admin/TicketsPanel").then((m) => ({ default: m.TicketsPanel })));
+const NotificationsPanel = lazy(() => import("@/components/admin/NotificationsPanel").then((m) => ({ default: m.NotificationsPanel })));
+const AdminManagement = lazy(() => import("@/components/admin/AdminManagement").then((m) => ({ default: m.AdminManagement })));
+const UserUsagePanel = lazy(() => import("@/components/admin/UserUsagePanel").then((m) => ({ default: m.UserUsagePanel })));
+const EmployeeTermination = lazy(() => import("@/components/admin/EmployeeTermination").then((m) => ({ default: m.EmployeeTermination })));
+const SetUserCreditsPanel = lazy(() => import("@/components/admin/SetUserCreditsPanel").then((m) => ({ default: m.SetUserCreditsPanel })));
+const AnnouncementsPanel = lazy(() => import("@/components/admin/AnnouncementsPanel").then((m) => ({ default: m.AnnouncementsPanel })));
+const WebsiteControlPanel = lazy(() => import("@/components/admin/WebsiteControlPanel").then((m) => ({ default: m.WebsiteControlPanel })));
+const FeedbackPanel = lazy(() => import("@/components/admin/FeedbackPanel").then((m) => ({ default: m.FeedbackPanel })));
+const AdminMailPanel = lazy(() => import("@/components/admin/AdminMailPanel").then((m) => ({ default: m.AdminMailPanel })));
+const AdminSecurityPanel = lazy(() => import("@/components/admin/AdminSecurityPanel").then((m) => ({ default: m.AdminSecurityPanel })));
+const AdminDocGeneratorPanel = lazy(() => import("@/components/admin/AdminDocGeneratorPanel").then((m) => ({ default: m.AdminDocGeneratorPanel })));
+const AdminFileStorage = lazy(() => import("@/components/admin/AdminFileStorage").then((m) => ({ default: m.AdminFileStorage })));
+const AccountRestorePanel = lazy(() => import("@/components/admin/AccountRestorePanel").then((m) => ({ default: m.AccountRestorePanel })));
+const SBPSManagementPanel = lazy(() => import("@/components/admin/SBPSManagementPanel").then((m) => ({ default: m.SBPSManagementPanel })));
+const AdminBankDetailsPanel = lazy(() => import("@/components/admin/AdminBankDetailsPanel").then((m) => ({ default: m.AdminBankDetailsPanel })));
+const AdminAuditTrailPanel = lazy(() => import("@/components/admin/AdminAuditTrailPanel").then((m) => ({ default: m.AdminAuditTrailPanel })));
+const IdCardGeneratorPanel = lazy(() => import("@/components/admin/IdCardGeneratorPanel").then((m) => ({ default: m.IdCardGeneratorPanel })));
+const OfficeVisitsPanel = lazy(() => import("@/components/admin/OfficeVisitsPanel").then((m) => ({ default: m.OfficeVisitsPanel })));
+const PoliciesPanel = lazy(() => import("@/components/admin/PoliciesPanel").then((m) => ({ default: m.PoliciesPanel })));
+const PaymentSubmissionsPanel = lazy(() => import("@/components/admin/PaymentSubmissionsPanel").then((m) => ({ default: m.PaymentSubmissionsPanel })));
 
 interface UserProfile {
   id: string;
