@@ -20,10 +20,12 @@ export function SwipeGate({ children }: { children: React.ReactNode }) {
         supabase.from("profiles").select("email").eq("user_id", session.user.id).single(),
       ]);
 
-      // CEO bypasses the swipe gate entirely
+      // CEO and all admins bypass the swipe gate — only employees must swipe
       if (profile?.email === CEO_EMAIL) { setReady(true); return; }
+      const isAdmin = roles?.some(r => r.role === "admin");
+      if (isAdmin) { setReady(true); return; }
 
-      const needsSwipe = roles?.some(r => r.role === "admin" || r.role === "employee");
+      const needsSwipe = roles?.some(r => r.role === "employee");
       if (!needsSwipe) { setReady(true); return; }
 
       const today = new Date().toISOString().slice(0, 10);
