@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -14,31 +14,32 @@ import {
   UserX, UserPlus, Landmark, Mail, ShieldAlert, FileText, HardDrive, KeyRound, GraduationCap,
   IdCard, ScanLine, CreditCard, Briefcase
 } from "lucide-react";
-import { CreditRequestsPanel } from "@/components/admin/CreditRequestsPanel";
-import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
-import { TicketsPanel } from "@/components/admin/TicketsPanel";
-import { NotificationsPanel } from "@/components/admin/NotificationsPanel";
-import { AdminManagement } from "@/components/admin/AdminManagement";
-import { UserUsagePanel } from "@/components/admin/UserUsagePanel";
-import { EmployeeTermination } from "@/components/admin/EmployeeTermination";
-import { SetUserCreditsPanel } from "@/components/admin/SetUserCreditsPanel";
-import { AnnouncementsPanel } from "@/components/admin/AnnouncementsPanel";
-import { WebsiteControlPanel } from "@/components/admin/WebsiteControlPanel";
-import { FeedbackPanel } from "@/components/admin/FeedbackPanel";
-import { AdminMailPanel } from "@/components/admin/AdminMailPanel";
-import { AdminSecurityPanel } from "@/components/admin/AdminSecurityPanel";
-import { AdminDocGeneratorPanel } from "@/components/admin/AdminDocGeneratorPanel";
-import { AdminFileStorage } from "@/components/admin/AdminFileStorage";
-import { AccountRestorePanel } from "@/components/admin/AccountRestorePanel";
-import { SBPSManagementPanel } from "@/components/admin/SBPSManagementPanel";
 import { AdminExportButton } from "@/components/admin/AdminExportButton";
-import { AdminBankDetailsPanel } from "@/components/admin/AdminBankDetailsPanel";
-import { AdminAuditTrailPanel } from "@/components/admin/AdminAuditTrailPanel";
-import { IdCardGeneratorPanel } from "@/components/admin/IdCardGeneratorPanel";
-import { OfficeVisitsPanel } from "@/components/admin/OfficeVisitsPanel";
-import { PoliciesPanel } from "@/components/admin/PoliciesPanel";
-import { PaymentSubmissionsPanel } from "@/components/admin/PaymentSubmissionsPanel";
 import type { User } from "@supabase/supabase-js";
+
+const CreditRequestsPanel = lazy(() => import("@/components/admin/CreditRequestsPanel").then((m) => ({ default: m.CreditRequestsPanel })));
+const AdminAnalytics = lazy(() => import("@/components/admin/AdminAnalytics").then((m) => ({ default: m.AdminAnalytics })));
+const TicketsPanel = lazy(() => import("@/components/admin/TicketsPanel").then((m) => ({ default: m.TicketsPanel })));
+const NotificationsPanel = lazy(() => import("@/components/admin/NotificationsPanel").then((m) => ({ default: m.NotificationsPanel })));
+const AdminManagement = lazy(() => import("@/components/admin/AdminManagement").then((m) => ({ default: m.AdminManagement })));
+const UserUsagePanel = lazy(() => import("@/components/admin/UserUsagePanel").then((m) => ({ default: m.UserUsagePanel })));
+const EmployeeTermination = lazy(() => import("@/components/admin/EmployeeTermination").then((m) => ({ default: m.EmployeeTermination })));
+const SetUserCreditsPanel = lazy(() => import("@/components/admin/SetUserCreditsPanel").then((m) => ({ default: m.SetUserCreditsPanel })));
+const AnnouncementsPanel = lazy(() => import("@/components/admin/AnnouncementsPanel").then((m) => ({ default: m.AnnouncementsPanel })));
+const WebsiteControlPanel = lazy(() => import("@/components/admin/WebsiteControlPanel").then((m) => ({ default: m.WebsiteControlPanel })));
+const FeedbackPanel = lazy(() => import("@/components/admin/FeedbackPanel").then((m) => ({ default: m.FeedbackPanel })));
+const AdminMailPanel = lazy(() => import("@/components/admin/AdminMailPanel").then((m) => ({ default: m.AdminMailPanel })));
+const AdminSecurityPanel = lazy(() => import("@/components/admin/AdminSecurityPanel").then((m) => ({ default: m.AdminSecurityPanel })));
+const AdminDocGeneratorPanel = lazy(() => import("@/components/admin/AdminDocGeneratorPanel").then((m) => ({ default: m.AdminDocGeneratorPanel })));
+const AdminFileStorage = lazy(() => import("@/components/admin/AdminFileStorage").then((m) => ({ default: m.AdminFileStorage })));
+const AccountRestorePanel = lazy(() => import("@/components/admin/AccountRestorePanel").then((m) => ({ default: m.AccountRestorePanel })));
+const SBPSManagementPanel = lazy(() => import("@/components/admin/SBPSManagementPanel").then((m) => ({ default: m.SBPSManagementPanel })));
+const AdminBankDetailsPanel = lazy(() => import("@/components/admin/AdminBankDetailsPanel").then((m) => ({ default: m.AdminBankDetailsPanel })));
+const AdminAuditTrailPanel = lazy(() => import("@/components/admin/AdminAuditTrailPanel").then((m) => ({ default: m.AdminAuditTrailPanel })));
+const IdCardGeneratorPanel = lazy(() => import("@/components/admin/IdCardGeneratorPanel").then((m) => ({ default: m.IdCardGeneratorPanel })));
+const OfficeVisitsPanel = lazy(() => import("@/components/admin/OfficeVisitsPanel").then((m) => ({ default: m.OfficeVisitsPanel })));
+const PoliciesPanel = lazy(() => import("@/components/admin/PoliciesPanel").then((m) => ({ default: m.PoliciesPanel })));
+const PaymentSubmissionsPanel = lazy(() => import("@/components/admin/PaymentSubmissionsPanel").then((m) => ({ default: m.PaymentSubmissionsPanel })));
 
 interface UserProfile {
   id: string;
@@ -64,6 +65,14 @@ interface AdminCredits {
   monthly_points: number;
   approval_bank_credits: number;
   credits_bank: number;
+}
+
+function PanelLoader() {
+  return (
+    <div className="flex justify-center py-10">
+      <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+    </div>
+  );
 }
 
 export default function Admin() {
@@ -415,21 +424,25 @@ export default function Admin() {
           </TabsList>
 
           <TabsContent value="requests">
-            <CreditRequestsPanel
-              approvalBankCredits={adminCredits?.approval_bank_credits || 0}
-              onRequestProcessed={() => { if (user) fetchAdminCredits(user.id); fetchUsers(); }}
-            />
+            <Suspense fallback={<PanelLoader />}>
+              <CreditRequestsPanel
+                approvalBankCredits={adminCredits?.approval_bank_credits || 0}
+                onRequestProcessed={() => { if (user) fetchAdminCredits(user.id); fetchUsers(); }}
+              />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="set-credits">
-            <SetUserCreditsPanel 
-              users={users} searchQuery={searchQuery}
-              onCreditsSet={() => { fetchUsers(); if (user) fetchAdminCredits(user.id); }}
-            />
+            <Suspense fallback={<PanelLoader />}>
+              <SetUserCreditsPanel 
+                users={users} searchQuery={searchQuery}
+                onCreditsSet={() => { fetchUsers(); if (user) fetchAdminCredits(user.id); }}
+              />
+            </Suspense>
           </TabsContent>
 
-          <TabsContent value="tickets"><TicketsPanel /></TabsContent>
-          <TabsContent value="notifications"><NotificationsPanel /></TabsContent>
+          <TabsContent value="tickets"><Suspense fallback={<PanelLoader />}><TicketsPanel /></Suspense></TabsContent>
+          <TabsContent value="notifications"><Suspense fallback={<PanelLoader />}><NotificationsPanel /></Suspense></TabsContent>
 
           <TabsContent value="users" className="space-y-6">
             <Card className="glass">
@@ -547,7 +560,7 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="usage"><UserUsagePanel /></TabsContent>
+          <TabsContent value="usage"><Suspense fallback={<PanelLoader />}><UserUsagePanel /></Suspense></TabsContent>
 
           <TabsContent value="transfer">
             <Card className="glass">
@@ -571,26 +584,28 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="manage-admins">
-            <AdminManagement isSuperAdmin={isSuperAdmin} onAdminChanged={() => { fetchUsers(); if (user) fetchAdminCredits(user.id); }} />
+            <Suspense fallback={<PanelLoader />}>
+              <AdminManagement isSuperAdmin={isSuperAdmin} onAdminChanged={() => { fetchUsers(); if (user) fetchAdminCredits(user.id); }} />
+            </Suspense>
           </TabsContent>
 
-          <TabsContent value="termination"><EmployeeTermination isSuperAdmin={isSuperAdmin} /></TabsContent>
-          <TabsContent value="mail"><AdminMailPanel /></TabsContent>
-          <TabsContent value="analytics"><AdminAnalytics /></TabsContent>
-          <TabsContent value="announcements"><AnnouncementsPanel /></TabsContent>
-          <TabsContent value="feedback"><FeedbackPanel /></TabsContent>
-          <TabsContent value="security"><AdminSecurityPanel /></TabsContent>
-          <TabsContent value="doc-gen"><AdminDocGeneratorPanel /></TabsContent>
-          <TabsContent value="drive"><AdminFileStorage /></TabsContent>
-          <TabsContent value="controls"><WebsiteControlPanel /></TabsContent>
-          <TabsContent value="restore"><AccountRestorePanel /></TabsContent>
-          <TabsContent value="sbps"><SBPSManagementPanel /></TabsContent>
-          <TabsContent value="bank"><AdminBankDetailsPanel /></TabsContent>
-          <TabsContent value="audit"><AdminAuditTrailPanel /></TabsContent>
-          <TabsContent value="id-cards"><IdCardGeneratorPanel /></TabsContent>
-          <TabsContent value="visits"><OfficeVisitsPanel /></TabsContent>
-          <TabsContent value="policies"><PoliciesPanel /></TabsContent>
-          <TabsContent value="payments"><PaymentSubmissionsPanel /></TabsContent>
+          <TabsContent value="termination"><Suspense fallback={<PanelLoader />}><EmployeeTermination isSuperAdmin={isSuperAdmin} /></Suspense></TabsContent>
+          <TabsContent value="mail"><Suspense fallback={<PanelLoader />}><AdminMailPanel /></Suspense></TabsContent>
+          <TabsContent value="analytics"><Suspense fallback={<PanelLoader />}><AdminAnalytics /></Suspense></TabsContent>
+          <TabsContent value="announcements"><Suspense fallback={<PanelLoader />}><AnnouncementsPanel /></Suspense></TabsContent>
+          <TabsContent value="feedback"><Suspense fallback={<PanelLoader />}><FeedbackPanel /></Suspense></TabsContent>
+          <TabsContent value="security"><Suspense fallback={<PanelLoader />}><AdminSecurityPanel /></Suspense></TabsContent>
+          <TabsContent value="doc-gen"><Suspense fallback={<PanelLoader />}><AdminDocGeneratorPanel /></Suspense></TabsContent>
+          <TabsContent value="drive"><Suspense fallback={<PanelLoader />}><AdminFileStorage /></Suspense></TabsContent>
+          <TabsContent value="controls"><Suspense fallback={<PanelLoader />}><WebsiteControlPanel /></Suspense></TabsContent>
+          <TabsContent value="restore"><Suspense fallback={<PanelLoader />}><AccountRestorePanel /></Suspense></TabsContent>
+          <TabsContent value="sbps"><Suspense fallback={<PanelLoader />}><SBPSManagementPanel /></Suspense></TabsContent>
+          <TabsContent value="bank"><Suspense fallback={<PanelLoader />}><AdminBankDetailsPanel /></Suspense></TabsContent>
+          <TabsContent value="audit"><Suspense fallback={<PanelLoader />}><AdminAuditTrailPanel /></Suspense></TabsContent>
+          <TabsContent value="id-cards"><Suspense fallback={<PanelLoader />}><IdCardGeneratorPanel /></Suspense></TabsContent>
+          <TabsContent value="visits"><Suspense fallback={<PanelLoader />}><OfficeVisitsPanel /></Suspense></TabsContent>
+          <TabsContent value="policies"><Suspense fallback={<PanelLoader />}><PoliciesPanel /></Suspense></TabsContent>
+          <TabsContent value="payments"><Suspense fallback={<PanelLoader />}><PaymentSubmissionsPanel /></Suspense></TabsContent>
         </Tabs>
       </div>
     </div>
